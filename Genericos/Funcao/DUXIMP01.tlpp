@@ -1,0 +1,611 @@
+#include "totvs.ch"
+#include "protheus.ch"
+#include 'parmtype.ch'
+#INCLUDE "topConn.ch"
+
+/****************************************************************************************
+ * Autor.: Sande Ribeiro (SR Corpore)
+ * Data..: 29/01/2024
+ * Motivo: Importar SBE e SBF
+ ****************************************************************************************/
+User Function DUXIMP01()
+
+Local aParamBox  := {} as array
+Local aRetParam  := {} as array
+
+Private cDocNf as character
+Private cSerieNf as character
+Private cTblName as character
+Private cCaminho as character
+Private aAvisos as array
+Private oCampos  := ArrayList():New() as object
+Private aItens as array
+Private lMsErroAuto := .F. as logical
+
+    //Perguntas da rotina
+	aAdd(aParamBox, {1, "Documento (SD1)? ", CriaVar("D1_DOC") ,,,"",,60,.F.})
+	aAdd(aParamBox, {1, "Série? "          , CriaVar("D1_SERIE") ,,,"",,60,.F.})
+    aAdd(aParamBox, {1, "SBE ou SBF? "     , CriaVar("D1_SERIE") ,,,"",,60,.F.})
+	aAdd(aParamBox, {1, "Caminho? "        , TFileDialog("Arquivo CSV (*.csv) | *.*", 'CSV', 0, "c:\temp", .F., ),,,"",,60,.T.})
+
+	If ParamBox(aParamBox, "Informe: ", @aRetParam,,,,,,,,.F.)
+		cDocNf   := Mv_Par01
+        cSerieNf := Mv_Par02
+        cTblName := Mv_Par03
+		cCaminho := Mv_Par04
+        aAvisos  := {}
+	Else
+		Return nil
+	EndIf
+
+    DbSelectArea("SB2")
+    DbSetOrder(1) //B2_FILIAL, B2_COD, B2_LOCAL
+
+    DbSelectArea("SX2")
+    DbSetOrder(1) 
+
+    If !MsSeek(cTblName)
+        MsgStop("Nao encontratada no dicionario tabela " + cTblName)
+        Return nil
+    EndIf
+
+    Do Case
+        Case FWX2CHAVE() == "SBE"
+            Processa({|| IMP01SBE() }, "Processando Arquivo SBE...", "Aguarde...")
+        Case FWX2CHAVE() == "SD1"
+            Processa({|| IMP01SBF(1) }, "Processando Arquivo SBF...", "Aguarde...")
+        Case FWX2CHAVE() == "SDB"
+            Processa({|| IMP01SBF(2) }, "Processando Arquivo SBF...", "Aguarde...")
+        OtherWise
+            MsgStop("Nao encontratada funcao para importar tabela " + cTblName)
+    EndCase
+
+Return nil
+
+//
+Static Function IMP01SBF(nOpc as numeric)
+
+Local lFirst := .T. as logical
+Local lAltera as logical
+Local cDrive := "" as character 
+Local cDir := "" as character 
+Local cArq := "" as character 
+Local cExt := "" as character
+Local aCampos as array
+//Local aLines := {} as array
+Local aLine  := {} as array
+Local nY as numeric
+Local oFile   := FWFileReader():New(cCaminho) as object
+
+    oCampos:Add("BF_FILIAL")  
+    oCampos:Add("BF_PRODUTO")
+    oCampos:Add("BF_LOCAL") 
+    oCampos:Add("BF_LOCALIZ") 
+    oCampos:Add("BF_QUANT")
+
+    //Validar Arquivo
+	SplitPath(cCaminho, @cDrive, @cDir, @cArq, @cExt)
+	If Lower(cExt) != ".csv"
+		MsgStop("Arquivo não tem extensão CSV e sim " + cExt)
+		Return Nil
+	EndIf
+
+    aItens := {}
+
+    IncProc("Tamanho do arquivo" + cValToChar(oFile:getFileSize()))
+
+    If (oFile:Open())
+        while (oFile:hasLine())
+            If lFirst
+                aCampos := StrTokArr2(oFile:GetLine(), ";" )
+			    lFirst  := .F.
+                aCampos[1] := "BF_FILIAL" //Teste
+
+                //Verificar se todos os campos existem no SX3
+				DbSelectArea("SX3")
+				DbSetOrder(2) //X3_CAMPO
+
+                For nY := 1 To Len(aCampos)
+
+                    If !MsSeek(aCampos[nY])
+						MsgStop("Campo " + aCampos[nY] + " não encontrado no dicionário de dados.")
+						oFile:Close()
+						Return Nil
+					EndIf
+
+                    //Validar se todos os campos que existem devem estar na planilha
+					If !oCampos:Contains(AllTrim(aCampos[nY]))
+						aAdd(aAvisos, OemToAnsi("Campo " + aCampos[nY] + " não está na lista de campos do Layout Padrão."))
+					EndIf
+                Next nY
+
+                //Validar se existem todos os campos do Layout existem na planilha
+				If oCampos:GetCount() != Len(aCampos)
+					aAdd(aAvisos, OemToAnsi("Verifique a lista de campos obrigatórios, está faltando algum."))
+				EndIf
+
+                //Exibir aviso para os usuários
+				If !Empty(aAvisos)
+					MsgStop("Processo interrompido, confira o log gerado na pasta " + cDrive + cDir)
+					exit
+				EndIf
+            Else //Dados a serem trabalhados
+                aLine := StrTokArr2(oFile:GetLine(), ";" )
+
+				//Linhas vazias no CSV
+				If Len(aLine) = 0
+					Loop
+				EndIf
+
+                //Retirar espacos, tab, enter
+				For nY := 1 To Len(aLine)
+					
+					aLine[nY] := StrTran(aLine[nY], " ", "")
+					aLine[nY] := StrTran(aLine[nY], '"', "")
+					aLine[nY] := StrTran(aLine[nY], Chr(10) + Chr (13), "")
+					aLine[nY] := StrTran(aLine[nY], Chr(9), "")
+				Next nY
+
+                IncProc("Produto " + cValToChar(aLine[2]))
+
+                //Trocar filial logada para filial do Arquivo
+                cFilAnt := aLine[1]
+
+                //Validar se não tem nenhum campo vazio
+				If Len(aLine) > 0 .And. Len(aLine) != Len(aCampos)
+					aAdd(aAvisos, "Existe algum campo vazio na linha do endereco " + Alltrim(aLine[2]) + "!")
+					aAdd(aAvisos, "Este endereco será desconsiderado." + Chr(13) + Chr(10))
+					Loop
+				EndIf
+
+                //Validar se existem linhas iguais no arquivo
+				/*If Len(aLines) > 0 .And. aScan(aLines, {|x| x[2] == aLine[2] .And. x[3] == aLine[3] }) > 0
+					aAdd(aAvisos, "Endereco " + Alltrim(aLine[3]) + " está duplicado e foi processado uma vez.")
+					Loop
+				EndIf*/
+
+                DbSelectArea("SB1")
+                DbSetOrder(1)
+
+                If !SB1->(MsSeek(FwxFilial("SB1") + aLine[2]))
+                    aAdd(aAvisos, "Produto " + Alltrim(aLine[2]) + " nao existe no cadastro.")
+					Loop
+                EndIf
+
+                If SB1->B1_MSBLQL == "1"
+                    aAdd(aAvisos, "Produto " + Alltrim(aLine[2]) + " bloqueado no cadastro.")
+                    Loop
+                EndIf
+
+                If SB1->B1_LOCALIZ != "S"
+                    lAltera := .T.
+                    SB2->(MsSeek(FwxFilial("SB2") + SB1->B1_COD))
+                    While SB2->(!EoF()) .And. SB2->B2_FILIAL + SB2->B2_COD == FwxFilial("SB2") + SB1->B1_COD
+                        
+                        if SB2->B2_QATU > 0
+                            aAdd(aAvisos, "Produto " + Alltrim(SB1->B1_COD) + " nao alterado campo B1_LOCALIZ pois possui saldo.")
+                            lAltera := .F.
+                            Exit
+                        EndIf
+
+                        SB2->(DbSkip())
+                    End While
+
+                    If lAltera
+                        RecLock("SB1", .F.)
+                            SB1->B1_LOCALIZ := "S"
+                        SB1->(MsUnLock())
+                    EndIf
+                EndIf
+
+                oJson := JsonObject():New()
+                oJson["filial"]   := aLine[1]
+                oJson["produto"]  := aLine[2]
+                oJson["arm"]      := aLine[3]
+                oJson["endereco"] := aLine[4]
+                oJson["quant"]    := StrTran(aLine[5], ",",".")
+                oJson["localiz"]  := SB1->B1_LOCALIZ
+
+                aAdd(aItens, oJson)
+            EndIf
+        End While
+    EndIf
+
+    oFile:Close()
+
+    //Inserir Mata140
+    if nOpc == 1 .And. Len(aItens) > 0
+        IMP01SD1()
+    EndIf
+
+    if nOpc == 2 .And. Len(aItens) > 0
+        IMP01SDB()
+    EndIf
+
+    if !Empty(aAvisos)
+        GravaLog(aAvisos, "c:\temp")
+    EndIf
+
+Return nil
+
+//
+Static Function IMP01SD1()
+
+Local nZ as numeric
+Local aAux as array
+Local aCabec := {} as array
+Local aItensSd1 := {} as array
+Local nValUnit := 100 as numeric //chapado
+Local nItem := 0 as numeric
+
+    DbSelectArea("SB1")
+    DbSetOrder(1)
+
+    DbSelectArea("SF1")
+    DbSetOrder(1)
+
+    DbSelectArea("SA2")
+    DbSetOrder(3)
+
+    SA2->(MsSeek(FwxFilial("SA2") + SM0->M0_CGC))
+
+    //Cabecalho
+    aAdd(aCabec, {"F1_TIPO"    , "N"     , Nil, Nil})
+    aAdd(aCabec, {"F1_FORMUL"  , "N"     , Nil, Nil})
+    aAdd(aCabec, {"F1_DOC"     , cDocNf  , Nil, Nil})  
+    aAdd(aCabec, {"F1_SERIE"   , cSerieNf, Nil, Nil}) 
+    aAdd(aCabec, {"F1_DESPESA" , 0      ,Nil, Nil})
+    aAdd(aCabec, {"F1_MENNOTA" , "pre nota gerada via script DUXIMP01." ,Nil,Nil})
+    aAdd(aCabec, {"F1_EMISSAO" , Date()         , Nil, Nil})  // data do dia
+    aAdd(aCabec, {"F1_FORNECE" , SA2->A2_COD    , Nil, Nil}) 
+    aAdd(aCabec, {"F1_LOJA"    , SA2->A2_LOJA   , Nil, Nil}) 
+    aAdd(aCabec, {"F1_ESPECIE" , "NFE"          , Nil, Nil})
+
+    //Itens 
+    For nZ := 1 To Len(aItens)
+        SB1->(MsSeek(FwxFilial("SB1") + aItens[nZ]:GetJsonText("produto")))
+
+        nItem++
+
+        //Gravar o item do SD1
+        aItens[nZ]["item"] :=  StrZero(nItem, TamSx3("D1_ITEM")[1])
+
+        aAux := {}
+        aadd(aAux, {"D1_ITEM"   ,StrZero(nItem, TamSx3("D1_ITEM")[1]), Nil})
+        aAdd(aAux, {"D1_COD"    , SB1->B1_COD, Nil, Nil})
+        aAdd(aAux, {"D1_QUANT"  , Val(aItens[nZ]:GetJsonText("quant")) ,Nil,Nil}) 
+        aAdd(aAux, {"D1_LOCAL"  , aItens[nZ]:GetJsonText("arm") ,Nil,Nil}) 
+        aAdd(aAux, {"D1_VUNIT"  , nValUnit , Nil, Nil}) 
+        aAdd(aAux, {"D1_TOTAL"  , nValUnit * Val(aItens[nZ]:GetJsonText("quant")) , Nil, Nil})  
+        aAdd(aAux, {"D1_VALDESC", 0, Nil, Nil})  // não tem desconto.
+
+        if Rastro(SB1->B1_COD)
+            aAdd(aAux, {"D1_LOTECTL", aItens[nZ]:GetJsonText("endereco") ,Nil,Nil}) 
+        EndIf
+        
+        aAdd(aItensSd1, aAux)
+    Next nZ
+
+    if !SF1->(MsSeek(FwxFilial("SF1") + cDocNf + cSerieNf + SA2->A2_COD + SA2->A2_LOJA ))
+        MSExecAuto({|x,y,z|Mata140(x,y,z)}, aCabec, aItensSd1, 3)  //gerar nota
+    EndIf
+
+    If lMsErroAuto
+        MostraErro()
+    Else
+        aAdd(aAvisos, "Nota fiscal gerada " + SF1->F1_DOC + "/" + SF1->F1_SERIE)
+        IMP01Classif()
+        IMP01Endereca()
+    EndIf
+
+Return nil
+
+//
+Static Function IMP01SBE()
+
+Local lFirst := .T. as logical
+Local cDrive := "" as character 
+Local cDir := "" as character 
+Local cArq := "" as character 
+Local cExt := "" as character
+Local aCampos as array
+Local nY as numeric
+Local oFile   := FWFileReader():New(cCaminho) as object
+
+    oCampos:Add("BE_FILIAL");  oCampos:Add("BE_LOCAL"); oCampos:Add("BE_LOCALIZ"); oCampos:Add("BE_DESCRIC")
+    oCampos:Add("BE_PRIOR"); oCampos:Add("BE_ALTURLC"); oCampos:Add("BE_LARGLC"); oCampos:Add("BE_NRUNIT")
+    oCampos:Add("BE_COMPRLC");  oCampos:Add("BE_PERDA"); oCampos:Add("BE_STATUS"); oCampos:Add("BE_DATGER")
+
+    //Validar Arquivo
+	SplitPath(cCaminho, @cDrive, @cDir, @cArq, @cExt)
+	If Lower(cExt) != ".csv"
+		MsgStop("Arquivo não tem extensão CSV e sim " + cExt)
+		Return Nil
+	EndIf
+
+    DbSelectArea("SBE")
+    DbSetOrder(1)
+
+    IncProc("Tamanho do arquivo" + cValToChar(oFile:getFileSize()))
+
+    If (oFile:Open())
+        while (oFile:hasLine())
+            If lFirst
+                aCampos := StrTokArr2(oFile:GetLine(), ";" )
+			    lFirst  := .F.
+                aCampos[1] := "BE_FILIAL" //Teste
+
+                //Verificar se todos os campos existem no SX3
+				DbSelectArea("SX3")
+				DbSetOrder(2) //X3_CAMPO
+
+                For nY := 1 To Len(aCampos)
+
+                    If !MsSeek(aCampos[nY])
+						MsgStop("Campo " + aCampos[nY] + " não encontrado no dicionário de dados.")
+						oFile:Close()
+						Return Nil
+					EndIf
+
+                    //Validar se todos os campos que existem devem estar na planilha
+					If !oCampos:Contains(AllTrim(aCampos[nY]))
+						aAdd(aAvisos, OemToAnsi("Campo " + aCampos[nY] + " não está na lista de campos do Layout Padrão."))
+					EndIf
+                Next nY
+
+                //Validar se existem todos os campos do Layout existem na planilha
+				If oCampos:GetCount() != Len(aCampos)
+					aAdd(aAvisos, OemToAnsi("Verifique a lista de campos obrigatórios, está faltando algum."))
+				EndIf
+
+                //Exibir aviso para os usuários
+				If !Empty(aAvisos)
+					MsgStop("Processo interrompido, confira o log gerado na pasta " + cDrive + cDir)
+					exit
+				EndIf
+            Else //Dados a serem trabalhados
+                aLine := StrTokArr2(oFile:GetLine(), ";" )
+
+				//Linhas vazias no CSV
+				If Len(aLine) = 0
+					Loop
+				EndIf
+
+                //Retirar espacos, tab, enter
+				For nY := 1 To Len(aLine)
+					
+					aLine[nY] := StrTran(aLine[nY], " ", "")
+					aLine[nY] := StrTran(aLine[nY], '"', "")
+					aLine[nY] := StrTran(aLine[nY], Chr(10) + Chr (13), "")
+					aLine[nY] := StrTran(aLine[nY], Chr(9), "")
+				Next nY
+
+                IncProc("Endereco " + cValToChar(aLine[3]))
+
+                //Trocar filial logada para filial do Arquivo
+                cFilAnt := aLine[1]
+
+                //Validar se não tem nenhum campo vazio
+				If Len(aLine) > 0 .And. Len(aLine) != Len(aCampos)
+					aAdd(aAvisos, "Existe algum campo vazio na linha do endereco " + Alltrim(aLine[2]) + "!")
+					aAdd(aAvisos, "Este endereco será desconsiderado." + Chr(13) + Chr(10))
+					Loop
+				EndIf
+
+                //Validar se existem linhas iguais no arquivo
+				/*If Len(aLines) > 0 .And. aScan(aLines, {|x| x[2] == aLine[2] .And. x[3] == aLine[3] }) > 0
+					aAdd(aAvisos, "Endereco " + Alltrim(aLine[3]) + " está duplicado e foi processado uma vez.")
+					Loop
+				EndIf*/
+
+                If SBE->(MsSeek(FwxFilial("SBE") + aLine[aScan(aCampos, "BE_LOCAL")] + aLine[aScan(aCampos, "BE_LOCALIZ")]))
+                    aAdd(aAvisos, "Endereco " + SBE->BE_LOCALIZ + " local " + SBE->BE_LOCAL + " ja existe na tabela")
+                Else
+                    RecLock("SBE",.t.)
+                        SBE->BE_FILIAL	:= FwxFilial("SBE")
+                        SBE->BE_LOCAL	:= aLine[aScan(aCampos, "BE_LOCAL")]
+                        SBE->BE_LOCALIZ	:= aLine[aScan(aCampos, "BE_LOCALIZ")]
+                        SBE->BE_DESCRIC	:= aLine[aScan(aCampos, "BE_DESCRIC")]
+                        SBE->BE_PRIOR	:= aLine[aScan(aCampos, "BE_PRIOR")]
+                        SBE->BE_STATUS	:= "1"
+                        SBE->BE_DATGER	:= dDataBase
+                        //SBE->BE_ESTFIS	:= aLine[aScan(aCampos, "BE_ESTFIS")]
+                        //SBE->BE_CODZON  := aLine[aScan(aCampos, "BE_CODZON")]
+                    SBE->(msUnLock())
+
+                    aAdd(aAvisos, "Endereco " + Alltrim(SBE->BE_LOCALIZ) + " no local " + SBE->BE_LOCAL + " incluido.")
+                EndIf
+            EndIf
+        End While
+    EndIf
+
+    oFile:Close()
+
+    if !Empty(aAvisos)
+        GravaLog(aAvisos, "c:\temp")
+    EndIf
+
+Return nil
+
+Static Function GravaLog(aLog, cCamArq)
+
+Local cFile   := cTblName + "_" + StrTran(Time(), ":", "")
+Local cPath   := cCamArq
+Local cLogFile:= cPath + "\" + cFile + ".LOG"
+Local nHandle := FCreate(cLogFile)
+Local nX
+		
+	If nHandle == -1
+		//mudança 102. // ConOut("Erro ao criar o arquivo de Log" + cLogFile)
+		FWLogMsg("INFO", /*"LAST"*/, "Schedule", "START", "", "01", "Erro ao criar o arquivo de Log" + cLogFile , 0, 0 , {})
+	Else
+		FWrite(nHandle, "OBSERVE NA PASTA TEMP SE EXISTEM OUTROS LOGS!" + Chr(13) + Chr(10) )
+		FWrite(nHandle, "Log de Inclusão: " + Chr(13) + Chr(10) + Chr(13) + Chr(10) )
+		For nX := 1 To Len(aLog)
+			
+			If !FWrite(nHandle, aLog[nX] + Chr(13) + Chr(10) )
+				MsgStop("Erro ao tentar escrever no arquivo.")
+			EndIf
+			
+		Next nX
+			
+		If !FClose(nHandle)
+			MsgStop("Erro ao tentar fechar o arquivo.")
+		EndIf		
+	EndIf
+
+Return nil
+
+//
+Static Function IMP01Classif()
+
+Private aRotina := {}
+
+	aAdd(aRotina,{"Pesquisar"  , "AxPesqui"   , 0 , 1, 0, .F.}) 		//"Pesquisar"
+	aAdd(aRotina,{"Visualizar" , "A103NFiscal", 0 , 2, 0, nil}) 		//"Visualizar"
+	aAdd(aRotina,{"Incluir"    , "A103NFiscal", 0 , 3, 0, nil}) 		//"Incluir"
+	aAdd(aRotina,{"Classificar", "A103NFiscal", 0 , 4, 0, nil}) 		//"Classificar"
+	
+	IF Empty(SF1->F1_STATUS) .And. MsgYesNo("Deseja Efetuar a Classificação da Nota " + SF1->(AllTrim(F1_DOC) + "/" + AllTrim(F1_SERIE)) + " Agora ?")
+		DbSelectArea("SF1")
+		A103NFiscal("SF1",SF1->(Recno()),4,.F.,.F.)
+	Endif
+
+Return nil
+
+//
+Static Function IMP01Endereca()
+
+Local aCab as array
+Local aItem as array
+Local aItensSDB as array
+Local _cSelect as character
+Local nZ as numeric
+
+    If Empty(SF1->F1_STATUS)
+        MsgStop("Nota sem classificacao nao e possivel enderecamento")
+        Return nil
+    EndIf
+
+    DbSelectArea("SD1")
+    DbSetOrder(1) //D1_FILIAL+D1_DOC+D1_SERIE+D1_FORNECE+D1_LOJA+D1_COD+D1_ITEM
+    
+    For nZ := 1 To Len(aItens)
+
+        SD1->(MsSeek(FwxFilial("SD1") + SF1->F1_DOC + SF1->F1_SERIE + SF1->F1_FORNECE + SF1->F1_LOJA + aItens[nZ]:GetJsonText("produto") + aItens[nZ]:GetJsonText("item")))
+
+        // Buscar todos os registros que estao pendentes de enderecamento pelo documento
+        _cSelect := "SELECT R_E_C_N_O_ DA_RECN " + CRLF
+        _cSelect += "  FROM " + retSqlName("SDA") + " SDA " + CRLF
+        _cSelect += " WHERE DA_FILIAL = " + valToSql(FwxFilial("SDA")) + CRLF
+        _cSelect += "   AND DA_DOC    = " + valToSql(SD1->D1_DOC) + CRLF
+        _cSelect += "   AND DA_SERIE = " + valToSql(SD1->D1_SERIE) + CRLF
+        _cSelect += "   AND DA_NUMSEQ = " + valToSql(SD1->D1_NUMSEQ) + CRLF
+        _cSelect += "   AND DA_SALDO  > 0 " + CRLF
+        _cSelect += "   AND D_E_L_E_T_ = '' " + CRLF
+        
+        tcQuery _cSelect new alias "SLDEND"
+
+        while !SLDEND->(EoF())
+            SDA->(dbGoTo(SLDEND->DA_RECN))
+
+            aCab := {}
+            aAdd(aCab, {"DA_PRODUTO", SDA->DA_PRODUTO, Nil})
+            aAdd(aCab, {"DA_NUMSEQ" , SDA->DA_NUMSEQ , Nil})
+
+            aItem := {}
+            aItensSDB := {}
+            aAdd(aItem, {"DB_ITEM"   , "0001"       , Nil})
+            aAdd(aItem, {"DB_ESTORNO", " "          , Nil})
+            aAdd(aItem, {"DB_LOCALIZ", padR("SOBRAS", tamSx3("DB_LOCALIZ")[1]), Nil})
+            aAdd(aItem, {"DB_DATA"   , dDataBase	, Nil})
+            aAdd(aItem, {"DB_QUANT"  , SDA->DA_SALDO, Nil})
+            aAdd(aItensSDB, aItem)
+
+            lMsErroAuto := .F.
+            MSExecAuto({|x,y,z| mata265(x,y,z)}, aCab, aItensSDB, 3)
+                            
+            if lMsErroAuto
+                mostraErro()
+                msgStop("Enderecamento " + SD1->D1_ITEM + " não efetuado.")
+            endif
+
+            SLDEND->(dbSkip())
+        end While
+        SLDEND->(dbCloseArea())
+
+        SD1->(DbSkip())
+    Next nZ
+
+Return nil
+
+//
+Static Function IMP01SDB()
+
+Local nZ as numeric
+Local cFilSB8 as character
+Local cCodPro as character
+Local cLocArm as character
+
+    DbSelectArea("SB8")
+    DbSetOrder(1) //B8_FILIAL+B8_PRODUTO+B8_LOCAL+DTOS(B8_DTVALID)+B8_LOTECTL+B8_NUMLOTE
+
+    DbSelectArea("SD5")
+    DbSetOrder(1) //D5_FILIAL+D5_PRODUTO+D5_LOCAL+D5_LOTECTL+D5_NUMLOTE+D5_NUMSEQ
+
+    aAdd(aAvisos, "Documento " + Alltrim(cDocNf) + "/" + Alltrim(cSerieNf) + " gravado")
+
+    For nZ := 1 to Len(aItens)
+        cFilSB8 := aItens[nZ]:GetJsonText("filial")
+        cCodPro := padR(aItens[nZ]:GetJsonText("produto"), tamSx3("B8_PRODUTO")[1])
+        cLocArm := aItens[nZ]:GetJsonText("arm")
+
+        if SB8->(MsSeek(cFilSB8 + cCodPro + cLocArm))
+            //Inserir SD5
+            if !SD5->(MsSeek(cFilSB8 + cCodPro + cLocArm + SB8->B8_LOTECTL))
+                RecLock("SD5", .T.)
+                    SD5->D5_FILIAL  := SB8->B8_FILIAL
+                    SD5->D5_PRODUTO := SB8->B8_PRODUTO
+                    SD5->D5_LOCAL   := SB8->B8_LOCAL
+                    SD5->D5_DATA    := SB8->B8_DATA
+                    SD5->D5_DOC     := cDocNf //"005022024"
+                    SD5->D5_SERIE   := cSerieNf
+                    SD5->D5_ORIGLAN := "001"
+                    SD5->D5_QUANT   := Val(aItens[nZ]:GetJsonText("quant"))
+                    SD5->D5_LOTECTL := SB8->B8_LOTECTL
+                    SD5->D5_DTVALID := SB8->B8_DTVALID
+                    SD5->D5_PRMAIOR := "N"
+                SD5->(MsUnLock())
+
+                aAdd(aAvisos, "Inserido registro no SD5 do produto " + Alltrim(SB8->B8_PRODUTO) + " lote " + SB8->B8_LOTECTL)
+            EndIf
+
+            //Inserir SDB
+            RecLock("SDB", .T.)
+                SDB->DB_FILIAL  := SB8->B8_FILIAL
+                SDB->DB_ITEM    := "0001"
+                SDB->DB_PRODUTO := SB8->B8_PRODUTO
+                SDB->DB_LOCAL   := SB8->B8_LOCAL
+                SDB->DB_LOCALIZ := aItens[nZ]:GetJsonText("endereco")
+                SDB->DB_DOC     := cDocNf //"005022024"
+                SDB->DB_SERIE   := cSerieNf
+                SDB->DB_TM      := "001"
+                SDB->DB_QUANT   := Val(aItens[nZ]:GetJsonText("quant"))
+                SDB->DB_DATA    := SB8->B8_DATA
+                SDB->DB_LOTECTL := SB8->B8_LOTECTL
+                SDB->DB_TIPO    := "D"
+                SDB->DB_ATIVID  := "ZZZ"
+                SDB->DB_ATUEST  := "S"
+                SDB->DB_STATUS  := "M"
+                SDB->DB_ORDATIV := "ZZ"
+                SDB->DB_QTDORI  := Val(aItens[nZ]:GetJsonText("quant"))
+            SDB->(MsUnLock())
+
+            aAdd(aAvisos, "Inserido registro no SDB do produto " + Alltrim(SB8->B8_PRODUTO) + " lote " + SB8->B8_LOTECTL)
+        Else
+           aAdd(aAvisos, "Produto " + Alltrim(cCodPro) + " nao encontrado lote no SB8.")
+        EndIf
+    Next nZ
+
+Return nil
+

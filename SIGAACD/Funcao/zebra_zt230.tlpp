@@ -1,0 +1,683 @@
+#Include "rwmake.ch"
+#include "topconn.ch"
+#INCLUDE 'COLORS.CH'
+#INCLUDE 'PROTHEUS.CH'
+#INCLUDE 'FWMVCDEF.CH'
+#Include "RPTDef.ch"
+#include "tbiconn.ch"
+#include "fileio.ch"
+
+Static TRB := criaTemporario() as character
+Static oTrb as object
+
+/*/{Protheus.doc} ZT230_10x15()
+	(Programa para geração de etiqueta de lote, com código barras, para ser utilizado pelas rotinas MATA103, MATC060 e MATA250 )
+	@type  Static Function
+	@author SR
+	@since 21/12/2023
+	@version 12.1.2210
+/*/
+
+User Function ZT230_10x15()
+
+	Local oDlg  as object
+	Local oMark as object
+	Local aSz := MsAdvSize() as array
+	Local cPict := "@E 999,999,999.999" as character
+	// Local bFechar := {|| freeobj( oMark), oDlg:End() }
+
+	if QueryToTemp() > 0 //importa o(s) produto(s)  conforme registro da tabela posicionada para dentro da tabela temporária (TRB)
+
+		DEFINE MSDIALOG oDlg TITLE "Etiqueta de Lote (ZT230)" FROM aSz[7],0 TO aSz[6],aSz[5] PIXEL
+
+		oDlg:lEscClose := .T.
+
+		// Criar o objeto FWMarkBrowse
+		oMark:= FWMarkBrowse():New()
+		oMark:SetOwner( oDlg )
+		oMark:SetTemporary( .T. )
+		oMark:SetAlias(TRB)
+		oMark:SetFieldMark( 'TR_OK' )
+		oMark:SetOnlyFields({ 'TR_ITEM','TR_LOTE', 'TR_VALID', 'TR_QTDEMB', 'TR_QTDETQ', 'TR_QTDDOC', 'TR_SKU','TR_ETQ' })
+		oMark:SetDescription('Etiqueta de Lote (ZT230)')
+		oMark:AddLegend( "TR_VALID < date() .and. TR_ETQ =='Sim'", "BLACK", "Lote Vencido, etiqueta já impressa" ) 	// Define a legenda
+		oMark:AddLegend( "TR_VALID < date() .and. TR_ETQ <>'Sim'", "RED", "Lote Vencido, não foi impresso etiqueta" ) 	// Define a legenda
+		oMark:AddLegend( "TR_ETQ =='Sim'", "GREEN"	, "Etiqueta Impressa" )
+		oMark:AddLegend( "TR_ETQ =='Não'", "YELLOW" , "AEtiqueta Aguardando impressão" )
+		oMark:AddButton("Editar"  , { || EditarEtiqueta(oMark) },,,, .F., 4 )
+		oMark:AddButton("Imprimir", { || ImprimirEtiqueta(oMark) },,,, .F., 6 )
+		// oMark:AddButton("Fechar", { || eval(bFechar) },,,, .F., 6 )
+		oMark:SetWalkThru( .F. ) //Habilita a utilizacao da funcionalidade Walk-Thru no Browse
+		oMark:DisableConfig()
+		oMark:DisableDetails()
+		oMark:DisableReport() //Desabilita a impressao do browser
+		oMark:SetIgnoreARotina(.T.)            // Habilita a pesquisa do Browse
+		oMark:SetMenuDef("")
+
+		/* Array da coluna
+		[n][01] Titulo da coluna
+		[n][02] Code-Block de carga dos dados
+		[n][03] Tipo de dados
+		[n][04] Mascara
+		[n][05] Alinhamento (0=Centralizado, 1=Esquerda ou 2=Direita)
+		[n][06] Tamanho
+		[n][07] Decimal
+		[n][08] Indica se permite a edicao
+		[n][09] Code-Block de validacao da coluna apos a edicao
+		[n][10] Indica se exibe imagem
+		[n][11] Code-Block de execucao do duplo clique
+		[n][12] Variavel a ser utilizada na edicao (ReadVar)
+		[n][13] Code-Block de execucao do clique no header
+		[n][14] Indica se a coluna esta deletada
+		[n][15] Indica se a coluna sera exibida nos detalhes do Browse
+		[n][16] Opcoes de carga dos dados (Ex: 1=Sim, 2=Nao)
+				oMark:SetOnlyFields({ 'TR_ITEM','TR_LOTE', 'TR_VALID', 'TR_QTDEMB', 'TR_QTDETQ', 'TR_QTDDOC', 'TR_SKU','TR_ETQ' })
+		*/
+		oMark:SetColumns( {{"Item"		,{||(TRB)->TR_ITEM   },"C","@!S30" ,1, 50, 0,.T.,,,,"TR_ITEM",,,,  }} )
+		oMark:SetColumns( {{"Lote"		,{||(TRB)->TR_LOTE   },"C","@!" ,1, 10, 0,.T.,,,,"TR_LOTE",,,,  }} )
+		oMark:SetColumns( {{"Validade"	,{||(TRB)->TR_VALID  },"D","@D" ,0, 10, 0,.T.,,,,"TR_VALID",,,, }} )
+		oMark:SetColumns( {{"Qtd.Embal.",{||(TRB)->TR_QTDEMB },"N",cPict,2, 13, 3,.T.,,,,"TR_QTDEMB",,,,}} )
+		oMark:SetColumns( {{"Qtd.Etiq."	,{||(TRB)->TR_QTDETQ },"N",cPict,2, 13, 3,.T.,,,,"TR_QTDETQ",,,,}} )
+		oMark:SetColumns( {{"Qtd.Docum.",{||(TRB)->TR_QTDDOC },"N",cPict,2, 13, 3,.T.,,,,"TR_QTDDOC",,,,}} )
+		oMark:SetColumns( {{"SKU"		,{||(TRB)->TR_SKU    },"C","@!" ,0, 15, 0,.T.,,,,"TR_SKU",,,,}} )
+		oMark:SetColumns( {{"Impressa"	,{||(TRB)->TR_ETQ    },"C",""   ,0, 03, 0,.T.,,,,"TR_ETQ",,,,}} )
+
+		oMark:Activate()
+		oMark:oBrowse:Setfocus()
+
+
+		ACTIVATE DIALOG oDlg CENTERED //ON INIT( EnchoiceBar( oDlgTrf,  { ||  oDlgTrf:End() }, { || oDlgTrf:End() },  ,  ))
+		// ACTIVATE MSDIALOG oDlg ON INIT EnchoiceBar(oDlg,bOk,bCancel,,)
+
+	else
+
+		FWAlertInfo("É possível que não tenha lote, no documento, para nenhum dos itens. Não será possível imprimir etiqueta.")
+
+	endif
+
+	if valtype("oTrb") == "O"
+		oTrb:DELETE()
+	endif
+	
+return
+
+/*/{Protheus.doc} QueryToTemp()
+	(importa o(s) produto(s)  conforme registro da tabela posicionada para dentro da tabela temporária (TRB))
+	@type  Static Function
+	@author SR
+	@since 21/12/2023
+	@version 12.1.2210
+/*/
+Static Function QueryToTemp()
+
+	local QRY := GetNextAlias()
+	local nQtdReg := 0 as numeric
+
+	if alias() == 'SF1'
+
+		beginsql alias QRY
+
+		column TR_VALID as date
+
+		 select 
+		  TR_OK 	= '  ' 
+		 ,TR_ITEM  	= SB1.B1_DESC
+		 ,TR_LOTE  	= SD1.D1_LOTECTL 
+		 ,TR_VALID 	= SD1.D1_DTVALID 
+		 ,TR_QTDEMB	= SD1.D1_QUANT
+		 ,TR_QTDETQ	= 1
+		 ,TR_QTDDOC = SD1.D1_QUANT 
+		 ,TR_SKU   	= SD1.D1_COD
+	 //  ,TR_ETQ	= SD1.D1_YETQ " //Sim=Impressa
+		 ,TR_ETQ	= 'Não'  //Sim=Impressa
+		 from %table:SD1% SD1
+		 
+		 join %table:SB1% SB1
+		 on  SB1.B1_FILIAL  = %xFilial:SB1%
+		 and SB1.B1_COD     = SD1.D1_COD 
+		 and SB1.D_E_L_E_T_ = '' 
+		 
+		 where SD1.D1_FILIAL  	= + %exp:SF1->F1_FILIAL%
+		 and   SD1.D1_DOC 	  	= + %exp:SF1->F1_DOC%
+		 and   SD1.D1_SERIE		= + %exp:SF1->F1_SERIE%
+		 and   SD1.D1_FORNECE 	= + %exp:SF1->F1_FORNECE%
+		 and   SD1.D1_LOJA	  	= + %exp:SF1->F1_LOJA%
+	//   and   SD1.D1_LOTECTL <> '' 
+		 and   SD1.D_E_L_E_T_ 	= '' 
+
+		endsql
+
+	elseif alias() == 'SD3'
+
+		beginsql alias QRY
+
+		column TR_VALID as date
+
+		select
+		 TR_OK 		= '  ' 
+		,TR_ITEM  	= SB1.B1_DESC 
+		,TR_LOTE  	= SD3.D3_LOTECTL 
+		,TR_VALID 	= SD3.D3_DTVALID 
+		,TR_QTDEMB	= SD3.D3_QUANT 
+		,TR_QTDETQ	= 1
+		,TR_QTDDOC  = SD3.D3_QUANT 
+		,TR_SKU   	= rtrim(SD3.D3_COD) 
+	 // ,TR_ETQ		= SD3.D3_YETQ  //Sim=Impressa
+		,TR_ETQ		= 'Não'  //Sim=Impressa
+		from %table:SD3% SD3
+
+		join %table:SB1% SB1
+		on  SB1.B1_FILIAL  = %xFilial:SB1%
+		and SB1.B1_COD     = SD3.D3_COD
+		and SB1.D_E_L_E_T_ = '' 
+
+		where SD3.D3_FILIAL  	= %exp:SD3->D3_FILIAL%
+		and   SD3.D3_DOC 	  	= %exp:SD3->D3_DOC%
+		and   SD3.D3_CF 	 LIKE 'PR%'
+	 // and   SD3.D3_LOTECTL   <> '' "
+		and   SD3.D3_ESTORNO   <> 'S' "
+		and   SD3.D_E_L_E_T_ 	= '' "
+
+		endsql
+
+	elseif alias() == 'SB8'
+
+		beginsql alias QRY
+
+		column TR_VALID as date
+			
+		 select 
+		  TR_OK 	= '  ' 
+		 ,TR_ITEM  	= SB1.B1_DESC 
+		 ,TR_LOTE  	= SB8.B8_LOTECTL 
+		 ,TR_VALID 	= SB8.B8_DTVALID 
+		 ,TR_QTDEMB	= SB8.B8_SALDO 
+		 ,TR_QTDETQ	= 1 
+		 ,TR_QTDDOC = SB8.B8_SALDO 
+		 ,TR_SKU   	= rtrim(SB8.B8_PRODUTO) 
+	 //  ,TR_ETQ	= SB8.B8_YETQ  //Sim=Impressa
+		 ,TR_ETQ	= 'Não'  //Sim=Impressa
+		 from %table:SB8% SB8
+
+		 join %table:SB1% SB1 
+		 on  SB1.B1_FILIAL  =  %exp:SB1->B1_FILIAL%
+		 and SB1.B1_COD     = SB8.B8_PRODUTO 
+		 and SB1.D_E_L_E_T_ = '' 
+
+		 where SB8.B8_FILIAL  	=  %xFilial:SB8%
+		 and   SB8.B8_LOTECTL 	=  %exp:SB8->B8_LOTECTL%
+		 and   SB8.B8_PRODUTO 		=  %exp:SB8->B8_PRODUTO%
+		 and   SB8.B8_LOCAL 	=  %exp:SB8->B8_LOCAL%
+		 and   SB8.D_E_L_E_T_ 	= '' 
+
+		endsql
+
+	endif
+
+	dbselectarea(QRY)
+	count to nQtdReg
+
+	if nQtdReg > 0
+
+		(QRY)->( dbGoTop() )
+		(QRY)->( dbEval({ ||  setDados(QRY) } ) )
+
+	endif
+
+	(QRY)->( dbclosearea() )
+
+Return nQtdReg
+
+/*/{Protheus.doc} setDados()
+	(carrega dados do documento escolhido, para geração da etiqueta)
+	@type  Static Function
+	@author SR
+	@since 21/12/2023
+	@version 12.1.2210
+	@param QRY character apelido da tabela SQL origem do documento
+/*/
+Static Function setDados(QRY)
+
+	//oTrb:Zap() //Limpar tabela
+
+	//Limpar tabela
+	if (TRB)->(!EoF())
+		TRB := criaTemporario()
+	EndIf
+
+	While (QRY)->(!EoF())
+		Reclock(TRB,.T.)
+			(TRB)->TR_OK 	 := (QRY)->TR_OK
+			(TRB)->TR_ITEM   := (QRY)->TR_ITEM
+			(TRB)->TR_LOTE   := (QRY)->TR_LOTE
+			(TRB)->TR_VALID  := (QRY)->TR_VALID
+			(TRB)->TR_QTDEMB := (QRY)->TR_QTDEMB
+			(TRB)->TR_QTDETQ := (QRY)->TR_QTDETQ
+			(TRB)->TR_QTDDOC := (QRY)->TR_QTDDOC
+			(TRB)->TR_SKU    := (QRY)->TR_SKU
+			// (TRB)->TR_ETQ	 := (QRY)->TR_ETQ
+			(TRB)->TR_ETQ	 := (QRY)->TR_ETQ
+		(TRB)->( msUnLock() )
+
+		(QRY)->(DbSkip())
+	End While
+
+Return
+
+/*/{Protheus.doc} EditarEtiqueta
+	(Edita quantidade de etiquetas as serem impressas)
+	@type  Static Function
+	@author SR
+	@since 20/12/2023
+	@version 12.1.2210
+	@param param_name, param_type, param_descr
+/*/
+Static Function EditarEtiqueta(oMark as object)
+
+	Local oEditar as object
+	Local oSayEtq as object
+	Local oGetEtq as object
+	Local oSayEmb as object
+	Local oGetEmb as object
+
+	Private TR_QTDETQ  as numeric
+	Private TR_QTDEMB  as numeric
+
+	m->TR_QTDETQ := (TRB)->TR_QTDETQ
+	m->TR_QTDEMB := (TRB)->TR_QTDEMB
+
+	oEditar:= MSDialog():New(060,010,320,300,'Edição de Quantidades',,,,,CLR_BLACK,CLR_WHITE,,,.T.)
+	oSayEtq:= TSay():Create(oEditar,{||"Quantidade de Etiquetas"},10,10,,/* oFont */,,,,.T.,CLR_RED,CLR_WHITE,80,10)
+	oGetEtq:= TGet():New( 20,10,{|u|if(PCount()==0,m->TR_QTDETQ,m->TR_QTDETQ:=u)},oEditar,080,020,"@E 999,999,999.999",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,"TR_QTDETQ",,,, )
+	oSayEmb:= TSay():Create(oEditar,{||"Quantidade na Embalagem"},50,10,,/* oFont */,,,,.T.,CLR_RED,CLR_WHITE,80,10)
+	oGetEmb:= TGet():New( 60,10,{|u|if(PCount()==0,m->TR_QTDEMB,m->TR_QTDEMB:=u)},oEditar,080,020,"@E 999,999,999.999",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,"TR_QTDEMB",,,, )
+	@095, 15 Button oBtn1 Prompt 'Salvar'   Size 50, 30 Action ( SaveTRB(oMark),oEditar:end()  ) Of oEditar Pixel
+	@095, 80 Button oBtn2 Prompt 'Cancelar' Size 50, 30 Action ( oEditar:end() ) Of oEditar Pixel
+	oEditar:Activate()
+
+	oMark:refresh()
+
+Return
+
+
+/*/{Protheus.doc} SaveTRB()
+	(salva dados alterados para redefinição da quantidade de etiquetas de etiqueta e por emblagem a serem impressos)
+	@type  Static Function
+	@author SR
+	@since 21/12/2023
+	@version 12.1.2210
+	@param oMark object objeto com os dados e status das etiquetas
+/*/
+Static Function SaveTRB( oMark as object )
+
+	Local cMarca 	:= oMark:Mark()
+
+
+	RecLock(TRB,.F.)
+
+	(TRB)->TR_QTDETQ := m->TR_QTDETQ
+	(TRB)->TR_QTDEMB := m->TR_QTDEMB
+
+	if (TRB)->TR_QTDETQ > 0
+
+		if ! oMark:IsMark(cMarca)
+			(TRB)->TR_OK := cMarca
+		endif
+
+	else
+
+		if (TRB)->TR_QTDETQ < 0
+			(TRB)->TR_QTDETQ := 0
+		endif
+
+		(TRB)->TR_OK := ''
+
+	endif
+
+	(TRB)->( msUnLock() )
+
+Return
+
+/*/{Protheus.doc} ImprimirEtiqueta
+	(Etiqueta de código de lote)
+	@type  Static Function
+	@author SR
+	@since 20/12/2023
+	@version 12.1.2210
+	@param oMark object objeto com os dados e status das etiquetas
+/*/
+static Function ImprimirEtiqueta(oMark as object)
+
+	Local cMarca	:= oMark:Mark() as character
+	//Local cPorta 	:= "LPT1" as character
+	Local nX 		:= 0 as numeric
+	//Local lRet		:= .F. as logical
+	//Local Imp		:= .F. as logical
+
+	Private cCodImpr   := Space(TamSX3("CB5_CODIGO")[1])//"ZBDANF"
+	Private aParamBox  := {}
+    Private aRetParam  := {}
+
+	//INFORME AQUI O NOME DO SERVIDOR E NOME DO COMPARTILHAMENTO DA IMPRESSORA
+	//A IMPRESSORA PRECISA ESTÁ DISPONÍVEL EM UMA PORTA LPT? qq. Preferencialmente, LPT1
+	// WinExec("net use "+cPorta+" /delete")
+	// WinExec("net use "+cPorta+": \\192.168.18.61\zebra410 /persistent:yes")
+
+	//lRet:= IsPrinter2(cPorta,,PRT_CLIENT )
+	//Imp	:= GetPrtSelected()
+
+	//mscbprinter( "ZT230", cPorta,,, .T.,,,,1536,,.T., )
+	//mscbchkstatus(.T.)
+
+	//mscbbegin(1,6,250)
+
+	aAdd(aParamBox, {1, "Codigo Impressora", cCodImpr,,,"CB5IMP",,30,.F.})
+
+	if ParamBox(aParamBox, "Transferencia de Estoque", @aRetParam,,,,,,,,.F.)
+		cCodImpr := Mv_Par01
+	Else
+		MsgStop("Obrigatorio preenchimento")
+		Return nil
+	EndIf
+
+	dbSelectArea(TRB)
+	dbgotop()
+
+	while ! (TRB)->( eof() )
+
+		if cMarca == (TRB)->TR_OK
+
+			//Repetir a impressao da mesma etiqueta conforme selecionado pelo usuario
+			for nX := 1 To (TRB)->TR_QTDETQ
+				Processa({|| saveetiqueta() },"Imprimindo etiqueta " + cValToChar(nX))
+				Sleep(500)
+			next nX
+
+			/*for nX := 1 to (TRB)->TR_QTDETQ
+
+				//MSCBWrite( "CT~~CD,~CC^~CT~"  + CRLF )
+				MSCBWrite( "^XA"  + CRLF )
+				MSCBWrite( "~TA000"  + CRLF )
+				MSCBWrite( "~JSN"  + CRLF )
+				MSCBWrite( "^LT0"  + CRLF )
+				MSCBWrite( "^MNW"  + CRLF )
+				MSCBWrite( "^MTT"  + CRLF )
+				MSCBWrite( "^PON"  + CRLF )
+				MSCBWrite( "^PMN"  + CRLF )
+				MSCBWrite( "^LH0,0"  + CRLF )
+				MSCBWrite( "^JMA"  + CRLF )
+				MSCBWrite( "^PR6,6"  + CRLF )
+				MSCBWrite( "~SD8"  + CRLF )
+				MSCBWrite( "^JUS"  + CRLF )
+				MSCBWrite( "^LRN"  + CRLF )
+				MSCBWrite( "^CI27"  + CRLF )
+				MSCBWrite( "^PA0,1,1,0"  + CRLF )
+				MSCBWrite( "^XZ"  + CRLF )
+				MSCBWrite( "^XA"  + CRLF )
+				MSCBWrite( "^MMT"  + CRLF )
+				MSCBWrite( "^PW799"  + CRLF )
+				MSCBWrite( "^LL1772"  + CRLF )
+				MSCBWrite( "^LS0"  + CRLF )
+				MSCBWrite( "^FO8,17^GB1156,327,12^FS"  + CRLF )
+				MSCBWrite( "^FO8,332^GB1156,472,12^FS"  + CRLF )
+				MSCBWrite( "^FO8,792^GB1156,210,12^FS"  + CRLF )
+				MSCBWrite( "^FO8,1331^GB1156,429,12^FS"  + CRLF )
+				MSCBWrite( "^FT40,91^A0N,50,51^FH\^CI28^FDITEM:^FS^CI27"  + CRLF )
+				MSCBWrite( "^FT40,171^A0N,50,50^FH\^CI28^FD"+left((TRB)->TR_ITEM,25)+"^FS^CI27" + CRLF )
+				MSCBWrite( "^FT40,265^A0N,75,76^FH\^CI28^FD"+substr((TRB)->TR_ITEM,26,25)+"^FS^CI27" + CRLF )
+				MSCBWrite( "^FT40,413^A0N,50,51^FH\^CI28^FDLOTE:^FS^CI27"  + CRLF )
+				MSCBWrite( "^BY8,3,243^FT59,697^BCN,,Y,N"  + CRLF )
+				MSCBWrite( "^FH\^FD>;"+LEFT((TRB)->TR_LOTE,6)+">6-"+substr((TRB)->TR_ITEM,7,3)+"^FS" + CRLF )
+				MSCBWrite( "^FT40,857^A0N,50,51^FH\^CI28^FDVALIDADE:^FS^CI27"  + CRLF )
+				MSCBWrite( "^FT0,967^A0N,117,117^FB1062,1,30,C^FH\^CI28^FD"+dtoc((TRB)->TR_VALID)+"^FS^CI27" + CRLF )
+				MSCBWrite( "^FO8,1059^GB1156,283,12^FS"  + CRLF )
+				MSCBWrite( "^FT40,1075^A0N,50,51^FH\^CI28^FDQUANTIDADE^FS^CI27"  + CRLF )
+				MSCBWrite( "^FT20,1178^A0N,150,150^FB1161,1,38,C^FH\^CI28^FD"+alltrim(transform((TRB)->TR_QTDEMB,"@E 999,999,999.999"))+"^FS^CI27" + CRLF )
+				MSCBWrite( "^BY10,3,279^FT197,1668^BCN,,Y,N"  + CRLF )
+				MSCBWrite( "^FH\^FD>;"+alltrim((TRB)->TR_SKU)+"^FS" + CRLF )
+				MSCBWrite( "^FT40,1408^A0N,50,51^FH\^CI28^FDSKU^FS^CI27"  + CRLF )
+				MSCBWrite( "^PQ1,,,Y"  + CRLF )
+				MSCBWrite( "^XZ"  + CRLF )
+			next nX*/
+
+		endif
+
+		(TRB)->(dbSkip())
+
+	enddo
+
+	//mscbend()
+	//mscbcloseprinter()
+
+return
+
+/*/{Protheus.doc} saveetiqueta
+	(Salva informação da última etiqueta impressa. Muito últil para análise utilizando aplicativo VIRTUAL ZPL)
+	@type  Static Function
+	@author SR
+	@since 20/12/2023
+	@version 12.1.2210
+/*/
+static function saveetiqueta()
+
+	Local printZT230 := ""
+	Local cIniName   := ""
+	Local _cTxtBat as character
+	
+
+    
+
+	/*printZT230 += "CT~~CD,~CC^~CT~"  + CRLF
+	printZT230 += "^XA"  + CRLF
+	printZT230 += "~TA000"  + CRLF
+	printZT230 += "~JSN"  + CRLF
+	printZT230 += "^LT0"  + CRLF
+	printZT230 += "^MNW"  + CRLF
+	printZT230 += "^MTT"  + CRLF
+	printZT230 += "^PON"  + CRLF
+	printZT230 += "^PMN"  + CRLF
+	printZT230 += "^LH0,0"  + CRLF
+	printZT230 += "^JMA"  + CRLF
+	printZT230 += "^PR6,6"  + CRLF
+	printZT230 += "~SD8"  + CRLF
+	printZT230 += "^JUS"  + CRLF
+	printZT230 += "^LRN"  + CRLF
+	printZT230 += "^CI27"  + CRLF
+	printZT230 += "^PA0,1,1,0"  + CRLF
+	printZT230 += "^XZ"  + CRLF
+	printZT230 += "^XA"  + CRLF
+	printZT230 += "^MMT"  + CRLF
+	printZT230 += "^PW799"  + CRLF
+	printZT230 += "^LL1772"  + CRLF
+	printZT230 += "^LS0"  + CRLF
+	printZT230 += "^FO8,17^GB1156,327,12^FS"  + CRLF
+	printZT230 += "^FO8,332^GB1156,472,12^FS"  + CRLF
+	printZT230 += "^FO8,792^GB1156,210,12^FS"  + CRLF
+	printZT230 += "^FO8,1331^GB1156,429,12^FS"  + CRLF
+	printZT230 += "^FT40,91^A0N,50,51^FH\^CI28^FDITEM:^FS^CI27"  + CRLF
+	printZT230 += "^FT40,171^A0N,50,50^FH\^CI28^FD"+left((TRB)->TR_ITEM,25)+"^FS^CI27" + CRLF
+	printZT230 += "^FT40,265^A0N,50,50^FH\^CI28^FD"+substr((TRB)->TR_ITEM,26,25)+"^FS^CI27" + CRLF
+	printZT230 += "^FT40,413^A0N,50,51^FH\^CI28^FDLOTE:^FS^CI27"  + CRLF
+	printZT230 += "^BY8,3,243^FT59,697^BCN,,Y,N"  + CRLF
+	printZT230 += "^FH\^FD>;"+LEFT((TRB)->TR_LOTE,6)+">6-"+substr((TRB)->TR_ITEM,7,3)+"^FS" + CRLF
+	printZT230 += "^FT40,857^A0N,50,51^FH\^CI28^FDVALIDADE:^FS^CI27"  + CRLF
+	printZT230 += "^FT0,967^A0N,100,100^FB1062,1,30,C^FH\^CI28^FD"+dtoc((TRB)->TR_VALID)+"^FS^CI27" + CRLF
+	printZT230 += "^FO8,1059^GB1156,283,12^FS"  + CRLF
+	printZT230 += "^FT40,1075^A0N,50,51^FH\^CI28^FDQUANTIDADE^FS^CI27"  + CRLF
+	printZT230 += "^FT20,1178^A0N,150,150^FB1161,1,38,C^FH\^CI28^FD"+alltrim(transform((TRB)->TR_QTDEMB,"@E 999,999,999.999"))+"^FS^CI27" + CRLF
+	printZT230 += "^BY10,3,279^FT197,1668^BCN,,Y,N"  + CRLF
+	printZT230 += "^FH\^FD>;"+alltrim((TRB)->TR_SKU)+"^FS" + CRLF
+	printZT230 += "^FT40,1408^A0N,50,51^FH\^CI28^FDSKU^FS^CI27"  + CRLF
+	printZT230 += "^PQ1,,,Y"  + CRLF
+	printZT230 += "^XZ"  + CRLF
+	*/
+
+	//Refeito o codigo ZPL 
+	printZT230 += "^XA"+ CRLF
+	printZT230 += CRLF
+	printZT230 += "~TA000"+ CRLF
+	printZT230 += "~JSN"+ CRLF
+	printZT230 += "^LT0"+ CRLF
+	printZT230 += "^MNW"+ CRLF
+	printZT230 += "^MTD"+ CRLF
+	printZT230 += "^PON"+ CRLF
+	printZT230 += "^PMN"+ CRLF
+	printZT230 += "^LH0,0"+ CRLF
+	printZT230 += "^JMA"+ CRLF
+	printZT230 += "^PR4,4"+ CRLF
+	printZT230 += "~SD15"+ CRLF
+	printZT230 += "^JUS"+ CRLF
+	printZT230 += "^LRN"+ CRLF
+	printZT230 += "^CI27"+ CRLF
+	printZT230 += "^PA0,1,1,0"+ CRLF
+	printZT230 += "^XZ"+ CRLF
+	printZT230 += "^XA"+ CRLF
+	printZT230 += "^MMT"+ CRLF
+	printZT230 += "^PW812"+ CRLF
+	printZT230 += "^LL1218"+ CRLF
+	printZT230 += "^LS0"+ CRLF
+	printZT230 += "^FO8,17^GB800,200,12^FS"+ CRLF
+	printZT230 += "^FO8,210^GB800,280,12^FS"+ CRLF
+	printZT230 += "^FO8,470^GB800,150,12^FS"+ CRLF
+	printZT230 += "^FO8,610^GB800,150,12^FS"+ CRLF
+	printZT230 += "^FO8,750^GB800,350,12^FS"+ CRLF
+	printZT230 += CRLF
+	printZT230 += "^FT30,70^A0N,30,30^FH\^CI28^FDITEM:^FS^CI27" + CRLF
+	printZT230 += "^FT30,140^A0N,50,50^FH\^CI28^FD " + left((TRB)->TR_ITEM,25) + " ^FS^CI27"
+	printZT230 += "^FT30,200^A0N,50,50^FH\^CI28^FD " + substring((TRB)->TR_ITEM,26,25) + " ^FS^CI27"
+	printZT230 += CRLF
+	printZT230 += "^FT30,250^A0N,30,30^FH\^CI28^FDLOTE:^FS^CI27" + CRLF
+	printZT230 += "^BY4,2,130" + CRLF
+	//printZT230 += "^FO60,270^BC^FD " + LEFT((TRB)->TR_LOTE,6)+">6-"+substr((TRB)->TR_ITEM,7,3) + " ^FS" + CRLF
+	printZT230 += "^FO60,270^BC^FD " + Alltrim((TRB)->TR_LOTE) + " ^FS" + CRLF
+	printZT230 += CRLF
+	printZT230 += "^FT30,530^A0N,30,30^FH\^CI28^FD VAL:^FS^CI27" + CRLF
+	printZT230 += "^FT90,590^A0N,110,110^FH\^CI28^FD " + dtoc((TRB)->TR_VALID) + " ^FS^CI27" + CRLF
+	printZT230 += CRLF
+	printZT230 += "^FT30,660^A0N,30,30^FH\^CI28^FD QTD: ^FS^CI27" + CRLF
+	printZT230 += "^FT90,720^A0N,110,110^FH\^CI28^FD "+ Alltrim(transform((TRB)->TR_QTDEMB,"@E 999,999,999.999")) +" ^FS^CI27" + CRLF
+	printZT230 += CRLF
+	printZT230 += "^FT30,800^A0N,30,30^FH\^CI28^FD SKU: ^FS^CI27" + CRLF
+	printZT230 += "^BY5,2,230" + CRLF
+	printZT230 += "^FO60,810^BC^FD "+ alltrim((TRB)->TR_SKU) +"^FS" + CRLF
+	printZT230 += "^XZ"
+
+	if !EXISTDIR( "c:\temp" )
+		MAKEDIR( "c:\temp" )
+	endif
+
+	//MEMOWRITE( "c:\temp\etiquetaZT230.txt", printZT230 )
+
+
+	cIniName := GetRemoteIniName() // Resultado: "C:\totvs\bin\SmartClient\smartclient.ini"
+
+	lUnix := IsSrvUnix()
+	nPos  := Rat( IIf( lUnix, "/", "\" ), cIniName )
+	_cCaminho := ""
+	_cCamLoc  := ""
+	
+	if !( nPos == 0 )
+		_cCamLoc := SubStr( cIniName, 1, nPos - 1 )
+	else
+		_cCamLoc := "c:\temp"
+	endif
+
+	//Verificar se existe a bat
+	_cTxtBat := 'type ' + _cCamLoc + "\" + alltrim(cCodImpr) +'.txt > lpt1'
+
+	if !File( _cCamLoc + "\" + alltrim(cCodImpr) + ".bat")
+		MEMOWRITE( _cCamLoc + "\" + alltrim(cCodImpr) + ".bat", _cTxtBat)
+	EndIf
+	
+	MEMOWRITE( _cCamLoc + "\" + alltrim(cCodImpr) + ".txt", printZT230 )
+	_cCaminho := _cCamLoc + "\" + alltrim(cCodImpr) + ".bat"
+
+	if CB5SetImp(cCodImpr)
+		Sleep(200) // Como esta em rede, esperar 2 seg para impressao (Atualizacao necessária)
+		WinExec(_cCaminho)
+	else
+		MsgStop("Não foi possivel comunicar com a impressora")
+	EndIf
+return
+
+/*/{Protheus.doc} MA103OPC
+	(altera menu da nota fiscal de entrada)
+	@type  Static Function
+	@author SR
+	@since 20/12/2023
+	@version 12.1.2210
+/*/
+User Function MA103OPC()
+	Local aRet := {} as array
+	if Len(aRotina[1]) = 4
+		aAdd( aRet, {'# Etiqueta de Lote(ZT230)', 'u_ZT230_10x15', 0, 6} )
+	else
+		aAdd( aRet, {'# Etiqueta de Lote(ZT230)', 'u_ZT230_10x15', 0, 6, 0, } )
+	endif
+Return aRet
+
+/*/{Protheus.doc} MTA250MNU
+	(altera menu apontamento de produção. Ponto de entrada da rotina MATA250 )
+	@type  Static Function
+	@author SR
+	@since 20/12/2023
+	@version 12.1.2210
+/*/
+User Function MTA250MNU
+	aEval( u_MA103OPC(), { |x| aAdd(aRotina,x) })
+Return aRotina
+
+/*/{Protheus.doc} MTC060MNU
+	(altera menu do saldo por lote. Ponto de entrada da rotina MATC060)
+	@type  Static Function
+	@author SR
+	@since 20/12/2023
+	@version 12.1.2210
+/*/
+User Function MTC060MNU
+	aEval( u_MA103OPC(), { |x| aAdd(aRotina,x) })
+Return aRotina
+
+
+/*/{Protheus.doc} criaTemporario
+	(Cria arquivo temporário de trabalho)
+	@type  Static Function
+	@author SR
+	@since 20/12/2023
+	@version 12.1.2210
+/*/
+static function criaTemporario()
+
+	Local aFields as Array
+	Local TRB	  as character
+	Local nQtdTrb as numeric
+
+	// Criar a tabela temporária
+	aFields := {}
+	AAdd(aFields, {"TR_OK" 	  ,"C", 02, 0}) // Este campo será usado para marcar/desmarcar
+	AAdd(aFields, {"TR_ETQ"   ,"C", 03, 0})
+	AAdd(aFields, {"TR_ITEM"  ,"C", 60, 0})
+	AAdd(aFields, {"TR_LOTE"  ,"C", 10, 0})
+	AAdd(aFields, {"TR_VALID" ,"D", 08, 0})
+	AAdd(aFields, {"TR_QTDEMB","N", 12, 3})
+	AAdd(aFields, {"TR_QTDETQ","N", 08, 0})
+	AAdd(aFields, {"TR_QTDDOC","N", 14, 3})
+	AAdd(aFields, {"TR_SKU"   ,"C", 15, 0})
+
+	oTrb:=FWTemporaryTable():New()
+	oTrb:SetFields( aFields )
+	oTrb:AddIndex("TRB_ITEM", {"TR_ITEM", "TR_SKU"} )
+	oTrb:AddIndex("TRB_SKU", {"TR_SKU"} )
+	oTrb:Create()
+
+	TRB := oTrb:GetAlias()
+
+	dbSelectArea(TRB)
+	count to nQtdTrb
+
+	if nQtdTrb > 0
+		dbGoTop()
+		zap
+	endif
+
+return TRB

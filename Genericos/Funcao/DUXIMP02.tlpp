@@ -1,0 +1,14 @@
+#include "totvs.ch"
+#include "protheus.ch"
+#include 'parmtype.ch'
+#INCLUDE "topConn.ch"
+
+/****************************************************************************************
+ * Autor.: Sande Ribeiro (SR Corpore)
+ * Data..: 29/01/2024
+ * Motivo: Gravar SDB e reprocessar saldo para gerar SBF
+ ****************************************************************************************/
+
+ User Function DUXIMP02()
+
+ Return nil
