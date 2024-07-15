@@ -109,9 +109,9 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 			FimPag(cSubject,cRotina) 
 			nSalto := 0
 		Endif
+ 	
+			oPrinter:Say(nLinha, nMargemEsq + aItemSuces[nI][1] , aItemSuces[nI][2]     , oFont10:oFont)
 
-			oPrinter:Say(nLinha, nMargemEsq + aItemSuces[nI][1] , aItemSuces[nI][2] 	, oFont10:oFont)
-		
 		 nSalto ++
 
 	Next nI
