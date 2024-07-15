@@ -82,6 +82,14 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 
 //Array das descrições dos Itens 
 
+	If  nSalto >= 29
+			If  nFolha > 0
+				oPrinter:EndPage()
+			Endif
+			FimPag(cSubject,cRotina) 
+			nSalto := 0
+	Endif
+
 	If Len (aDescItens) > 0
 		For nZ := 1  To Len( aDescItens )
 		
@@ -91,7 +99,7 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 			
 		nLinha += 20
 	Endif
-	
+
 	For nI:= 1 To Len( aItemSuces )
 
 		If  nSalto >= 29
@@ -102,8 +110,7 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 			nSalto := 0
 		Endif
 
-
-		//oPrinter:Say(nLinha, nMargemEsq + aMargItens[nZ][1] , aItemSuces[nI][2] 	, oFont10:oFont)
+			oPrinter:Say(nLinha, nMargemEsq + aItemSuces[nI][1] , aItemSuces[nI][2] 	, oFont10:oFont)
 		
 		 nSalto ++
 

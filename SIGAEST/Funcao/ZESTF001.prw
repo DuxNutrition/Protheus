@@ -51,6 +51,7 @@ Local cDescItem5 := "Validade"
 Local cDescItem6 := "Quantidade"
 Local cDescItem7 := "Documento"
 Local cDescItem8 := "Motivo do Bloqueio"
+Local cStatus  := "Bloqueado"
 
 Local nMarg01      := 5
 Local nMarg02      := 59
@@ -138,7 +139,14 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 						nQuant   := ROUND((cAliTempSB8)->B8_SALDO,7)
 						cLotectl := ALLTRIM((cAliTempSB8)->B8_LOTECTL)
 						cLocal   := (cAliTempSB8)->B8_LOCAL
-						Aadd(aItemBloq,{cProd,nQuant,cLotectl,cLocal,_dTLotVal,cDocSDD,cValTochar(nDiasVenc)})
+						Aadd(aItemBloq,{nMarg01,cProd})
+						Aadd(aItemBloq,{nMarg02,Transform(nQuant , "@E 9,999,999.999999")})
+						Aadd(aItemBloq,{nMarg03,cLocal})
+						Aadd(aItemBloq,{nMarg04,nMarg01cLotectl})
+						Aadd(aItemBloq,{nMarg05,Transform(_dTLotVal, "@D 99/99/9999")})
+						Aadd(aItemBloq,{nMarg06,cStatus})
+						Aadd(aItemBloq,{nMarg07,cDocSDD})
+						Aadd(aItemBloq,{nMarg08,""+ccValTochar(nDiasVenc)+" dia(s) próximo ao vencimento"})
 					Endif  
 			Else
 
