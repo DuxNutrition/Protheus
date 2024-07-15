@@ -6,13 +6,18 @@
 
 #Define STR_PULA		Chr(13)+Chr(10)
 
-/*/{Protheus.doc} DUXR775
-	@description Pick-List Nota Fiscal
-	@author Marlovani - CI Result
-	@since 20/03/2023
-	@version 1.0
+/*
+=====================================================================================
+Programa.: DUXR775
+Autor....: Ci | Result
+Data.....: 15/07/2024
+Descricao / Objetivo: Pick-List Nota Fiscal
+Doc. Origem:
+Solicitante: Compras
+Uso......: Dux
+Obs......:
+=====================================================================================
 */
-
 User Function DUXR775()
                   
 Local cPerg  		:= "DUXPIC"
