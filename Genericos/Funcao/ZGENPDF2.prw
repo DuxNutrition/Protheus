@@ -6,14 +6,14 @@
 
 #Define STR_PULA		Chr(13)+Chr(10)
 
-/*/{Protheus.doc} ZGENPDF1
+/*/{Protheus.doc} ZGENPDF2
 	@description Função para Gerar e Gravar em Pdf
 	@author Jedielson Rodrigues
 	@since 11/07/2024
 	@version 1.0
 */
 
-User Function ZGENPDF1(aDescItens,aItemSuces,cSubject,cRotina)
+User Function ZGENPDF2(aDescItens,aItemErro,aItemComp,cSubject,cRotina)
 
 Local cCodProd      := " "
 Local nQtd        	:= 0		             
@@ -25,7 +25,7 @@ Local cDoc 	 		:= " "
 Local cMotBloc 		:= " "
 Local nI            := 0
 Local nZ			:= 0
-Local Nx	        := 0
+Local nX	        := 0
 Local cCodUsr       := Iif(Empty(RetCodUsr()),"000000",RetCodUsr())
 Local cPdfFileName  := ALLTRIM(cRotina)+'_'+cCodUsr+'_'+Substring(Dtoc(Date()),1,2)+Substring(Dtoc(Date()),4,2)+Substring(Dtoc(Date()),9,2)+'_'+Substring(Time(),1,2) +Substring(Time(),4,2) +Substring(Time(),7,2)+'.Pdf'
 
@@ -44,14 +44,14 @@ Private oFont13N    := Nil
 
 Private nEstru		:= 0
 Private nFolha      := 0
-Private nSalto      := 50
+Private nSalto      := 35
 Private nLinha      := 0
 Private nMargemEsq  := 25
 Private cLogo		:= "system\LGMID.png"
 
-Default aMargItens := {}
 Default aDescItens := {}
-Default aItemSuces := {}
+Default aItemErro := {}
+Default aItemComp  := {}
 Default cSubject   := " "
 Default cRotina    := " "
 
@@ -87,11 +87,11 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 			If  nFolha > 0
 				oPrinter:EndPage()
 			Endif
-			ZCabecPG1(cSubject,cRotina) 
+			ZCabecPG2(cSubject,cRotina) 
 			nSalto := 0
 	Endif
 
-	If Len (aDescItens) > 0
+	/*If Len (aDescItens) > 0
 		For nZ := 1  To Len( aDescItens )
 		
 			oPrinter:Say(nLinha, nMargemEsq	+ aDescItens[nZ][1] , aDescItens[nZ][2]		, oFont10n:oFont)
@@ -100,37 +100,82 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 
 		nLinha += 12
 			
-	Endif
+	Endif*/
 
-	For nI:= 1 To Len( aItemSuces )
+    If Len( aItemErro ) > 0 
 
-		If  nSalto >= 49
-			If  nFolha > 0
-				oPrinter:EndPage()
-			Endif
-			ZCabecPG1(cSubject,cRotina) 
-			nSalto := 0
+        For nI:= 1 To Len( aItemErro )
 
-			For nZ := 1  To Len( aDescItens )
-		
-				oPrinter:Say(nLinha, nMargemEsq	+ aDescItens[nZ][1] , aDescItens[nZ][2]		, oFont10n:oFont)
+            If  nSalto >= 49
+                If  nFolha > 0
+                    oPrinter:EndPage()
+                Endif
+                ZCabecPG2(cSubject,cRotina) 
+                nSalto := 0
 
-			Next nZ
+                For nZ := 1  To Len( aDescItens )
+            
+                    oPrinter:Say(nLinha, nMargemEsq	+ aDescItens[nZ][1] , aDescItens[nZ][2]		, oFont10n:oFont)
 
-			nLinha += 12
-		Endif
+                Next nZ
 
-		For Nx := 1 to Len(aDescItens)
+                nLinha += 12
+            Endif
 
-			oPrinter:Say(nLinha, nMargemEsq + aDescItens[nX][1] , aItemSuces[nI][Nx]     , oFont10:oFont)
+            For nZ := 1  To Len( aDescItens )
+            
+                    oPrinter:Say(nLinha, nMargemEsq	+ aDescItens[nZ][1] , aDescItens[nZ][2]		, oFont10n:oFont)
 
-		Next Nx
+            Next nZ
 
-		nLinha += 12
+            For Nx := 1 to Len(aDescItens)
 
-		nSalto ++
+                oPrinter:Say(nLinha, nMargemEsq + aDescItens[nX][1] , aItemErro[nI][Nx]     , oFont10:oFont)
 
-	Next nI
+            Next Nx
+
+            nLinha += 12
+
+            nSalto ++
+
+        Next nI
+    Endif
+
+    If Len( aItemComp ) > 0
+
+        For nI:= 1 To Len( aItemComp )
+
+                If  nSalto >= 49
+                    If  nFolha > 0
+                        oPrinter:EndPage()
+                    Endif
+                    ZCabecPG2(cSubject,cRotina) 
+                    nSalto := 0
+
+                Endif
+
+                For nX := 1  To Len( aDescItens )
+                
+                    oPrinter:Say(nLinha, nMargemEsq	+ aDescItens[nX][1] , aItemComp[nI][nX]             , oFont10n:oFont)
+
+                Next nX
+
+                nLinha += 11
+
+                oPrinter:Say(nLinha, nMargemEsq	+ 5	, FwCutOff( aItemComp[nI][8], .T. )			        , oFont10:oFont)
+			    
+                nLinha += 7
+
+                If nSalto <= 33
+				    oPrinter:Say(nLinha, nMargemEsq + 5	, REPLICATE("—", 53)	    				   , oFont10:oFont)
+				    nLinha += 7
+			    Endif
+        
+               nSalto ++
+
+        Next nI
+
+    Endif
 
 oPrinter:EndPage()
 oPrinter:Preview()   
@@ -141,7 +186,7 @@ Return Nil
 	Valida se chegou ao final da página
 ----------------------------------------*/
 
-Static Function ZCabecPG1(cSubject,cRotina)  
+Static Function ZCabecPG2(cSubject,cRotina)  
 
 //	Local nLinC		:= 4.95		//Linha que será impresso o Código de Barra
 //	Local nColC		:= 1.6		//Coluna que será impresso o Código de Barra
@@ -198,5 +243,3 @@ Static Function ZCabecPG1(cSubject,cRotina)
 	oPrinter:Box(nLinha-10, 025, nLinha+600, 537)	
 	
 Return 
-
- 
