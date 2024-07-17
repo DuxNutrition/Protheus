@@ -244,7 +244,7 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 		
 
 		aAnexos := U_ZGENPDF(aDescItens,aItemBloq,cSubject,cRotina)
-		U_ZGENMAIL(cSubject+" Erro",cMensagem,cEMail,aAnexos,.F.,cRotina)
+		U_ZGENMAIL(FwCutOff(cSubject+" Erro", .T.),cMensagem,cEMail,aAnexos,.F.,cRotina)
 		If Len(aAnexos) > 0
 			cDelArq := aAnexos[1]
 			fErase(cDelArq)
