@@ -1,8 +1,8 @@
 #include "totvs.ch"
 #include "FWPrintSetup.ch"
 #include "RPTDEF.ch"
-#include "tlpp-core.th"
-#include "tlpp-object.th"
+//#include "tlpp-core.th"
+//#include "tlpp-object.th"
 
 #define IMP_DANFE    1
 #define IMP_ETIQUETA 2
@@ -15,35 +15,36 @@ transportadoras.
 @author Raphael Koury Giusti
 @since 08/11/2023
 /*/
-user function ImprimeNotaFiscal(nTipoImpressao)
-    local lRet := .t. as logical
-    private cAliasTemp          := "" as character
-    private cChaveNfe           := "" as character
-    private cTransportadoraDe   := "" as character
-    private cTransportadoraAte  := "" as character
-    private cNotaFiscalDe       := "" as character
-    private cNotaFiscalAte      := "" as character
-    private cSerieNotaFiscal    := "" as character
-    private cMsg                := "" as character
-    private cSolucao            := "" as character
-    private cImpressora         := "" as character
-    private nImpressora         := 0  as numeric
-    private nTipoOperacao       := 0  as numeric
-    private dDataDe             := stod("") as date
-    private dDataAte            := stod("") as date
-    default nTipoImpressao      := 1
+User Function ZFATF002(nTipoImp)
 
-        if(getPergunta(nTipoImpressao))
-            setPergunta(nTipoImpressao)
+    Local lRet            := .T.
+    Private cAliasTemp    := ""
+    Private cChaveNfe     := ""
+    Private cTranspDe     := ""
+    Private cTranspAte    := ""
+    Private cNFiscalDe    := ""
+    Private cNFiscalAte   := ""
+    Private cSerieNF      := ""
+    Private cMsg          := ""
+    Private cSolucao      := ""
+    Private cImpressora   := ""
+    Private nImpressora   := 0
+    Private nTipoOperacao := 0
+    Private dDataDe       := stod("")
+    Private dDataAte      := stod("")
+    Default nTipoImp      := 1
+
+        if(getPergunta(nTipoImp))
+            setPergunta(nTipoImp)
 
             FwMsgRun( ,{|| lRet := getChaveNfe() }, FwFilialName(), "Aguarde...Buscando informaçõe..." )
 
             if(lRet)
                 setChaveNfe()
                 if(!empty(cChaveNfe))
-                    if(nTipoImpressao == IMP_DANFE)
+                    if(nTipoImp == IMP_DANFE)
                         imprimeDanfe()
-                    elseif(nTipoImpressao == IMP_ETIQUETA)
+                    elseif(nTipoImp == IMP_ETIQUETA)
                         imprimeEtiqueta()
                     endif
                 else
@@ -66,33 +67,28 @@ Realiza a impressão do DANFE.
 @since 08/11/2023
 /*/
 static function imprimeDanfe()
-    local oDanfe        := nil as object
-    local oSetup        := nil as object
-    local cSession  	:= GetPrinterSession() as character
-    local cDevice     	:= if(Empty(fwGetProfString(cSession,"PRINTTYPE","SPOOL",.T.)),;
-                                "PDF",;
-                                fwGetProfString(cSession,"PRINTTYPE","SPOOL",.T.)) as character
-    local cBarra		:= iif(IsSrvUnix(),"/","\") as character
-    local cDir			:= "" as character
-    local cFilePrint	:= "DANFE_"+cIdEnt+Dtos(MSDate())+StrTran(Time(),":","") as character
-    local nRet 			:= 0 as numeric
-    local nX 			:= 0 as numeric
-    local nTipo		    := 0 as numeric
-    local nPar		    := 0 as numeric
-    local nFlags        := PD_ISTOTVSPRINTER + PD_DISABLEPAPERSIZE + ;
-                            PD_DISABLEPREVIEW + PD_DISABLEMARGIN as numeric
-    local nLocal       	:= if(fwGetProfString(cSession,"local","SERVER",.T.)==;
-                                "SERVER",1,2) as numeric
-    local nOrientation 	:= if(fwGetProfString(cSession,"ORIENTATION","PORTRAIT",.T.)==;
-                                "PORTRAIT",1,2) as numeric
-    local cIdEnt 		:= getCfgEntidade() as character
-    local lJob			:= isBlind() as logical 
-    local lDanfeII		:= tssHasRdm("PrtNfeSef") as logical
-    local lDanfeIII		:= tssHasRdm("DANFE_P1") as logical
-    local lMsgVld		:= .f. as logical
-    local aDevice  		:= {"DISCO","SPOOL","EMAIL","EXCEL","HTML","PDF"} as array 
-    local nPrintType    := aScan(aDevice,{|x| x == cDevice }) as numeric
-    local lAdjustToLegacy := .f. as logical
+    local oDanfe        := nil
+    local oSetup        := nil
+    local cSession  	:= GetPrinterSession()
+    //local cDevice     	:= if(Empty(fwGetProfString(cSession,"PRINTTYPE","SPOOL",.T.)),"PDF",fwGetProfString(cSession,"PRINTTYPE","SPOOL",.T.)) as character
+    local cBarra		:= iif(IsSrvUnix(),"/","\")
+    local cDir			:= ""
+    local cFilePrint	:= "DANFE_"+cIdEnt+Dtos(MSDate())+StrTran(Time(),":","")
+    local nRet 			:= 0 
+    local nX 			:= 0 
+    local nTipo		    := 0 
+    local nPar		    := 0 
+    //local nFlags        := PD_ISTOTVSPRINTER + PD_DISABLEPAPERSIZE + PD_DISABLEPREVIEW + PD_DISABLEMARGIN as numeric
+    //local nLocal       	:= if(fwGetProfString(cSession,"local","SERVER",.T.)== "SERVER",1,2) as numeric
+    //local nOrientation 	:= if(fwGetProfString(cSession,"ORIENTATION","PORTRAIT",.T.)=="PORTRAIT",1,2) as numeric
+    local cIdEnt 		:= getCfgEntidade()
+    local lJob			:= isBlind()
+    local lDanfeII		:= tssHasRdm("PrtNfeSef")
+    local lDanfeIII		:= tssHasRdm("DANFE_P1")
+    local lMsgVld		:= .f.
+    //local aDevice  		:= {"DISCO","SPOOL","EMAIL","EXCEL","HTML","PDF"} as array 
+    //local nPrintType    := aScan(aDevice,{|x| x == cDevice }) as numeric
+    //local lAdjustToLegacy := .f. as logical
 
         if(tssHasRdm("DANFE_V") .and. if(lJob, nPar == 1, .t.))
             nRet := tssExecRdm("Danfe_v", .F.)
@@ -102,9 +98,9 @@ static function imprimeDanfe()
 
         Pergunte("NFSIGW",.F.) 
 
-        mv_par01 := cNotaFiscalDe
-        mv_par02 := cNotaFiscalAte
-        mv_par03 := cSerieNotaFiscal
+        mv_par01 := cNFiscalDe
+        mv_par02 := cNFiscalAte
+        mv_par03 := cSerieNF
         mv_par04 := 2
 		mv_par05 := 2
 		mv_par06 := 2
@@ -126,7 +122,9 @@ static function imprimeDanfe()
             endif
 
             if(nTipo != 1)
-                oDanfe := FWMSPrinter():New(cFilePrint, IMP_PDF, lAdjustToLegacy, cDir, .T. )
+
+                oDanfe      := FWMSPrinter():New(cFilePrint ,   ,.F., cDir  , .T.,,,,,.F. )
+                //oDanfe      := FWMSPrinter():New(cFilePrint, IMP_PDF, lAdjustToLegacy, cDir, .T. )
 
                 if(lJob)
                     oDanfe:SetViewPDF(.F.)
@@ -134,10 +132,14 @@ static function imprimeDanfe()
                 endif
 
                 if(!oDanfe:lInJob)
-                    oSetup := FWPrintSetup():New(nFlags, "DANFE")
-                    oSetup:SetPropert(PD_PRINTTYPE   , nPrintType)
-                    oSetup:SetPropert(PD_ORIENTATION , nOrientation)
-                    oSetup:SetPropert(PD_DESTINATION , nLocal)
+
+                    oSetup := FWPrintSetup():New(PD_ISTOTVSPRINTER + PD_DISABLEORIENTATION + PD_DISABLEPAPERSIZE + PD_DISABLEPREVIEW + PD_DISABLEMARGIN, "DANFE")
+                    oSetup:SetPropert(PD_PRINTTYPE , 2) //Spool
+                    oSetup:SetPropert(PD_ORIENTATION , 2)
+                    oSetup:SetPropert(PD_DESTINATION , 1)
+                    //oSetup:SetPropert(PD_PRINTTYPE   , nPrintType)
+                    //oSetup:SetPropert(PD_ORIENTATION , nOrientation)
+                    //oSetup:SetPropert(PD_DESTINATION , nLocal)
                     oSetup:SetPropert(PD_MARGIN      , {60,60,60,60})
                     oSetup:SetPropert(PD_PAPERSIZE   , 2)
 
@@ -213,9 +215,9 @@ filtradas na impressão.
 @author Raphael Koury Giusti
 @since 08/11/2023
 /*/
-static function getChaveNfe() as logical
-    local cSql := "" as character
-    local lRet := .t. as logical
+static function getChaveNfe()
+    local cSql := ""
+    local lRet := .t.
 
         cSql += " SELECT " + CRLF
         cSql += "     SF2.F2_CHVNFE AS CHAVE_NFE " + CRLF
@@ -225,7 +227,7 @@ static function getChaveNfe() as logical
         cSql += "     SF2.F2_TRANSP BETWEEN ? AND ? AND " + CRLF
         cSql += "     SF2.F2_DOC BETWEEN ? AND ? AND  " + CRLF
         
-        if(!empty(cSerieNotaFiscal))
+        if(!empty(cSerieNF))
             cSql += "     SF2.F2_SERIE = ? AND  " + CRLF
         endif
 
@@ -234,16 +236,16 @@ static function getChaveNfe() as logical
         cSql += " ORDER BY 1 " + CRLF
 
         oStatement := FWExecStatement():new(cSql)
-		oStatement:setString(1,cTransportadoraDe)
-		oStatement:setString(2,cTransportadoraAte)
-        oStatement:setString(3,cNotaFiscalDe)
-        oStatement:setString(4,cNotaFiscalAte)
+		oStatement:setString(1,cTranspDe)
+		oStatement:setString(2,cTranspAte)
+        oStatement:setString(3,cNFiscalDe)
+        oStatement:setString(4,cNFiscalAte)
 
-        if(empty(cSerieNotaFiscal))
+        if(empty(cSerieNF))
             oStatement:setDate(5,dDataDe)
             oStatement:setDate(6,dDataAte)
         else
-            oStatement:setString(5,cSerieNotaFiscal)
+            oStatement:setString(5,cSerieNF)
             oStatement:setDate(6,dDataDe)
             oStatement:setDate(7,dDataAte)
         endif
@@ -266,10 +268,10 @@ Realiza a impressão da etiqueta.
 @since 08/11/2023
 /*/
 static function imprimeEtiqueta()
-	local cIdEnt	 := getCfgEntidade() as character
-	local cUrl		 := "" as character
-    local lRet		 := .t. as logical
-	local lUsaColab	 := .f. as logical
+	local cIdEnt	 := getCfgEntidade()
+	local cUrl		 := ""
+    local lRet		 := .t.
+	local lUsaColab	 := .f.
 
         if(!empty(cIdEnt))
             lUsaColab := UsaColaboracao("1")
@@ -281,9 +283,9 @@ static function imprimeEtiqueta()
                 
                 Pergunte("NFDANFETIQ",.f.)
                 
-                mv_par01 := cNotaFiscalDe  
-                mv_par02 := cNotaFiscalAte 
-                mv_par03 := cSerieNotaFiscal
+                mv_par01 := cNFiscalDe  
+                mv_par02 := cNFiscalAte 
+                mv_par03 := cSerieNF
                 mv_par04 := dDataDe 
                 mv_par05 := dDataAte
                 mv_par06 := nTipoOperacao
@@ -309,16 +311,16 @@ perguntas.
 @author Raphael Koury Giusti
 @since 08/11/2023
 /*/
-static function setPergunta(nTipoImpressao)
-    cTransportadoraDe  := mv_par01
-    cTransportadoraAte := mv_par02
-    cNotaFiscalDe      := mv_par03
-    cNotaFiscalAte     := mv_par04
-    cSerieNotaFiscal   := mv_par05
+static function setPergunta(nTipoImp)
+    cTranspDe  := mv_par01
+    cTranspAte := mv_par02
+    cNFiscalDe      := mv_par03
+    cNFiscalAte     := mv_par04
+    cSerieNF   := mv_par05
     dDataDe            := mv_par06
     dDataAte           := mv_par07
 
-    if(nTipoImpressao == IMP_ETIQUETA)
+    if(nTipoImp == IMP_ETIQUETA)
         nTipoOperacao := val(mv_par08)
         nImpressora   := val(mv_par09)
         cImpressora   := mv_par10
@@ -332,11 +334,11 @@ usuário.
 @author Raphael Koury Giusti
 @since 08/11/2023
 /*/
-static function getPergunta(nTipoImpressao) as logical
-	local aParBox 	  := {} as array
-    local aImpressora := {"1=Termica","2=Normal"} as array
-    local aTpDoc      := {"1=Entrada","2=Saída"} as array
-	local lRet	  	  := .t. as logical
+static function getPergunta(nTipoImp)
+	local aParBox 	  := {}
+    local aImpressora := {"1=Termica","2=Normal"}
+    local aTpDoc      := {"1=Entrada","2=Saída"}
+	local lRet	  	  := .t.
 
 		aadd( aParBox,{1, "Transportadora de"	,space(tamsx3("A1_COD")[1])	    ,"", "", "SA4"  ,"",  80,.F.})
 		aadd( aParBox,{1, "Transportadora até"	,space(tamsx3("A1_COD")[1])	    ,"", "", "SA4"  ,"",  80,.F.})
@@ -346,7 +348,7 @@ static function getPergunta(nTipoImpressao) as logical
         aadd( aParBox,{1, "Data de"             ,criavar("F2_EMISSAO")	        ,"", "", ""	    ,"",  80,.F.})
 		aadd( aParBox,{1, "Data até"            ,criavar("F2_EMISSAO")	        ,"", "", ""	    ,"",  80,.F.})
         
-        if(nTipoImpressao == IMP_ETIQUETA)
+        if(nTipoImp == IMP_ETIQUETA)
             aadd( aParBox,{2, "Tipo Operação"   ,aTpDoc[02],aTpDoc,80,".t.", .f.})
             aadd( aParBox,{2, "Tipo Impressora" ,aImpressora[02],aImpressora,80,".t.", .f.})
             aadd( aParBox,{1, "Impressora" ,space(6),"", "","CB5IMP","",80,.f.})

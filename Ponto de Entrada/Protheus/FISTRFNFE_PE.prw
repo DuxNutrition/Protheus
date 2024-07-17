@@ -1,6 +1,4 @@
 #include "totvs.ch"
-#include "tlpp-core.th"
-#include "tlpp-object.th"
 
 /*/{Protheus.doc} FISTRFNFE
 Ponto de entrada que inclui mais opções
@@ -12,7 +10,7 @@ de rotinas na rotina SPEDNFE.
 user function FISTRFNFE()
     default aRotina := {}
 
-        aadd(aRotina,{"DANFE - Custom","u_ImprimeNotaFiscal(1)",0,3,0,nil})
-        aadd(aRotina,{"DANFE Etiqueta - Custom","u_ImprimeNotaFiscal(2)",0,3,0,nil})
+        aadd(aRotina,{"DANFE - Custom"          ,"u_ZFATF002(1)",0,3,0,nil})
+        aadd(aRotina,{"DANFE Etiqueta - Custom" ,"u_ZFATF002(2)",0,3,0,nil})
 
 return 
