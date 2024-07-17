@@ -6,28 +6,22 @@
 
 #Define STR_PULA		Chr(13)+Chr(10)
 
-/*/{Protheus.doc} ZGENPDF1
+/*/{Protheus.doc} ZGENPDF
 	@description Função para Gerar e Gravar em Pdf
 	@author Jedielson Rodrigues
 	@since 11/07/2024
 	@version 1.0
 */
 
-User Function ZGENPDF1(aDescItens,aItemSuces,cSubject,cRotina)
+User Function ZGENPDF(aDescItens,aItemSuces,cSubject,cRotina)
 
-Local cCodProd      := " "
-Local nQtd        	:= 0		             
-Local cLote	        := " "
-Local cLocal 	    := " "                
-Local cDtValid      := " "
-Local cStatus  		:= " "                
-Local cDoc 	 		:= " "
-Local cMotBloc 		:= " "
 Local nI            := 0
 Local nZ			:= 0
 Local Nx	        := 0
+Local cCaminho 		:= "\spool\"
 Local cCodUsr       := Iif(Empty(RetCodUsr()),"000000",RetCodUsr())
-Local cPdfFileName  := ALLTRIM(cRotina)+'_'+cCodUsr+'_'+Substring(Dtoc(Date()),1,2)+Substring(Dtoc(Date()),4,2)+Substring(Dtoc(Date()),9,2)+'_'+Substring(Time(),1,2) +Substring(Time(),4,2) +Substring(Time(),7,2)+'.Pdf'
+Local cArquivo 		:= ALLTRIM(cRotina)+'_'+cCodUsr+'_'+Substring(Dtoc(Date()),1,2)+Substring(Dtoc(Date()),4,2)+Substring(Dtoc(Date()),9,2)+'_'+Substring(Time(),1,2) +Substring(Time(),4,2) +Substring(Time(),7,2)+'.Pdf'
+Local aAnexos       := {}
 
 Private oPrinter 	:= Nil
 Private oFont10N   	:= Nil
@@ -54,13 +48,19 @@ Default aDescItens := {}
 Default aItemSuces := {}
 Default cSubject   := " "
 Default cRotina    := " "
-
-fErase(GetTempPath() + cPdfFileName)
-oPrinter:= FWMSPrinter():New(cPdfFileName, IMP_PDF, .F.,, .T.) 
-oPrinter:cPathPDF := GetTempPath()     
-oPrinter:SetPortrait()  
-oPrinter:SetResolution(72)  
-oPrinter:SetPaperSize(9)   
+	
+//Se não existir a pasta na Protheus Data, cria ela
+If ! ExistDir(cCaminho)
+	MakeDir(cCaminho)
+EndIf
+	
+//Cria o objeto FWMSPrinter
+oPrinter := FWMSPrinter():New(cArquivo, IMP_PDF, .F., '', .T., .F., , , .T., .T., , .F.)
+oPrinter :cPathPDF := cCaminho
+oPrinter:SetResolution(72)
+oPrinter:SetPortrait()
+oPrinter:SetPaperSize(DMPAPER_A4)
+oPrinter:SetMargin(60,60,60,60) // nEsquerda, nSuperior, nDireita, nInferior
 
 oFont07    := TFontEx():New(oPrinter,"Arial",06,06,.F.,.T.,.F.)
 oFont08    := TFontEx():New(oPrinter,"Arial",07,07,.F.,.T.,.F.)
@@ -87,7 +87,7 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 			If  nFolha > 0
 				oPrinter:EndPage()
 			Endif
-			ZCabecPG1(cSubject,cRotina) 
+			ZCabecPG(cSubject,cRotina) 
 			nSalto := 0
 	Endif
 
@@ -108,7 +108,7 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 			If  nFolha > 0
 				oPrinter:EndPage()
 			Endif
-			ZCabecPG1(cSubject,cRotina) 
+			ZCabecPG(cSubject,cRotina) 
 			nSalto := 0
 
 			For nZ := 1  To Len( aDescItens )
@@ -133,15 +133,17 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 	Next nI
 
 oPrinter:EndPage()
-oPrinter:Preview()   
+oPrinter:Print() 
+ 
+Aadd(aAnexos, cCaminho + cArquivo)
 
-Return Nil
+Return (aAnexos)
 
 /*--------------------------------------
 	Valida se chegou ao final da página
 ----------------------------------------*/
 
-Static Function ZCabecPG1(cSubject,cRotina)  
+Static Function ZCabecPG(cSubject,cRotina)  
 
 //	Local nLinC		:= 4.95		//Linha que será impresso o Código de Barra
 //	Local nColC		:= 1.6		//Coluna que será impresso o Código de Barra

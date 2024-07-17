@@ -13,7 +13,7 @@ Função para envio de email.
 
 /*/
 
-User Function ZGENMAIL(cSubject,cMensagem,cEMail,aFiles,lMensagem,cRotina,lEnviAnex)
+User Function ZGENMAIL(cSubject,cMensagem,cEMail,aFiles,lMensagem,cRotina)
 
 Local lEnvioOK 		:= .F.	// Variavel que verifica se foi conectado OK
 Local lMailAuth		:= SuperGetMv("MV_RELAUTH",,.F.)
@@ -32,13 +32,11 @@ Local oMessage		:= NIL
 Local nPort			:= 0
 Local nAt			:= 0
 Local cServer		:= " "
-//Local cPDFAnexo     := .F.
 Local nX			:= 0 
 
 DEFAULT aFiles 		:= {}
 DEFAULT lMensagem 	:= .T.
 DEFAULT lErroFile   := .F.
-DEFAULT lEnviAnex   := .F.
 
 //Em servidores linux, é necessário que os arquivos estejam em caracteres minusculos
 If GetSrvInfo()[2] == "Linux"
@@ -57,6 +55,36 @@ If Empty(cFrom)
 EndIf
 
 If (!Empty(cMailServer)) .AND. (!Empty(cMailConta)) .AND. (!Empty(cMailSenha))
+
+	oMessage := TMailMessage():New()
+		
+	//Limpa o objeto
+	oMessage:Clear()
+	
+	//Popula com os dados de envio
+	oMessage:cFrom 		:= cFrom
+	oMessage:cTo 		:= cEmail
+	oMessage:cCc 		:= ""
+	oMessage:cBcc 		:= ""
+	oMessage:cSubject 	:= cSubject
+	oMessage:cBody 		:= GetxBody(cMensagem,cRotina,cSubject)
+
+	For nX :=1 to Len(aFiles)  
+		If File(aFiles[nX])
+
+			nArqErro := oMessage:AttachFile( aFiles[nX] )
+		Else
+			If (nArqErro < 0) 
+				If lMensagem .AND. !Isblind() 
+						Aviso("[ZGENMAIL] - Aviso","Falha no envio do e-mail. Erro retornado: " + CHR(13) + cMsgErro,{"OK"})	
+				Else
+						Conout("[ZGENMAIL] - Falha no envio do e-mail. Erro retornado:") //"Falha no envio do e-mail. Erro retornado: " + CHR(13) + cMsgErro,{"OK"}) 	
+				EndIf
+				lErroFile	:= .T.
+				Exit
+			EndIf
+		Endif
+	Next
 	
 	oMail	:= TMailManager():New()
 	oMail:SetUseSSL(lUseSSL)
@@ -96,37 +124,6 @@ If (!Empty(cMailServer)) .AND. (!Empty(cMailConta)) .AND. (!Empty(cMailSenha))
 				EndIf
 			EndIf
 		Endif
-		
-		oMessage := TMailMessage():New()
-		
-		//Limpa o objeto
-		oMessage:Clear()
-		
-		//Popula com os dados de envio
-		oMessage:cFrom 		:= cFrom
-		oMessage:cTo 		:= cEmail
-		oMessage:cCc 		:= ""
-		oMessage:cBcc 		:= ""
-		oMessage:cSubject 	:= cSubject
-		oMessage:cBody 		:= GetxBody(cMensagem,cRotina,cSubject)
-
-		/*If lEnviAnex == .T.
-			ZAnexPdf(oMessage:cBody,lEnviAnex,cRotina)
-		Endif*/
-		
-		For nX :=1 to Len(aFiles)  
-			nArqErro := oMessage:AttachFile( aFiles[nX] )
-			
-			If (nArqErro < 0) 
-				If lMensagem .AND. !Isblind() 
-						Aviso("[ZGENMAIL] - Aviso","Falha no envio do e-mail. Erro retornado: " + CHR(13) + cMsgErro,{"OK"})	
-				Else
-						Conout("[ZGENMAIL] - Falha no envio do e-mail. Erro retornado:") //"Falha no envio do e-mail. Erro retornado: " + CHR(13) + cMsgErro,{"OK"}) 	
-				EndIf
-				lErroFile	:= .T.
-				Exit
-			EndIf
-		Next		
 		
 		If !lErroFile
 			//Envia o e-mail

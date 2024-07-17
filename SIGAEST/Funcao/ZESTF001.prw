@@ -22,9 +22,10 @@ Local _aAreaSDD 	:= SDD->(GetArea())
 Local aProdBlq  	:= {}
 Local aItemBloq  	:= {}
 Local aItemErro		:= {}
+Local aAnexos		:= {}
 
 Local cEMail	    := SuperGetMv("DUX_EST003",.F.,"jedielson.rodrigues@duxnutrition.com")
-Local cSubject      := "Lotes bloqueados próximo ao vencimento.!"
+Local cSubject      := "Lotes bloqueados proximo ao vencimento.!"
 Local cMsg          := " "
 Local cMensagem 	:= " "
 Local cRotina       := "ZESTF001"
@@ -40,6 +41,7 @@ Local _dDtValid 	:= CtoD( "" )
 Local _dTLotVal   	:= CtoD( "" )
 Local cAliTempSB8   := GetNextAlias()
 Local _cErro        := " "
+Local cDelArq		:= " "
 Local _nPos         := 0
 
 // Descrição dos Itens Bloqueados
@@ -53,6 +55,9 @@ Local cDescItem6 := "Status"
 Local cDescItem7 := "Documento"
 Local cDescItem8 := "Motivo do Bloqueio"
 Local cStatus  	 := "Bloqueado"
+
+Local cDescErro1 := "Produto | Quantidade | Lote | Local"
+Local cDescErro2 := "Erro"
 
 // Margem dos Itens Bloqueados
 
@@ -68,16 +73,12 @@ Local nMarg08      := 395
 // Margem dos Erros dos Itens
 
 Local nMarErro1     := 5
-Local nMarErro2     := 90
-Local nMarErro3     := 110
+Local nMarErro2     := 200
+/*Local nMarErro3   := 110
 Local nMarErro4     := 200
 Local nMarErro5     := 230
 Local nMarErro6     := 315
-Local nMarErro7     := 340
-
-
-//Local nMarErro7     := 5
-//Local nMarErro8     := 5
+Local nMarErro7     := 340*/
 
 Local _aError       := {}
 Local aErroPrint	:= {}
@@ -177,16 +178,11 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 							nQuant   := ROUND((cAliTempSB8)->SALDO_BLOQ,7)
 							cLotectl := ALLTRIM((cAliTempSB8)->B8_LOTECTL)
 							cLocal   := (cAliTempSB8)->B8_LOCAL
-							cMsg     := FwCutOff(aErroPrint[1][1], .T.)
-							
-							Aadd(aItemErro,{"Produto: " +FwCutOff(cProd, .T.)+ " ",; 
-											" | ",;
-											"Quantidade: " +ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " ",;
-											" | ",;
-											"Lote: " +FwCutOff(cLotectl, .T.)+ " ",;
-											" | ",;
-											"Local: " +FwCutOff(cLocal, .T.)+ " ",;
+							cMsg     := SUBSTR(ALLTRIM(FwCutOff(aErroPrint[1][1], .T.)),1,100)
+					
+							Aadd(aItemErro,{ALLTRIM(FwCutOff(cProd, .T.)) + " | " + ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " | " + ALLTRIM(FwCutOff(cLotectl, .T.))+ " | " +ALLTRIM(FwCutOff(cLocal, .T.))+ " ",;
 											cMsg})
+
 
 
 						Else
@@ -212,14 +208,8 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 							cLotectl := ALLTRIM((cAliTempSB8)->B8_LOTECTL)
 							cLocal   := (cAliTempSB8)->B8_LOCAL
 							
-							cMsg := "Lote não foi bloqueado por falta de Saldo. " 
-							Aadd(aItemErro,{"Produto: " +FwCutOff(cProd, .T.)+ " ",; 
-											" | ",;
-											"Quantidade: " +ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " ",;
-											" | ",;
-											"Lote: " +FwCutOff(cLotectl, .T.)+ " ",;
-											" | ",;
-											"Local: " +FwCutOff(cLocal, .T.)+ " ",;
+							cMsg := "Lote não foi bloqueado por falta de Saldo." 
+						    Aadd(aItemErro,{ALLTRIM(FwCutOff(cProd, .T.)) + " | " + ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " | " + ALLTRIM(FwCutOff(cLotectl, .T.))+ " | " +ALLTRIM(FwCutOff(cLocal, .T.))+ " ",;
 											cMsg})
 
 				Endif 
@@ -230,15 +220,9 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 				cLotectl := ALLTRIM((cAliTempSB8)->B8_LOTECTL)
 				cLocal   := (cAliTempSB8)->B8_LOCAL
 
-				cMsg := "Produto não foi bloqueado por que o campo 'RASTRO' não está com Lote na aba 'C.Q' " 
-				Aadd(aItemErro,{"Produto: " +FwCutOff(cProd, .T.)+ " ",; 
-								" | ",;
-								"Quantidade: " +ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " ",;
-								" | ",;
-								"Lote: " +FwCutOff(cLotectl, .T.)+ " ",;
-								" | ",;
-								"Local: " +FwCutOff(cLocal, .T.)+ " ",;
-								cMsg})
+				cMsg := "Produto não foi bloqueado por que o campo 'RASTRO' não está com Lote na aba 'C.Q'" 
+				Aadd(aItemErro,{ALLTRIM(FwCutOff(cProd, .T.)) + " | " + ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " | " + ALLTRIM(FwCutOff(cLotectl, .T.))+ " | " +ALLTRIM(FwCutOff(cLocal, .T.))+ " ",;
+											cMsg})
 			
 			Endif
 
@@ -258,8 +242,13 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 		Aadd(aDescItens,{nMarg07,cDescItem7})
 		Aadd(aDescItens,{nMarg08,cDescItem8})
 		
-		U_ZGENPDF1(aDescItens,aItemBloq,cSubject,cRotina)
-		//U_ZGENMAIL(cSubject,cMensagem,cEMail, ,.F.,cRotina)
+
+		aAnexos := U_ZGENPDF(aDescItens,aItemBloq,cSubject,cRotina)
+		U_ZGENMAIL(cSubject+" Erro",cMensagem,cEMail,aAnexos,.F.,cRotina)
+		If Len(aAnexos) > 0
+			cDelArq := aAnexos[1]
+			fErase(cDelArq)
+		Endif
 
 	Endif
 
@@ -267,16 +256,15 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 
 		aDescItens := {}
 
-		Aadd(aDescItens,{nMarErro1})
-		Aadd(aDescItens,{nMarErro2})
-		Aadd(aDescItens,{nMarErro3})
-		Aadd(aDescItens,{nMarErro4})
-		Aadd(aDescItens,{nMarErro5})
-		Aadd(aDescItens,{nMarErro6})
-		Aadd(aDescItens,{nMarErro7})
+		Aadd(aDescItens,{nMarErro1,cDescErro1})
+		Aadd(aDescItens,{nMarErro2,cDescErro2})
 		
-		U_ZGENPDF2(aDescItens,aItemErro,cSubject,cRotina)
-		//U_ZGENMAIL(cSubject,cMensagem,cEMail, ,.F.,cRotina)
+		aAnexos := U_ZGENPDF(aDescItens,aItemErro,cSubject,cRotina)
+		U_ZGENMAIL(FwCutOff(cSubject+" Erro", .T.),cMensagem,cEMail,aAnexos,.F.,cRotina)
+		If Len(aAnexos) > 0
+			cDelArq := aAnexos[1]
+			fErase(cDelArq)
+		Endif
 	
 	Endif
 
