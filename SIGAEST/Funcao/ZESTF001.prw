@@ -22,7 +22,6 @@ Local _aAreaSDD 	:= SDD->(GetArea())
 Local aProdBlq  	:= {}
 Local aItemBloq  	:= {}
 Local aItemErro		:= {}
-Local aRastErro		:= {}
 
 Local cEMail	    := SuperGetMv("DUX_EST003",.F.,"jedielson.rodrigues@duxnutrition.com")
 Local cSubject      := "Lotes bloqueados próximo ao vencimento.!"
@@ -73,8 +72,8 @@ Local nMarErro2     := 90
 Local nMarErro3     := 110
 Local nMarErro4     := 200
 Local nMarErro5     := 230
-Local nMarErro6     := 300
-Local nMarErro7     := 330
+Local nMarErro6     := 315
+Local nMarErro7     := 340
 
 
 //Local nMarErro7     := 5
@@ -121,10 +120,11 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
     cQry += "       INNER JOIN "+ RetSqlName("SB1")+" SB1 WITH(NOLOCK) "+CRLF 
     cQry += "            ON SB1.B1_FILIAL = ' ' "+CRLF 
     cQry += "            AND SB1.B1_COD = SB8.B8_PRODUTO "+CRLF
-    cQry += "            AND SB1.B1_MSBLQL = '2' "+CRLF 
+    //cQry += "            AND SB1.B1_MSBLQL = '2' "+CRLF 
     cQry += "            AND SB1.D_E_L_E_T_ = ' ' "+CRLF
     cQry += "     WHERE SB8.B8_FILIAL = '"+FwXFILIAL("SB8")+"' "+CRLF 
     cQry += "     AND (SB8.B8_SALDO - SB8.B8_EMPENHO - SB8.B8_QACLASS) > 0 "+CRLF 
+	//cQry += "     AND SB8.B8_PRODUTO = '410709023' "+CRLF 
     cQry += "     AND SB8.D_E_L_E_T_ = ' ' "+CRLF 
     cQry += " )TMP "+CRLF
 	cQry += " ORDER BY TMP.B8_FILIAL, TMP.B8_PRODUTO "+CRLF
@@ -177,12 +177,18 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 							nQuant   := ROUND((cAliTempSB8)->SALDO_BLOQ,7)
 							cLotectl := ALLTRIM((cAliTempSB8)->B8_LOTECTL)
 							cLocal   := (cAliTempSB8)->B8_LOCAL
+							cMsg     := FwCutOff(aErroPrint[1][1], .T.)
+							
+							Aadd(aItemErro,{"Produto: " +FwCutOff(cProd, .T.)+ " ",; 
+											" | ",;
+											"Quantidade: " +ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " ",;
+											" | ",;
+											"Lote: " +FwCutOff(cLotectl, .T.)+ " ",;
+											" | ",;
+											"Local: " +FwCutOff(cLocal, .T.)+ " ",;
+											cMsg})
 
-							Aadd(aItemErro,{FwCutOff(cProd, .T.),;
-											ALLTRIM(Transform(nQuant , "@E 9,999,999.999999")),;
-											FwCutOff(cLotectl, .T.),;
-											FwCutOff(cLocal, .T.),;
-											FwCutOff(aErroPrint, .T.)})
+
 						Else
 							cProd    := ALLTRIM((cAliTempSB8)->B8_PRODUTO)
 							nQuant   := ROUND((cAliTempSB8)->SALDO_BLOQ,7)
@@ -207,14 +213,14 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 							cLocal   := (cAliTempSB8)->B8_LOCAL
 							
 							cMsg := "Lote não foi bloqueado por falta de Saldo. " 
-							Aadd(aRastErro,{"Produto: " +FwCutOff(cProd, .T.)+ " ",; 
+							Aadd(aItemErro,{"Produto: " +FwCutOff(cProd, .T.)+ " ",; 
 											" | ",;
-											"Quantidade:" +ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " ",;
+											"Quantidade: " +ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " ",;
 											" | ",;
 											"Lote: " +FwCutOff(cLotectl, .T.)+ " ",;
 											" | ",;
 											"Local: " +FwCutOff(cLocal, .T.)+ " ",;
-											FwCutOff(cMsg, .T.)})
+											cMsg})
 
 				Endif 
 			Else
@@ -225,11 +231,14 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 				cLocal   := (cAliTempSB8)->B8_LOCAL
 
 				cMsg := "Produto não foi bloqueado por que o campo 'RASTRO' não está com Lote na aba 'C.Q' " 
-				Aadd(aRastErro,{FwCutOff(cProd, .T.),;
-								ALLTRIM(Transform(nQuant , "@E 9,999,999.999999")),;
-								FwCutOff(cLotectl, .T.),;
-								FwCutOff(cLocal, .T.),;
-								FwCutOff(cMsg, .T.)})
+				Aadd(aItemErro,{"Produto: " +FwCutOff(cProd, .T.)+ " ",; 
+								" | ",;
+								"Quantidade: " +ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " ",;
+								" | ",;
+								"Lote: " +FwCutOff(cLotectl, .T.)+ " ",;
+								" | ",;
+								"Local: " +FwCutOff(cLocal, .T.)+ " ",;
+								cMsg})
 			
 			Endif
 
@@ -250,10 +259,11 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 		Aadd(aDescItens,{nMarg08,cDescItem8})
 		
 		U_ZGENPDF1(aDescItens,aItemBloq,cSubject,cRotina)
+		//U_ZGENMAIL(cSubject,cMensagem,cEMail, ,.F.,cRotina)
 
 	Endif
 
-	IF Len(aItemErro) > 0 .OR. Len(aRastErro) > 0
+	IF Len(aItemErro) > 0 
 
 		aDescItens := {}
 
@@ -264,10 +274,8 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 		Aadd(aDescItens,{nMarErro5})
 		Aadd(aDescItens,{nMarErro6})
 		Aadd(aDescItens,{nMarErro7})
-		//Aadd(aDescItens,{nMarErro8,cDescErro8})
 		
-		U_ZGENPDF2(aDescItens,aItemErro,aRastErro,cSubject,cRotina)
-
+		U_ZGENPDF2(aDescItens,aItemErro,cSubject,cRotina)
 		//U_ZGENMAIL(cSubject,cMensagem,cEMail, ,.F.,cRotina)
 	
 	Endif

@@ -13,18 +13,9 @@
 	@version 1.0
 */
 
-User Function ZGENPDF2(aDescItens,aItemErro,aItemComp,cSubject,cRotina)
+User Function ZGENPDF2(aDescItens,aItemErro,cSubject,cRotina)
 
-Local cCodProd      := " "
-Local nQtd        	:= 0		             
-Local cLote	        := " "
-Local cLocal 	    := " "                
-Local cDtValid      := " "
-Local cStatus  		:= " "                
-Local cDoc 	 		:= " "
-Local cMotBloc 		:= " "
 Local nI            := 0
-Local nZ			:= 0
 Local nX	        := 0
 Local cCodUsr       := Iif(Empty(RetCodUsr()),"000000",RetCodUsr())
 Local cPdfFileName  := ALLTRIM(cRotina)+'_'+cCodUsr+'_'+Substring(Dtoc(Date()),1,2)+Substring(Dtoc(Date()),4,2)+Substring(Dtoc(Date()),9,2)+'_'+Substring(Time(),1,2) +Substring(Time(),4,2) +Substring(Time(),7,2)+'.Pdf'
@@ -44,14 +35,13 @@ Private oFont13N    := Nil
 
 Private nEstru		:= 0
 Private nFolha      := 0
-Private nSalto      := 35
+Private nSalto      := 26
 Private nLinha      := 0
 Private nMargemEsq  := 25
 Private cLogo		:= "system\LGMID.png"
 
 Default aDescItens := {}
 Default aItemErro := {}
-Default aItemComp  := {}
 Default cSubject   := " "
 Default cRotina    := " "
 
@@ -83,7 +73,7 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 
 //Array das descrições dos Itens 
 
-	If  nSalto >= 49
+	If  nSalto >= 25
 			If  nFolha > 0
 				oPrinter:EndPage()
 			Endif
@@ -91,61 +81,11 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 			nSalto := 0
 	Endif
 
-	/*If Len (aDescItens) > 0
-		For nZ := 1  To Len( aDescItens )
-		
-			oPrinter:Say(nLinha, nMargemEsq	+ aDescItens[nZ][1] , aDescItens[nZ][2]		, oFont10n:oFont)
-
-		Next nZ
-
-		nLinha += 12
-			
-	Endif*/
-
-    If Len( aItemErro ) > 0 
+    If Len( aItemErro ) > 0
 
         For nI:= 1 To Len( aItemErro )
 
-            If  nSalto >= 49
-                If  nFolha > 0
-                    oPrinter:EndPage()
-                Endif
-                ZCabecPG2(cSubject,cRotina) 
-                nSalto := 0
-
-                For nZ := 1  To Len( aDescItens )
-            
-                    oPrinter:Say(nLinha, nMargemEsq	+ aDescItens[nZ][1] , aDescItens[nZ][2]		, oFont10n:oFont)
-
-                Next nZ
-
-                nLinha += 12
-            Endif
-
-            For nZ := 1  To Len( aDescItens )
-            
-                    oPrinter:Say(nLinha, nMargemEsq	+ aDescItens[nZ][1] , aDescItens[nZ][2]		, oFont10n:oFont)
-
-            Next nZ
-
-            For Nx := 1 to Len(aDescItens)
-
-                oPrinter:Say(nLinha, nMargemEsq + aDescItens[nX][1] , aItemErro[nI][Nx]     , oFont10:oFont)
-
-            Next Nx
-
-            nLinha += 12
-
-            nSalto ++
-
-        Next nI
-    Endif
-
-    If Len( aItemComp ) > 0
-
-        For nI:= 1 To Len( aItemComp )
-
-                If  nSalto >= 49
+                If  nSalto >= 25
                     If  nFolha > 0
                         oPrinter:EndPage()
                     Endif
@@ -156,18 +96,18 @@ oFont18N   := TFontEx():New(oPrinter,"Arial",17,17,.T.,.T.,.F.)
 
                 For nX := 1  To Len( aDescItens )
                 
-                    oPrinter:Say(nLinha, nMargemEsq	+ aDescItens[nX][1] , aItemComp[nI][nX]             , oFont10n:oFont)
+                    oPrinter:Say(nLinha, nMargemEsq	+ aDescItens[nX][1] , aItemErro[nI][nX]             , oFont10n:oFont)
 
                 Next nX
 
-                nLinha += 11
+                nLinha += 9
 
-                oPrinter:Say(nLinha, nMargemEsq	+ 5	, FwCutOff( aItemComp[nI][8], .T. )			        , oFont10:oFont)
+                oPrinter:Say(nLinha, nMargemEsq	+ 5	, FwCutOff( aItemErro[nI][nX], .T. )			    , oFont10:oFont)
 			    
-                nLinha += 7
+                nLinha += 8
 
-                If nSalto <= 33
-				    oPrinter:Say(nLinha, nMargemEsq + 5	, REPLICATE("—", 53)	    				   , oFont10:oFont)
+                If nSalto <= 23
+				    oPrinter:Say(nLinha, nMargemEsq + 5	, REPLICATE("—", 54)	    				    , oFont10:oFont)
 				    nLinha += 7
 			    Endif
         
