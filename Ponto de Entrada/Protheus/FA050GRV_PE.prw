@@ -16,11 +16,12 @@
 
     User Function  FA050GRV()
     Local cCodBar := ""
-    Local cFormPag := "30"
+    Local cFormPag := superGetMv("DUX_FIN01",.T.,"30")
+    Local cBanco := SuperGetMV("DUX_FIN02",.T.,"341")
 
-    if LEFT(SE2->E2_CODBAR,3) == "341"
+    if LEFT(SE2->E2_CODBAR,3) $ Alltrim(cBanco)
         Reclock("SE2",.F.)
-            SE2->E2_FORMPAG := cFormPag
+            SE2->E2_FORMPAG := Alltrim(cFormPag)
         SE2->(MsUnlock())
     endif 
 
