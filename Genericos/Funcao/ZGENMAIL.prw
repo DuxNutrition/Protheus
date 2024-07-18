@@ -1,17 +1,15 @@
-#INCLUDE "Protheus.ch"
-#INCLUDE "Totvs.Ch"
-#INCLUDE "PRTOPDEF.ch"
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOTVS.CH"
+#INCLUDE "PRTOPDEF.CH"
 
-//--------------------------------------------------------------
-/*/{Protheus.doc} 
+/*{Protheus.doc} ZGENMAIL
 Função para envio de email.
 @author Equipe de Desenvolvimento. 
 @since 24/06/2024
 @history 
-@version P11,P12
+@version 1.0
 @database MSSQL
-
-/*/
+*/
 
 User Function ZGENMAIL(cSubject,cMensagem,cEMail,aFiles,lMensagem,cRotina)
 
@@ -191,68 +189,82 @@ Return( lEnvioOK )
 Static Function GetxBody(cMensagem,cRotina,cSubject)
 	Local cRet  	:= " "
 	Local cData 	:= Transform(dDataBase, "@D 99/99/9999")
-	Local cDescFil	:= FwFilialName()
-
-	cRet += '<table width="100%" bgcolor="#cccccc">'
-	cRet += '<tbody>'
-	cRet += '<tr>'
-	cRet += '<td colspan="2">'
-	cRet += '<table width="100%" bgcolor="#FFFFFF">'
-	cRet += '<tbody>'
-	cRet += '<tr>'
-	cRet += '<td>'
-	cRet += '<br>'
-	cRet += '<h1 style="text-align: center;"><strong><img style="float: left;" src="https://guide.duxnutrition.com/hc/theming_assets/01HZPQ6DRTKWFEKNNCNFA21XNK" alt="" width="150" height="050" />
-	cRet += ' '+cSubject+' '
-	cRet += '</strong></h1>'
-	cRet += '<br>'
-	cRet += '<center> '
-	cRet += '<table border="1" width="1000" cellspacing="0" cellpadding="2">
-	cRet += '<tbody>'
-	cRet += '<tr>'
-	cRet += '<td width="34%"><strong>Empresa/Filial: </strong>
-	cRet += ' '+cEmpAnt+'/'+cFilAnt+' '
-	cRet += '</td>'
-	cRet += '<td width="33%"><strong>Razao Social: </strong>Dux Company Ltda</td>'
-	cRet += '<td width="33%"><strong>Nome da Filial: </strong>'+cDescFil+'</td>'
-	cRet += '</tr>'
-	cRet += '</tbody>'
-	cRet += '</table>'
-	cRet += '<table border="1" width="1000" cellspacing="0" cellpadding="2">'
-	cRet += '<tbody>'
-	cRet += '<tr>'
-	cRet += '<td width="34%"><strong>Data: </strong>'+cData+'</td>'
-	cRet += '<td width="33%"><strong>Hora: </strong>'+Time()+'</td>'
-	cRet += '<td width="33%"><strong>Rotina: </strong>' +cRotina+ '</td>'
-	cRet += '</tr>'
-	cRet += '</tbody>'
-	cRet += '</table>'
-	cRet += '</center> '
-	cRet += '<p style="text-align: center;">
-	cRet += '<center> '
-	cRet += ''+cMensagem+' ' 
-	cRet += '</center> '
-	cRet += '</p>'
-	cRet += '</td>'
-	cRet += '</tr>'
-	cRet += '<tr>'
-	cRet += '<td>&nbsp;</td>'
-	cRet += '</tr>'
-	cRet += '</tbody>'
-	cRet += '</table>'
-	cRet += '</td>'
-	cRet += '</tr>'
-	cRet += '<tr>'
-	cRet += '</center> '
-	cRet += '<td colspan="2"><center>'
-	cRet += '<p><strong><img src="https://guide.duxnutrition.com/hc/theming_assets/01HZPQ6DRTKWFEKNNCNFA21XNK" alt="" width="185" height="76" /></strong></p>
-	cRet += '<br />Uma mensagem gerada automaticamente pelo sistema, portanto nao pode ser respondida. <br />Em caso de duvidas ou sugestoes, por favor, entre em contato com o suporte tecnico.</center></td>'
-	cRet += '</tr>'
-	cRet += '<tr>'
-	cRet += '<td colspan="2"><center>Rotina: ' +cRotina+ '</center></td>'
-	cRet += '</tr>'
-	cRet += '</tbody>'
-	cRet += '</table>'
+	
+	cRet += '<html> '
+	cRet += '<head> '
+    cRet += '	<meta charset="utf-8"> '
+    cRet += '	<title>Dux</title> '
+    cRet += '	<style> '
+    cRet += '    	hr { '
+    cRet += '    	display: block; '
+    cRet += '    	margin-block-start: 1em; '
+    cRet += '    	margin-block-end: 1em; '
+    cRet += '    	margin-inline-start: auto; '
+    cRet += '    	margin-inline-end: auto; '
+    cRet += '    	unicode-bidi: isolate; '
+    cRet += '    	overflow: hidden; '
+    cRet += '    	border-style: inset; '
+    cRet += '    	border-width: 1px; } '
+    cRet += '	</style> ' 
+	cRet += '</head> '
+	cRet += '<header> '
+    cRet += '	<center> '
+    cRet += '		<div style="overflow:hidden"><img src="https://guide.duxnutrition.com/hc/theming_assets/01HZPQ6DRTKWFEKNNCNFA21XNK" alt="image" style="height:auto;display:block;width:10%;border:0px" width="111" height="71" data-image-whitelisted="" class="CToWUd" data-bit="iit"></div> '
+    cRet += '	</center> '
+	cRet += '</header> '
+	cRet += '<body> '
+    cRet += '<br> '
+    cRet += '	<center> '
+    cRet += '		<div style="margin-left: -200px;"> '
+    cRet += '		<table cellspacing="0" cellpadding="0" border="0"> '
+    cRet += '<tbody> '
+    cRet += '<tr> '
+    cRet += '	<td> '
+    cRet += '		<p class="DescrMsgDocto"><b><i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">Data: <i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:sans-serif"> '+cData+'</span></span></i></b> </p> '            
+    cRet += '	</td> '
+    cRet += '</tr> '
+    cRet += '<tr> '
+    cRet += '	<td> '
+    cRet += '		<p class="DescrMsgDocto"><b><i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">Horário: <i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:sans-serif"> '+Time()+'</span></span></i></b> </p> '
+    cRet += '	</td> '
+    cRet +=	'</tr> '
+    cRet +=	'<tr> '
+    cRet +=	'	<td> '
+    cRet +=	'		<p class="DescrMsgDocto"><b><i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">Função: <i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:sans-serif"> '+cRotina+'</span></span></i></b> </p> '
+    cRet +=	'	</td> '
+    cRet +=	'</tr> '
+    cRet +=	'<tr> '
+    cRet +=	'	<td> '
+    cRet +=	'		<p class="DescrMsgDocto"><b><i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">Descrição: <i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:sans-serif"> '+cSubject+'</span></span></i></b> </p> '
+    cRet +=	'   </td> '
+    cRet +=	'</tr> '
+    cRet +=	'</tbody> '
+    cRet +=	'</table> '
+    cRet +=	'</div> '
+    cRet +=	'<br> '
+    cRet +=	'<div><i style="color:rgb(34,34,34);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">Anexo arquivo referente ao processamento da rotina.</span></i><div class="yj6qo"></div><div class="adL"><br></div></div> '    
+    cRet +=	'    <div><hr></div> '
+    cRet +=	'    <br> '
+    cRet +=	'    <div> '
+    cRet +=	'        <table cellspacing="0" cellpadding="0" border="0"> '
+    cRet +=	'            <tbody> '
+    cRet +=	'               <td width="100%" align="center" style="word-break:break-word"><div style="text-align:center"><a href="https://www.linkedin.com/company/dux-nutrition/" style="width:32px;height:32px;margin:6px;background-color:rgb(95,99,104);background-image:linear-gradient(rgb(95,99,104),rgb(95,99,104));border-radius:50%;box-sizing:content-box;overflow:hidden;display:inline-block;vertical-align:middle;line-height:0;font-size:10pt" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://www.linkedin.com/company/dux-nutrition/&amp;source=gmail&amp;ust=1721320038955000&amp;usg=AOvVaw2mgnkzUFS-5HrWoSW42J8n"><img src="https://ci3.googleusercontent.com/meips/ADKq_NYi_nox4WQXhJWN_yfG0NP46Rr7DIg58kXNx-RfPaFnOHsfcS_OlEp_OA9c_4UWr3KnSoOresUF_Ml_yYFcTvhZTHZrVWdt_10q2a1PK9pcT5m4Yijx-v75nyJuuaE=s0-d-e1-ft#https://ssl.gstatic.com/atari/images/sociallinks/linkedin_white_28dp.png" alt="LinkedIn" style="width:28px;height:28px;margin:2px;box-sizing:content-box;border:0px" width="28" height="28" class="CToWUd" data-bit="iit"></a><a href="https://www.instagram.com/duxnutritionlab" style="width:32px;height:32px;margin:6px;background-color:rgb(95,99,104);background-image:linear-gradient(rgb(95,99,104),rgb(95,99,104));border-radius:50%;box-sizing:content-box;overflow:hidden;display:inline-block;vertical-align:middle;line-height:0;font-size:10pt" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://www.instagram.com/duxnutritionlab&amp;source=gmail&amp;ust=1721320038955000&amp;usg=AOvVaw3uBMSv3dDpo7GcnrDqooJQ"><img src="https://ci3.googleusercontent.com/meips/ADKq_NaBSA_ecptkKAamT1SHxyS_6XlIWdZH5WeryJA3PZ0gEdkakp1VVVz1P6JE49NaF_eMySEIFruruDFnWoIGvhLCZ1qjDvDCdGWZovJ9opzdmp1gq2cp2BaSaveqZbz4=s0-d-e1-ft#https://ssl.gstatic.com/atari/images/sociallinks/instagram_white_28dp.png" alt="Instagram" style="width:28px;height:28px;margin:2px;box-sizing:content-box;border:0px" width="28" height="28" class="CToWUd" data-bit="iit"></a><a href="https://www.facebook.com/duxnutritionlab/?locale=pt_BR" style="width:32px;height:32px;margin:6px;background-color:rgb(95,99,104);background-image:linear-gradient(rgb(95,99,104),rgb(95,99,104));border-radius:50%;box-sizing:content-box;overflow:hidden;display:inline-block;vertical-align:middle;line-height:0;font-size:10pt" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://www.facebook.com/duxnutritionlab/?locale%3Dpt_BR&amp;source=gmail&amp;ust=1721320038955000&amp;usg=AOvVaw3Qato0oJstyv2UGO5Qh1fY"><img src="https://ci3.googleusercontent.com/meips/ADKq_NY37bb0x-Cffk0bQ_x_3I4LCQkATt-R30zlBNH5aImA9JVH6A5XIqK8Mn97QA4xulOeHggtHdvXxwqDBayAeXHR0biksIubJ-TmnQiW64RB0arKZ4YkXAccz7gygvg=s0-d-e1-ft#https://ssl.gstatic.com/atari/images/sociallinks/facebook_white_28dp.png" alt="Facebook" style="width:28px;height:28px;margin:2px;box-sizing:content-box;border:0px" width="28" height="28" class="CToWUd" data-bit="iit"></a></div></td> '
+    cRet +=	'            </tbody> '
+    cRet +=	'        </table> '
+    cRet +=	'    </div> '
+    cRet +=	'    <br> '
+    cRet +=	'    <div><i style="color:rgb(34,34,34);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">Canal de Escuta (de 2a a 6a, das 9h às 18h, exceto feriados): 0800 887 0880, ou a qualquer hora pela internet.</span></i><div class="yj6qo"></div><div class="adL"><br></div></div> '
+    cRet +=	'    <div><i style="color:rgb(34,34,34);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">Chamados pelo Zendesk para TI, RBO, SAC, facilities e jurídico - ou procure o RBO pelo WhatsApp</span></i><div class="yj6qo"></div><div class="adL"><br></div></div> '
+    cRet +=	'    <br> '
+    cRet +=	'    <div class="col-xs-12 col-sm-4"> '
+    cRet +=	'        <div style="overflow:hidden"><img src="https://i.postimg.cc/hjC3021N/rodape.jpg" alt="image" style="height:auto;display:block;width:50%;border:0px" width="111" height="71" data-image-whitelisted="" class="CToWUd" data-bit="iit"></div> '
+    cRet +=	'    </div> '
+    cRet +=	'    <br> '
+    cRet +=	'    <div><hr></div> '
+    cRet +=	'    <div><i style="color:rgb(34,34,34);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">O conteúdo desta mensagem contém informações de caráter confidencial, protegidas por lei. Se você não é a pessoa autorizada a receber esta mensagem, por favor elimine-a e avise o remetente imediatamente. </span></i><div class="yj6qo"></div><div class="adL"><br></div></div> '
+    cRet +=	'    <div><i style="color:rgb(34,34,34);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">The content of this message contains confidential information that is privileged under applicable laws. If you are not the authorized recipient of this message, please delete it and warn the sender immediately.</span></i><div class="yj6qo"></div><div class="adL"><br></div></div> '
+    cRet +=	'</center> '
+	cRet +=	'</body> '
 
 Return(cRet)
 

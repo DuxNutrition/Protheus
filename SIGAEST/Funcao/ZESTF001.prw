@@ -3,16 +3,14 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE "TBICONN.CH"
 
-//--------------------------------------------------------------
-/*/{Protheus.doc} 
+/*{Protheus.doc} ZESTF001
 Função para bloquear lote do produto conforme o prazo de dias de vencimento.
 @author Jedielson Rodrigues
 @since 17/06/2024
 @history 
-@version P11,P12
+@version 1.0
 @database MSSQL
-
-/*/
+*/
 
 User Function ZESTF001()
 
@@ -35,7 +33,9 @@ Local nQuant    	:= 0
 Local cLotectl  	:= " "
 Local cDocSDD   	:= SuperGetMv("DUX_EST001",.F.,"BLOC01")
 Local cTipo         := " "
+Local cLocal        := " "
 Local cBloctipo     := SuperGetMv("DUX_EST002",.F.,"PA#ME")
+Local cBlocLoc    	:= SuperGetMv("DUX_EST004",.F.,"QA05#PR01")
 Local nDiasVenc   	:= 0
 Local _dDtValid 	:= CtoD( "" )
 Local _dTLotVal   	:= CtoD( "" )
@@ -56,6 +56,8 @@ Local cDescItem7 := "Documento"
 Local cDescItem8 := "Motivo do Bloqueio"
 Local cStatus  	 := "Bloqueado"
 
+// Descrição dos Itens com Erros
+
 Local cDescErro1 := "Produto | Quantidade | Lote | Local"
 Local cDescErro2 := "Erro"
 
@@ -74,11 +76,6 @@ Local nMarg08      := 395
 
 Local nMarErro1     := 5
 Local nMarErro2     := 200
-/*Local nMarErro3   := 110
-Local nMarErro4     := 200
-Local nMarErro5     := 230
-Local nMarErro6     := 315
-Local nMarErro7     := 340*/
 
 Local _aError       := {}
 Local aErroPrint	:= {}
@@ -140,8 +137,10 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 		cTipo 	  := (cAliTempSB8)->B1_TIPO 
 		_dDtValid := (dDataBase + nDiasVenc) 
 		_dTLotVal := StoD((cAliTempSB8)->B8_DTVALID)
+		cLocal    := (cAliTempSB8)->B8_LOCAL
 
-		If _dDtValid > _dTLotVal .AND. cTipo $ cBloctipo
+
+		If _dDtValid > _dTLotVal .AND. cTipo $ cBloctipo .AND. cLocal $ cBlocLoc
 
 			If (cAliTempSB8)->B1_RASTRO == "L"
 
@@ -177,7 +176,6 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 							cProd    := ALLTRIM((cAliTempSB8)->B8_PRODUTO)
 							nQuant   := ROUND((cAliTempSB8)->SALDO_BLOQ,7)
 							cLotectl := ALLTRIM((cAliTempSB8)->B8_LOTECTL)
-							cLocal   := (cAliTempSB8)->B8_LOCAL
 							cMsg     := SUBSTR(ALLTRIM(FwCutOff(aErroPrint[1][1], .T.)),1,100)
 					
 							Aadd(aItemErro,{ALLTRIM(FwCutOff(cProd, .T.)) + " | " + ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " | " + ALLTRIM(FwCutOff(cLotectl, .T.))+ " | " +ALLTRIM(FwCutOff(cLocal, .T.))+ " ",;
@@ -189,8 +187,7 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 							cProd    := ALLTRIM((cAliTempSB8)->B8_PRODUTO)
 							nQuant   := ROUND((cAliTempSB8)->SALDO_BLOQ,7)
 							cLotectl := ALLTRIM((cAliTempSB8)->B8_LOTECTL)
-							cLocal   := (cAliTempSB8)->B8_LOCAL
-
+							
 							Aadd(aItemBloq,{FwCutOff(cProd, .T.),;
 											ALLTRIM(Transform(nQuant , "@E 9,999,999.999999")),;
 											FwCutOff(cLotectl, .T.),;
@@ -206,7 +203,6 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 							cProd    := ALLTRIM((cAliTempSB8)->B8_PRODUTO)
 							nQuant   := ROUND((cAliTempSB8)->QTDE_SB8,7) 
 							cLotectl := ALLTRIM((cAliTempSB8)->B8_LOTECTL)
-							cLocal   := (cAliTempSB8)->B8_LOCAL
 							
 							cMsg := "Lote não foi bloqueado por falta de Saldo." 
 						    Aadd(aItemErro,{ALLTRIM(FwCutOff(cProd, .T.)) + " | " + ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " | " + ALLTRIM(FwCutOff(cLotectl, .T.))+ " | " +ALLTRIM(FwCutOff(cLocal, .T.))+ " ",;
@@ -218,7 +214,6 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 				cProd 	 := ALLTRIM((cAliTempSB8)->B8_PRODUTO)
 				nQuant   := ROUND((cAliTempSB8)->QTDE_SB8,7)
 				cLotectl := ALLTRIM((cAliTempSB8)->B8_LOTECTL)
-				cLocal   := (cAliTempSB8)->B8_LOCAL
 
 				cMsg := "Produto não foi bloqueado por que o campo 'RASTRO' não está com Lote na aba 'C.Q'" 
 				Aadd(aItemErro,{ALLTRIM(FwCutOff(cProd, .T.)) + " | " + ALLTRIM(Transform(nQuant , "@E 9,999,999.999999"))+ " | " + ALLTRIM(FwCutOff(cLotectl, .T.))+ " | " +ALLTRIM(FwCutOff(cLocal, .T.))+ " ",;
@@ -244,7 +239,7 @@ Default cNumLote    := Space(Len(SDD->DD_NUMLOTE))
 		
 
 		aAnexos := U_ZGENPDF(aDescItens,aItemBloq,cSubject,cRotina)
-		U_ZGENMAIL(FwCutOff(cSubject+" Erro", .T.),cMensagem,cEMail,aAnexos,.F.,cRotina)
+		U_ZGENMAIL(FwCutOff(cSubject, .T.),cMensagem,cEMail,aAnexos,.F.,cRotina)
 		If Len(aAnexos) > 0
 			cDelArq := aAnexos[1]
 			fErase(cDelArq)
@@ -276,89 +271,6 @@ RestArea(_aAreaSB8)
 RestArea(_aAreaSDD)
 
 Return (lRet)
-
-Static Function CabecRel(aItemBloq)
-
-Local cMensagem 	    := " "
-Local nI	     	    := 0
-
-cMensagem += '	<table width="1000" border="1" cellpadding="2" cellspacing="0" style="border-collapse: collapse"  id="AutoNumber1"> '
-cMensagem += ' 		<tr> '
-cMensagem += '  		<td width="12%"><Font Size = "2" face = "arial"><b>'+ "Produto"+'</b></font></td> '
-cMensagem += '  		<td width="10%"><Font Size = "2" face = "arial"><b>'+ "Quantidade"+'</b></font></td> '
-cMensagem += '  		<td width="12%"><Font Size = "2" face = "arial"><b>'+ "Lote"+'</b></font></td> '
-cMensagem += '  		<td width="12%"><Font Size = "2" face = "arial"><b>'+ "Armazém"+'</b></font></td> '
-cMensagem += '  		<td width="12%"><Font Size = "2" face = "arial"><b>'+ "Validade"+'</b></font></td> '
-cMensagem += '  		<td width="10%"><Font Size = "2" face = "arial"><b>'+ "Status"+'</b></font></td> '
-cMensagem += '  		<td width="10%"><Font Size = "2" face = "arial"><b>'+ "Documento"+'</b></font></td> '
-cMensagem += '  		<td width="60%"><Font Size = "2" face = "arial"><b>'+ "Motivo do Bloqueio"+'</b></font></td> '
-cMensagem += ' 		</tr> '
-cMensagem += ' </table> ' 
-For nI:= 1 To Len( aItemBloq )
-	cMensagem += '	<table width="1000" border="1" cellpadding="2" cellspacing="0" style="border-collapse: collapse"  id="AutoNumber1"> '
-	cMensagem += '		<tr> ' 
-	cMensagem += '  		<td width="12%" bgcolor="#ffffff"><Font Size = "2" face = "arial">'+ aItemBloq[nI][1] + '</font></td> ' 
-	cMensagem += '  		<td width="10%" bgcolor="#ffffff"><Font Size = "2" face = "arial">'+ Transform(aItemBloq[nI][2] , "@E 9,999,999.999999")   +'</font></td> ' 
-	cMensagem += '  		<td width="12%" bgcolor="#ffffff"><Font Size = "2" face = "arial">'+ aItemBloq[nI][3] + '</font></td> ' 
-	cMensagem += '  		<td width="12%" bgcolor="#ffffff"><Font Size = "2" face = "arial">'+ aItemBloq[nI][4] + '</font></td> ' 
-	cMensagem += '  		<td width="12%" bgcolor="#ffffff"><Font Size = "2" face = "arial">'+ Transform(aItemBloq[nI][5], "@D 99/99/9999") +'</font></td> ' 
-	cMensagem += '  		<td width="10%" bgcolor="#ffffff"><Font Size = "2" face = "arial">Bloqueado</font></td> ' 
-	cMensagem += '  		<td width="10%" bgcolor="#ffffff"><Font Size = "2" face = "arial">'+ aItemBloq[nI][6] + '</font></td> '
-	cMensagem += '  		<td width="60%" bgcolor="#ffffff"><Font Size = "2" face = "arial">'+ aItemBloq[nI][7] + ' dia(s) próximo ao vencimento'+'</font></td> '
-	cMensagem += '		</tr> ' 
-	cMensagem += '	</table> ' 
-Next nI
-
-Return (cMensagem)
-
-Static Function CabecErro(aItemErro,aRastErro)
-
-Local cMensagem 	    := " "
-Local nY	     	    := 0
-Local nJ                := 0
-
-If  Len( aItemErro ) > 0
-	For nY:= 1 To Len( aItemErro )
-		cMensagem += '<div style="text-align: left; max-width: 545px;"> '
-		cMensagem += '	<Font Size="2" face="arial"><b>Produto: </b>'+ aItemErro[nY][1] + '</font> &nbsp;&nbsp;<b>|</b>&nbsp;&nbsp;&nbsp;&nbsp; '
-		cMensagem += '	<Font Size="2" face="arial"><b>Quantidade: </b>'+ Transform(aItemErro[nY][2] , "@E 9,999,999.999999")   +'</font> &nbsp;&nbsp;<b>|</b>&nbsp;&nbsp;&nbsp;&nbsp; '
-		cMensagem += '	<Font Size="2" face="arial"><b>Lote: </b>'+ aItemErro[nY][3] + '</font> &nbsp;&nbsp;<b>|</b>&nbsp;&nbsp;&nbsp;&nbsp; '
-		cMensagem += '	<Font Size="2" face="arial"><b>Armazém: </b>'+ aItemErro[nY][4] + '</font> '
-		cMensagem += '	<br> '
-		cMensagem += '	<br> '
-		cMensagem += '	<p>'+ Alltrim(aItemErro[nY][5][1][1]) + '</p> '
-		cMensagem += '	<p>'+ Alltrim(aItemErro[nY][5][2][1]) + '</p> '
-		cMensagem += '	<hr> '
-		cMensagem += '	<p>'+ Alltrim(aItemErro[nY][5][3][1]) + '</p> '
-		cMensagem += '	<p>'+ Alltrim(aItemErro[nY][5][4][1]) + '</p> '
-		cMensagem += '	<p>'+ Alltrim(aItemErro[nY][5][5][1]) + '</p> '
-		cMensagem += '	<p>'+ Alltrim(aItemErro[nY][5][6][1]) + '</p> '
-		cMensagem += '	<p>'+ Alltrim(aItemErro[nY][5][7][1]) + '</p> '
-		cMensagem += '	<p>'+ Alltrim(aItemErro[nY][5][8][1]) + '</p> '
-		cMensagem += '	<p>'+ Alltrim(aItemErro[nY][5][9][1]) + '</p> '
-		cMensagem += '	<hr> '
-		cMensagem += '</div> '
-	Next nI
-Endif
-
-If Len(aRastErro) > 0 
-	For nJ:= 1 To Len( aRastErro )
-		cMensagem += '<div style="text-align: left; max-width: 545px;"> '
-		cMensagem += '	<Font Size="2" face="arial"><b>Produto: </b>'+ aRastErro[nJ][1] + '</font> &nbsp;&nbsp;<b>|</b>&nbsp;&nbsp;&nbsp;&nbsp; '
-		cMensagem += '	<Font Size="2" face="arial"><b>Quantidade: </b>'+ Transform(aRastErro[nJ][2] , "@E 9,999,999.999999")   +'</font> &nbsp;&nbsp;<b>|</b>&nbsp;&nbsp;&nbsp;&nbsp; '
-		cMensagem += '	<Font Size="2" face="arial"><b>Lote: </b>'+ aRastErro[nJ][3] + '</font> &nbsp;&nbsp;<b>|</b>&nbsp;&nbsp;&nbsp;&nbsp; '
-		cMensagem += '	<Font Size="2" face="arial"><b>Armazém: </b>'+ aRastErro[nJ][4] + '</font> '
-		cMensagem += '	<br> '
-		cMensagem += '	<br> '
-		cMensagem += '	<p>'+ Alltrim(aRastErro[nJ][5]) + '</p> '
-		cMensagem += '	<hr> '
-		cMensagem += '</div> '
-	Next nJ
-Endif
-	
-Return (cMensagem)
-
-
 
 
 

@@ -1,18 +1,17 @@
 #INCLUDE "TOTVS.CH"
-#INCLUDE "TopConn.ch"
+#INCLUDE "TOPCONN.CH"
 #Include "TBICONN.CH"
 #Include "PROTHEUS.CH"
 
-//--------------------------------------------------------------
-/*/{Protheus.doc} 
+/*{Protheus.doc} ZESTS001
 Schedule para bloquear lote do produto conforme o prazo de dias de vencimento.
 @author Jedielson Rodrigues
 @since 17/06/2024
 @history 
-@version P11,P12'
+@version 1.0
 @database MSSQL
+*/
 
-/*/
 User Function ZESTS001(_aParam)
 
 Local _lJob 		:= IsBlind()

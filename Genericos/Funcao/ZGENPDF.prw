@@ -6,11 +6,12 @@
 
 #Define STR_PULA		Chr(13)+Chr(10)
 
-/*/{Protheus.doc} ZGENPDF
-	@description Função para Gerar e Gravar em Pdf
-	@author Jedielson Rodrigues
-	@since 11/07/2024
-	@version 1.0
+/*{Protheus.doc} ZGENPDF
+@description Função para gerar e gravar arquivo em Pdf.
+@author Jedielson Rodrigues
+@since 11/07/2024
+@version 1.0
+@database MSSQL
 */
 
 User Function ZGENPDF(aDescItens,aItemSuces,cSubject,cRotina)
@@ -145,24 +146,14 @@ Return (aAnexos)
 
 Static Function ZCabecPG(cSubject,cRotina)  
 
-//	Local nLinC		:= 4.95		//Linha que será impresso o Código de Barra
-//	Local nColC		:= 1.6		//Coluna que será impresso o Código de Barra
-	Local nLinC		:= 3.60		//Linha que será impresso o Código de Barra
-	Local nColC		:= 23.0		//Coluna que será impresso o Código de Barra
-	Local nWidth	:= 0.0164	//Numero do Tamanho da barra. Default 0.025 limite de largura da etiqueta é 0.0164
-	Local nHeigth   := 0.6		//Numero da Altura da barra. Default 1.5 --- limite de altura é 0.3
-	//Local lBanner	:= .T.		//Se imprime a linha com o código embaixo da barra. Default .T.
-	Local nPFWidth	:= 0.8		//Número do índice de ajuste da largura da fonte. Default 1
-	Local nPFHeigth	:= 0.9		//Número do índice de ajuste da altura da fonte. Default 1
-	Local lCmtr2Pix	:= .T.		//Utiliza o método Cmtr2Pix() do objeto Printer.Default .T.
-	Local cData 	:= Transform(dDataBase, "@D 99/99/9999")
-	Local cDescFil	:= FwFilialName()
-	Local cCompany  := "Dux Company Ltda"
-	Local cAssunto  := cSubject
- 
+Local cData 	:= Transform(dDataBase, "@D 99/99/9999")
+Local cDescFil	:= FwFilialName()
+Local cCompany  := "Dux Company Ltda"
+Local cAssunto  := cSubject
+
 	oPrinter:StartPage()										   								
 
-	//dados do cabeçalho 
+	//Dados do cabeçalho 
 	oPrinter:SayBitmap(010, 025, cLogo,095, 70)	
 
 	oPrinter:Say(040, 180,	cAssunto														, oFont16N:oFont)
