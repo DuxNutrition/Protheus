@@ -40,6 +40,9 @@ Endif
 If _cDest == cCnpjDest
 	aAdd(aRet,cTesCte)
 	aAdd(aRet,cCondCte)
+Else 
+	aAdd(aRet," ")
+	aAdd(aRet," ")
 Endif
 
 Return aRet
