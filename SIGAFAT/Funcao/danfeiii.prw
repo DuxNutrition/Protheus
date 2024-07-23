@@ -46,12 +46,20 @@
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
 ±±³          ³               ³                                            ³±±
 ±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+// Customização: 
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+// 08/11/2023 - Raphael Koury Giusti
+// Realizado a customização para a impressão de acordo com 
+// os parâmetros setados de transportadora de/até que é chamado
+// no fonte ImprimeNotaFiscal.tlpp
+// Ajuste no danfeii
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
 
 User Function DANFE_P1(	cIdEnt	, cVal1		, cVal2, oDanfe,;
-						oSetup	, lIsLoja	)
+						oSetup	, lIsLoja)
 
 Local aArea     := GetArea() 
 Local lExistNfe := .F.
@@ -61,6 +69,11 @@ local cNaoImp	:= ""	//Mensagem para as Notas não impressas do Modelo "65- NFCE" 
 local cNfceMens	:= ""	//Mensagem para as Notas não impressas do Modelo "65- NFCE" pela Rotina SPEDNFE
 
 Default lIsLoja	:= .F.	// indica se foi chamado de alguma rotina do SIGALOJA
+
+// Dux - Custom - Inicio
+// Variável privada vinda do fonte ImprimeNotaFiscal.tlpp
+Default cChaveNfe := ""
+// Dux - Custom - Fim 
 
 Private nConsNeg := 0.4 // Constante para concertar o cálculo retornado pelo GetTextWidth para fontes em negrito.
 Private nConsTex := 0.38 // Constante para concertar o cálculo retornado pelo GetTextWidth.
@@ -99,7 +112,7 @@ Private PixelY := odanfe:nLogPixelY()
 if lJob
 	DANFEProc(@oDanfe, , cIDEnt, Nil, Nil, @lExistNFe, lIsLoja)
 else
-	RPTStatus( {|lEnd| DANFEProc(@oDanfe, @lEnd, cIDEnt, Nil, Nil, @lExistNFe, lIsLoja, @cNfceMens )}, "Imprimindo DANFE..." )	
+	RPTStatus( {|lEnd| DANFEProc(@oDanfe, @lEnd, cIDEnt, Nil, Nil, @lExistNFe, lIsLoja, @cNfceMens, cChaveNfe )}, "Imprimindo DANFE..." )	// Dux - Custom incluindo a variável cChaveNfe
 endif
 
 If lExistNFe
@@ -153,7 +166,8 @@ Return lRet
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 /*/
 Static Function DanfeProc(	oDanfe	, lEnd		, cIdEnt	, cVal1,;
-							cVal2	, lExistNfe	, lIsLoja	, cNfceMens	)
+							cVal2	, lExistNfe	, lIsLoja	, cNfceMens,;
+							cChaveNfe)
 
 Local aArea      := GetArea()
 Local aAreaSF3   := {}
@@ -201,6 +215,10 @@ default cNfceMens	:= ""	//Mensagem para as Notas não impressas do Modelo "65- NF
 default lEnd 		:= .F.
 Default lIsLoja		:= .F.
 
+// Dux - Custom - Inicio
+default cChaveNfe := ""
+// Dux - Custom - Fim
+
 If lIsLoja
 	//Se SIGALOJA, define as perguntas que sao feitas no Pergunte NFSIGW
 	MV_PAR01 := SF2->F2_DOC 
@@ -223,7 +241,18 @@ Else
 	
 	If lVerPerg
 		if !oDanfe:lInJob
-			lContinua := Pergunte("NFSIGW",.T.)  .AND. ( (!Empty(MV_PAR06) .AND. MV_PAR06 == 2) .OR. Empty(MV_PAR06) )
+			// Dux Custom - Inicio
+			if(valtype(cChaveNfe) == "C")
+				if(empty(cChaveNfe))
+					lContinua := Pergunte("NFSIGW",.T.)  .AND. ( (!Empty(MV_PAR06) .AND. MV_PAR06 == 2) .OR. Empty(MV_PAR06) )
+				else
+					lContinua := .t.
+				endif
+			else
+				lContinua := Pergunte("NFSIGW",.T.)  .AND. ( (!Empty(MV_PAR06) .AND. MV_PAR06 == 2) .OR. Empty(MV_PAR06) )
+			endif
+			// Dux - Custom - Fim 
+			
 		else
 			Pergunte("NFSIGW",.F.)
 			lContinua := ( (!Empty(MV_PAR06) .AND. MV_PAR06 == 2) .OR. Empty(MV_PAR06) )
@@ -278,7 +307,6 @@ If lContinua
 				cWhere += " AND (SF3.F3_EMISSAO >= '"+ SubStr(DTOS(MV_PAR07),1,4) + SubStr(DTOS(MV_PAR07),5,2) + SubStr(DTOS(MV_PAR07),7,2) + "' AND SF3.F3_EMISSAO <= '"+ SubStr(DTOS(MV_PAR08),1,4) + SubStr(DTOS(MV_PAR08),5,2) + SubStr(DTOS(MV_PAR08),7,2) + "')"
 			EndIF
 
-			
 			cWhere += "%"
 			
 			cAliasSF3 := GetNextAlias()
@@ -298,7 +326,8 @@ If lContinua
 				COLUMN F3_ENTRADA AS DATE
 				COLUMN F3_DTCANC AS DATE
 				
-				SELECT	F3_FILIAL,F3_ENTRADA,F3_NFELETR,F3_CFO,F3_FORMUL,F3_NFISCAL,F3_SERIE,F3_CLIEFOR,F3_LOJA,F3_ESPECIE,F3_DTCANC
+				// Dux - Custom - Inclusão do campo F3_CHVNFE para filtrar por transportadora
+				SELECT	F3_FILIAL,F3_ENTRADA,F3_NFELETR,F3_CFO,F3_FORMUL,F3_NFISCAL,F3_SERIE,F3_CLIEFOR,F3_LOJA,F3_ESPECIE,F3_DTCANC,F3_CHVNFE
 				%Exp:cCampos%
 				FROM %Table:SF3% SF3
 				WHERE
@@ -360,14 +389,16 @@ If lContinua
 				
 				If (SubStr((cAliasSF3)->F3_CFO,1,1)>="5" .Or. (cAliasSF3)->F3_FORMUL=="S") .And. aScan(aNotas,{|x| x[4]+x[5]+x[6]+x[7]==(cAliasSF3)->F3_SERIE+(cAliasSF3)->F3_NFISCAL+(cAliasSF3)->F3_CLIEFOR+(cAliasSF3)->F3_LOJA})==0
 					
-					aadd(aNotas,{})
-					aadd(Atail(aNotas),.F.)
-					aadd(Atail(aNotas),IIF((cAliasSF3)->F3_CFO<"5","E","S"))
-					aadd(Atail(aNotas),(cAliasSF3)->F3_ENTRADA)
-					aadd(Atail(aNotas),(cAliasSF3)->F3_SERIE)
-					aadd(Atail(aNotas),(cAliasSF3)->F3_NFISCAL)
-					aadd(Atail(aNotas),(cAliasSF3)->F3_CLIEFOR)
-					aadd(Atail(aNotas),(cAliasSF3)->F3_LOJA)
+					if((cAliasSF3)->F3_CHVNFE $ cChaveNfe)
+						aadd(aNotas,{})
+						aadd(Atail(aNotas),.F.)
+						aadd(Atail(aNotas),IIF((cAliasSF3)->F3_CFO<"5","E","S"))
+						aadd(Atail(aNotas),(cAliasSF3)->F3_ENTRADA)
+						aadd(Atail(aNotas),(cAliasSF3)->F3_SERIE)
+						aadd(Atail(aNotas),(cAliasSF3)->F3_NFISCAL)
+						aadd(Atail(aNotas),(cAliasSF3)->F3_CLIEFOR)
+						aadd(Atail(aNotas),(cAliasSF3)->F3_LOJA)
+					endif
 					
 				EndIf
 			EndIf
@@ -626,11 +657,11 @@ If lContinua
 				cFrom	:=	"%"+RetSqlName("SF2")+" SF2 %"
 
 				If lSdoc  
-					cCampos += "%SF2.F2_FILIAL FILIAL, SF2.F2_DOC DOC, SF2.F2_SERIE SERIE, SF2.F2_SDOC SDOC%"                                        
+					cCampos += "%SF2.F2_FILIAL FILIAL, SF2.F2_DOC DOC, SF2.F2_SERIE SERIE, SF2.F2_SDOC SDOC, SF2.F2_CHVNFE CHVNFE%"                                        
 					cSerie := Padr(MV_PAR03,TamSx3("F2_SDOC")[1])
 					cWhere := "%SF2.D_E_L_E_T_= ' ' AND SF2.F2_FILIAL ='"+xFilial("SF2")+"' AND SF2.F2_DOC <='"+MV_PAR02+ "' AND SF2.F2_DOC >='" + MV_PAR01 + "' AND SF2.F2_SDOC ='"+ cSerie + "' AND SF2.F2_ESPECIE IN ('SPED','NFCE')"
 				Else
-					cCampos += "%SF2.F2_FILIAL FILIAL, SF2.F2_DOC DOC, SF2.F2_SERIE SERIE%" 
+					cCampos += "%SF2.F2_FILIAL FILIAL, SF2.F2_DOC DOC, SF2.F2_SERIE SERIE, SF2.F2_CHVNFE CHVNFE%" 
 					cSerie := Padr(MV_PAR03,TamSx3("F2_SERIE")[1])
 					cWhere := "%SF2.D_E_L_E_T_= ' ' AND SF2.F2_FILIAL ='"+xFilial("SF2")+"' AND SF2.F2_DOC <='"+MV_PAR02+ "' AND SF2.F2_DOC >='" + MV_PAR01 + "' AND SF2.F2_SERIE ='"+ cSerie + "' AND SF2.F2_ESPECIE IN ('SPED','NFCE')"
 				Endif
@@ -667,14 +698,17 @@ If lContinua
 										
 				aNotas := {}
 				For nx:=1 To 20
-					aadd(aNotas,{})
-					aAdd(Atail(aNotas),.F.)
-					aadd(Atail(aNotas),IIF(MV_PAR04==1,"E","S"))
-					aAdd(Atail(aNotas),"")
-					aadd(Atail(aNotas),(cAliasSFX)->SERIE)
-					aAdd(Atail(aNotas),(cAliasSFX)->DOC)
-					aadd(Atail(aNotas),"")
-					aadd(Atail(aNotas),"")
+					if((cAliasSFX)->CHVNFE $ cChaveNfe)
+						aadd(aNotas,{})
+						aAdd(Atail(aNotas),.F.)
+						aadd(Atail(aNotas),IIF(MV_PAR04==1,"E","S"))
+						aAdd(Atail(aNotas),"")
+						aadd(Atail(aNotas),(cAliasSFX)->SERIE)
+						aAdd(Atail(aNotas),(cAliasSFX)->DOC)
+						aadd(Atail(aNotas),"")
+						aadd(Atail(aNotas),"")
+					endif
+
 					If ( (cAliasSFX)->(Eof()) )
 						exit
 					EndIF
