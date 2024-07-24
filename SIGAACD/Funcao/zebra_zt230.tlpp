@@ -458,15 +458,17 @@ return
 	@since 20/12/2023
 	@version 12.1.2210
 /*/
-static function saveetiqueta()
+Static function saveetiqueta()
 
 	Local printZT230 := ""
 	Local cIniName   := ""
+	Local nTamProd   := TamSX3("B1_COD")[1]
+	Local cTipo 	 := Posicione("SB1",1,xFilial("SB1")+PAdr((TRB)->TR_SKU,nTamProd),"B1_TIPO")
+	Local nOpc       := Posicione("SB1",1,xFilial("SB1")+PAdr((TRB)->TR_SKU,nTamProd),"B1_OPC")
+	Local cTipoSku   := SuperGetMv("DUX_ETQ001",.F.,"MP#MP")
+	Local cOpc 		 := Iif((nOpc == 1 ),"ALERGENICO","NAO ALERGENICO")
 	Local _cTxtBat as character
 	
-
-    
-
 	/*printZT230 += "CT~~CD,~CC^~CT~"  + CRLF
 	printZT230 += "^XA"  + CRLF
 	printZT230 += "~TA000"  + CRLF
@@ -540,6 +542,7 @@ static function saveetiqueta()
 	printZT230 += "^FO8,210^GB800,280,12^FS"+ CRLF
 	printZT230 += "^FO8,470^GB800,150,12^FS"+ CRLF
 	printZT230 += "^FO8,610^GB800,150,12^FS"+ CRLF
+	printZT230 += "^FO8,750^GB800,120,12^FS"+ CRLF
 	printZT230 += "^FO8,750^GB800,350,12^FS"+ CRLF
 	printZT230 += CRLF
 	printZT230 += "^FT30,70^A0N,30,30^FH\^CI28^FDITEM:^FS^CI27" + CRLF
@@ -557,17 +560,22 @@ static function saveetiqueta()
 	printZT230 += "^FT30,660^A0N,30,30^FH\^CI28^FD QTD: ^FS^CI27" + CRLF
 	printZT230 += "^FT90,720^A0N,110,110^FH\^CI28^FD "+ Alltrim(transform((TRB)->TR_QTDEMB,"@E 999,999,999.999")) +" ^FS^CI27" + CRLF
 	printZT230 += CRLF
-	printZT230 += "^FT30,800^A0N,30,30^FH\^CI28^FD SKU: ^FS^CI27" + CRLF
-	printZT230 += "^BY5,2,230" + CRLF
-	printZT230 += "^FO60,810^BC^FD "+ alltrim((TRB)->TR_SKU) +"^FS" + CRLF
+	If nOpc == 1 .AND. cTipo $ cTipoSku
+		printZT230 += "^FT140,850^A0N,100,100^FH\^CI28^" + Alltrim(cOpc) + "^CI27" 
+	Else 
+		printZT230 += "^FT45,850^A0N,100,100^FH\^CI28^FDNAO " + Alltrim(cOpc) + "^FS^CI27" 
+	Endif 
+	printZT230 += CRLF
+	printZT230 += "^FT30,900^A0N,30,30^FH\^CI28^FD SKU: ^FS^CI27" + CRLF
+	printZT230 += "^BY4,2,140" + CRLF
+	printZT230 += "^FO60,910^BC^FD "+ alltrim((TRB)->TR_SKU) +"^FS" + CRLF
 	printZT230 += "^XZ"
 
-	if !EXISTDIR( "c:\temp" )
+	If !EXISTDIR( "c:\temp" )
 		MAKEDIR( "c:\temp" )
-	endif
+	Endif
 
 	//MEMOWRITE( "c:\temp\etiquetaZT230.txt", printZT230 )
-
 
 	cIniName := GetRemoteIniName() // Resultado: "C:\totvs\bin\SmartClient\smartclient.ini"
 
@@ -593,10 +601,10 @@ static function saveetiqueta()
 	_cCaminho := _cCamLoc + "\" + alltrim(cCodImpr) + ".bat"
 
 	if CB5SetImp(cCodImpr)
-		Sleep(200) // Como esta em rede, esperar 2 seg para impressao (Atualizacao necess·ria)
+		Sleep(200) // Como esta em rede, esperar 2 seg para impressao (Atualizacao necess√°ria)
 		WinExec(_cCaminho)
 	else
-		MsgStop("N„o foi possivel comunicar com a impressora")
+		MsgStop("N√£o foi possivel comunicar com a impressora")
 	EndIf
 return
 
