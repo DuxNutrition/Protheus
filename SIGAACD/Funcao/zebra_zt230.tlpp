@@ -465,7 +465,7 @@ Static function saveetiqueta()
 	Local nTamProd   := TamSX3("B1_COD")[1]
 	Local cTipo 	 := Posicione("SB1",1,xFilial("SB1")+PAdr((TRB)->TR_SKU,nTamProd),"B1_TIPO")
 	Local nOpc       := Posicione("SB1",1,xFilial("SB1")+PAdr((TRB)->TR_SKU,nTamProd),"B1_OPC")
-	Local cTipoSku   := SuperGetMv("DUX_ETQ001",.F.,"MP#MP")
+	Local cTipoSku   := SuperGetMv("DUX_ETQ001",.F.,"MP#PI")
 	Local cOpc 		 := Iif((nOpc == 1 ),"ALERGENICO","NAO ALERGENICO")
 	Local _cTxtBat as character
 	
