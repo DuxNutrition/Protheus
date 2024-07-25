@@ -23,6 +23,7 @@ User Function DUXR775()
 Local cPerg  		:= "DUXPIC"
 Local lTemum        := .F.
 Local cQryTmp		:= " "
+Local cCanal		:= " "
 Private cAlsTMP 		:= GetNextAlias()  
 
 Private oPrinter 	:= Nil
@@ -84,52 +85,71 @@ If Select(cAlsTMP) > 0
 EndIf
 
 cQryTmp := " "
-cQryTmp += " SELECT	SB1.B1_ZENDPIC "									+ CRLF	
-cQryTmp += " 		,SD2.D2_DOC "										+ CRLF
-cQryTmp += " 		,SD2.D2_FILIAL "									+ CRLF
-cQryTmp += " 		,SD2.D2_SERIE "										+ CRLF
-cQryTmp += " 		,SD2.D2_QUANT "										+ CRLF
-cQryTmp += " 		,SD2.D2_COD "										+ CRLF
-cQryTmp += " 		,SD2.D2_NUMSEQ "									+ CRLF
-cQryTmp += " 		,SD2.D2_EMISSAO "									+ CRLF
-cQryTmp += " 		,SD2.D2_CLIENTE "									+ CRLF
-cQryTmp += " 		,SD2.D2_LOJA "										+ CRLF
-cQryTmp += " 		,SD2.D2_LOCAL "										+ CRLF
-cQryTmp += " 		,SD2.D2_GRADE "										+ CRLF
-cQryTmp += " 		,SD2.D2_LOTECTL "									+ CRLF
-cQryTmp += " 		,SD2.D2_POTENCI "									+ CRLF
-cQryTmp += " 		,SD2.D2_ITEM "										+ CRLF
-cQryTmp += " 		,SD2.D2_NUMLOTE "									+ CRLF
-cQryTmp += " 		,SD2.D2_DTVALID "									+ CRLF
-cQryTmp += " 		,SD2.D2_PEDIDO "									+ CRLF
-cQryTmp += " 		,SD2.D2_ITEMPV "									+ CRLF
-cQryTmp += " 		,SF2.F2_ESPECI1 "									+ CRLF
-cQryTmp += " 		,SF2.F2_VOLUME1 "									+ CRLF
-cQryTmp += " 		,SF2.F2_TRANSP "									+ CRLF
-cQryTmp += " 		,SB1.B1_ZENDPIC "									+ CRLF
-cQryTmp += " 		,SB1.B1_DESC "										+ CRLF
-cQryTmp += " 		,SB1.B1_UM "										+ CRLF
-cQryTmp += " FROM " + RetSqlName("SD2") + " SD2 "						+ CRLF
-cQryTmp += " 	INNER JOIN " + RetSqlName("SF2") + " SF2 "				+ CRLF
-cQryTmp += " 		ON SF2.F2_FILIAL = SD2.D2_FILIAL "					+ CRLF
-cQryTmp += " 		AND SF2.F2_DOC = SD2.D2_DOC "						+ CRLF
-cQryTmp += " 		AND SF2.F2_SERIE = SD2.D2_SERIE "					+ CRLF
-cQryTmp += " 		AND SF2.F2_CLIENTE = SD2.D2_CLIENTE "				+ CRLF 
-cQryTmp += " 		AND SF2.F2_LOJA = SD2.D2_LOJA "						+ CRLF
-cQryTmp += " 		AND SF2.D_E_L_E_T_ = ' ' "							+ CRLF
-cQryTmp += " 	INNER JOIN " + RetSqlName("SB1") + " SB1 "				+ CRLF
-cQryTmp += " 		ON SB1.B1_FILIAL = '"+FWxFilial("SB1")+"' "			+ CRLF
-cQryTmp += " 		AND SB1.B1_COD = SD2.D2_COD "						+ CRLF
-cQryTmp += " 		AND SB1.D_E_L_E_T_ = ' ' "							+ CRLF
-cQryTmp += " WHERE SD2.D2_FILIAL = '"+FWxFilial("SD2")+"' "				+ CRLF
-cQryTmp += " AND SD2.D2_DOC BETWEEN '"+MV_PAR01+"' AND '"+MV_PAR02+"' "	+ CRLF 
+cQryTmp += " SELECT	"+ CRLF
+cQryTmp += " 	WHEN SA1.A1_ZZESTAB = 'AC'		THEN 'ACADEMIA/CROSSFIT' "+CRLF
+cQryTmp += " 	WHEN SA1.A1_ZZESTAB = 'BS'		THEN 'BODY SHOP' "+CRLF
+cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'CE'		THEN 'CLUBE ESPORTIVO' "+CRLF
+cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'CREF'	THEN 'EDUCADOR FISICO' "+CRLF
+cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'CRM'		THEN 'MEDICOS' "+CRLF
+cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'CRN'		THEN 'NUTRICIONISTAS' "+CRLF
+cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'DF'		THEN 'DROGARIA/ FARMACIA' "+CRLF
+cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'DI'		THEN 'DISTRIBUIDORA' "+CRLF
+cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'EC'		THEN 'ECOMMERCE' "+CRLF
+cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'FS'		THEN 'FOOD SERVICE' "+CRLF
+cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'OU'		THEN 'OUTROS' "+CRLF
+cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'PN'		THEN 'LJ PRODUTOS NATURAIS' " +CRLF
+cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'SM'		THEN 'SUPERMERCADOS' "+CRLF
+cQryTmp += "	ELSE SA1.A1_ZZESTAB "+CRLF
+cQryTmp += "	END AS 'CANAL DE VENDA' "+CRLF
+cQryTmp += "    ,SB1.B1_ZENDPIC "+CRLF	
+cQryTmp += " 	,SD2.D2_DOC "+CRLF
+cQryTmp += " 	,SD2.D2_FILIAL "+CRLF
+cQryTmp += " 	,SD2.D2_SERIE "+CRLF
+cQryTmp += " 	,SD2.D2_QUANT "+CRLF
+cQryTmp += " 	,SD2.D2_COD "+CRLF
+cQryTmp += " 	,SD2.D2_NUMSEQ "+CRLF
+cQryTmp += " 	,SD2.D2_EMISSAO "+CRLF
+cQryTmp += " 	,SD2.D2_CLIENTE "+CRLF
+cQryTmp += " 	,SD2.D2_LOJA "+CRLF
+cQryTmp += " 	,SD2.D2_LOCAL "+CRLF
+cQryTmp += " 	,SD2.D2_GRADE "+CRLF
+cQryTmp += " 	,SD2.D2_LOTECTL "+CRLF
+cQryTmp += " 	,SD2.D2_POTENCI "+CRLF
+cQryTmp += " 	,SD2.D2_ITEM "+CRLF
+cQryTmp += " 	,SD2.D2_NUMLOTE "+CRLF
+cQryTmp += " 	,SD2.D2_DTVALID "+CRLF
+cQryTmp += " 	,SD2.D2_PEDIDO "+CRLF
+cQryTmp += " 	,SD2.D2_ITEMPV "+CRLF
+cQryTmp += " 	,SF2.F2_ESPECI1 "+CRLF
+cQryTmp += " 	,SF2.F2_VOLUME1 "+CRLF
+cQryTmp += " 	,SF2.F2_TRANSP "+CRLF
+cQryTmp += " 	,SB1.B1_ZENDPIC "+CRLF
+cQryTmp += " 	,SB1.B1_DESC "+CRLF
+cQryTmp += " 	,SB1.B1_UM "+CRLF
+cQryTmp += " FROM " + RetSqlName("SD2") + " SD2 "+CRLF
+cQryTmp += " 	INNER JOIN " + RetSqlName("SF2") + " SF2 "+CRLF
+cQryTmp += " 		ON SF2.F2_FILIAL = SD2.D2_FILIAL "+CRLF
+cQryTmp += " 		AND SF2.F2_DOC = SD2.D2_DOC "+CRLF
+cQryTmp += " 		AND SF2.F2_SERIE = SD2.D2_SERIE "+CRLF
+cQryTmp += " 		AND SF2.F2_CLIENTE = SD2.D2_CLIENTE "+CRLF 
+cQryTmp += " 		AND SF2.F2_LOJA = SD2.D2_LOJA "+CRLF
+cQryTmp += " 		AND SF2.D_E_L_E_T_ = ' ' "+CRLF
+cQryTmp += "	INNER JOIN " + RetSqlName("SA1") + " SA1 "+CRLF
+cQryTmp += " 		ON SF2.F2_CLIENTE = SA1.A1_COD "+CRLF
+cQryTmp += "		AND SA1.D_E_L_E_T_ = '' "+CRLF
+cQryTmp += " 	INNER JOIN " + RetSqlName("SB1") + " SB1 "+CRLF
+cQryTmp += " 		ON SB1.B1_FILIAL = '"+FWxFilial("SB1")+"' "+CRLF
+cQryTmp += " 		AND SB1.B1_COD = SD2.D2_COD "+CRLF
+cQryTmp += " 		AND SB1.D_E_L_E_T_ = ' ' "+CRLF
+cQryTmp += " WHERE SD2.D2_FILIAL = '"+FWxFilial("SD2")+"' "+CRLF
+cQryTmp += " AND SD2.D2_DOC BETWEEN '"+MV_PAR01+"' AND '"+MV_PAR02+"' "+CRLF 
 If !Empty(MV_PAR03)
-	cQryTmp += " AND SD2.D2_SERIE = '"+MV_PAR03+"' "					+ CRLF
+	cQryTmp += " AND SD2.D2_SERIE = '"+MV_PAR03+"' "+ CRLF
 EndIf
-cQryTmp += " AND SD2.D2_QUANT > 0 "										+ CRLF
-cQryTmp += " AND SD2.D_E_L_E_T_ = ' ' "									+ CRLF
-cQryTmp += " ORDER BY SB1.B1_ZENDPIC, SD2.D2_FILIAL,SD2.D2_DOC,SD2.D2_SERIE,SD2.D2_CLIENTE " + CRLF
-cQryTmp += " ,SD2.D2_LOJA,SD2.D2_COD,SD2.D2_LOTECTL,SD2.D2_NUMLOTE,SD2.D2_DTVALID "
+cQryTmp += " AND SD2.D2_QUANT > 0 "+CRLF
+cQryTmp += " AND SD2.D_E_L_E_T_ = ' ' "+CRLF
+cQryTmp += " ORDER BY SB1.B1_ZENDPIC, SD2.D2_FILIAL,SD2.D2_DOC,SD2.D2_SERIE,SD2.D2_CLIENTE, "+CRLF
+cQryTmp += " SD2.D2_LOJA,SD2.D2_COD,SD2.D2_LOTECTL,SD2.D2_NUMLOTE,SD2.D2_DTVALID "
 		
 DbUseArea(.T.,"TOPCONN",TcGenQry(,,cQryTmp),cAlsTMP,.T.,.F.)
 
@@ -149,6 +169,8 @@ While (cAlsTMP)->(!Eof())
 
 	While (cAlsTMP)->(!Eof()) .and. cNFiscal = (cAlsTMP)->D2_DOC .and. cSerie = (cAlsTMP)->D2_SERIE 
 
+		cCanal := (cAlsTMP)->CANAL_DE_VENDA
+
 		If  nSalto >= 29
 			If  nFolha > 0
 				oPrinter:EndPage()
@@ -164,9 +186,10 @@ While (cAlsTMP)->(!Eof())
 		oPrinter:Say(nLinha, nMargemEsq + 100   , Substr((cAlsTMP)->B1_DESC,1,50)	, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq + 320	, (cAlsTMP)->B1_UM 					, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq	+ 350	, (cAlsTMP)->D2_LOCAL				, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq	+ 380	, (cAlsTMP)->B1_ZENDPIC				, oFont10:oFont) //Criado por Renan Ranzani - 05/06/2024
+		oPrinter:Say(nLinha, nMargemEsq	+ 380	, (cAlsTMP)->B1_ZENDPIC				, oFont10:oFont) 
 		oPrinter:Say(nLinha, nMargemEsq	+ 420	, (cAlsTMP)->D2_LOTECTL				, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq	+ 460	, DToC(SToD((cAlsTMP)->D2_DTVALID))	, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq	+ 460	, cCanal							, oFont10:oFont)
 
 		nSalto ++
 
@@ -230,7 +253,7 @@ Static Function zFimPag()
 	If  dbSeek(xFilial("SA1") + (cAlsTMP)->D2_CLIENTE +(cAlsTMP)->D2_LOJA)
 		oPrinter:Say(100, 027, SA1->A1_END		       										, oFont10:oFont)
 		oPrinter:Say(107, 027, SA1->A1_BAIRRO												, oFont10:oFont)
-		oPrinter:Say(115, 027, "CEP " + SA1->A1_CEP+"-"+AllTrim(A1_MUN)+"-"+A1_EST					, oFont10:oFont)
+		oPrinter:Say(115, 027, "CEP " + SA1->A1_CEP+"-"+AllTrim(A1_MUN)+"-"+A1_EST			, oFont10:oFont)
 	Endif
 	
 	oPrinter:Box(080, 200, 120, 537	)	
