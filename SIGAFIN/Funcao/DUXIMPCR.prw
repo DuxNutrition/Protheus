@@ -16,7 +16,7 @@ Private nRegErro	:= 0
 Private nLidos      := 0
 
 //PutSX1( cGrupo, cOrdem, cTexto					, cMVPar	, cVariavel	, cTipoCamp	, nTamanho					, nDecimal	, cTipoPar	, cValid			, cF3		, cPicture	, cDef01		, cDef02			, cDef03	, cDef04	, cDef05	, cHelp	, cGrpSXG	)
-//u_PutSX1( cPerg	, "01"	, "Local ou Arquivo CSV:"	, "mv_par01", "mv_ch1"	, "C"		, 99						, 0			, "F"		,               	, 			, 			, "56"			,					,			,			,			,		, 			)
+u_PutSX1( cPerg	, "01"	, "Local ou Arquivo CSV:"	, "mv_par01", "mv_ch1"	, "C"		, 99						, 0			, "F"		,               	, 			, 			, "56"			,					,			,			,			,		, 			)
 
 FormBatch( cCadastro, ;
             {'Este programa vai importar os Títulos a Receber de arquivo .CSV.', ;

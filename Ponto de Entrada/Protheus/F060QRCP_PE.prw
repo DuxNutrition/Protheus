@@ -18,7 +18,7 @@ User Function F060QRCP()
 	Local BKP_PAR01	:= MV_PAR01
 
 	//PutSX1( cGrupo, cOrdem, cTexto						, cMVPar	, cVariavel	, cTipoCamp	, nTamanho					, nDecimal	, cTipoPar	, cValid	, cF3		, cPicture	, cDef01			, cDef02			, cDef03			, cDef04	, cDef05	, cHelp	, cGrpSXG	)
-	//u_PutSX1( "F060QRCP", "01"	, "Considerar Clientes:"	, "mv_par01", "mv_ch1"	, "N"		,  1						, 0			, "C"		, ""		,			,			, "Pessoa Física"	, "Pessoa Jurídica"	, "Ambos"			,			,			,		, 			)
+	u_PutSX1( "F060QRCP", "01"	, "Considerar Clientes:"	, "mv_par01", "mv_ch1"	, "N"		,  1						, 0			, "C"		, ""		,			,			, "Pessoa Física"	, "Pessoa Jurídica"	, "Ambos"			,			,			,		, 			)
 
 	If Pergunte( cPerg, .T., 'Filtro de Títulos') .and. MV_PAR01 <> 3
 

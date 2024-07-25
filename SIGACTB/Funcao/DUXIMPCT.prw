@@ -21,7 +21,7 @@ Private nRegImp		:= 0
 Private nRegErro	:= 0 
 
 //PutSX1( cGrupo, cOrdem, cTexto					, cMVPar	, cVariavel	, cTipoCamp	, nTamanho					, nDecimal	, cTipoPar	, cValid			, cF3		, cPicture	, cDef01		, cDef02			, cDef03	, cDef04	, cDef05	, cHelp	, cGrpSXG	)
-//u_PutSX1( cPerg	, "01"	, "Arquivo a ser importado:", "mv_par01", "mv_ch1"	, "C"		, 99						, 0			, "F"		,               	, 			, 			, 			,					,			,			,			,		, 			)
+u_PutSX1( cPerg	, "01"	, "Arquivo a ser importado:", "mv_par01", "mv_ch1"	, "C"		, 99						, 0			, "F"		,               	, 			, 			, 			,					,			,			,			,		, 			)
 //u_PutSX1( cPerg	, "02"	, "Arquivo DE/PARA Contas :", "mv_par02", "mv_ch2"	, "C"		, 99						, 0			, "F"		,               	, 			, 			, 			,					,			,			,			,		, 			)
 //u_PutSX1( cPerg	, "03"	, "Arquivo DE/PARA C.Custo:", "mv_par03", "mv_ch3"	, "C"		, 99						, 0			, "F"		,               	, 			, 			, 			,					,			,			,			,		, 			)
 

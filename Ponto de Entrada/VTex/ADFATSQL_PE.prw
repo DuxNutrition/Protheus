@@ -21,11 +21,13 @@ User Function ADFATSQL()
 		cSQL += "     TOP (" + CValToChar(nNumReg) + ")
 	EndIF
 
-	cSQL += " C5_NUM " + CRLF
+	cSQL += " C5_XDATA, C5_XHORA, C5_NUM " + CRLF
 
 	If lMultLoj
 		cSQL += " ,C5_XITEMCC, C5_XPEDLV " + CRLF
 	EndIF
+
+    cSQL += "  ,  (SELECT COUNT(*) FROM SC9010 SC9 WHERE C9_FILIAL = C5_FILIAL    AND SC9.C9_PEDIDO = C5_NUM         AND SC9.D_E_L_E_T_= ' '  AND C9_BLEST <> ' ' ) " + CRLF
 
 	cSQL += "       FROM " + RetSQLName("SC5") + " SC5 "
 	If Upper(AllTrim(TCGetDB())) == "MSSQL"
@@ -47,6 +49,8 @@ User Function ADFATSQL()
 		cSQL += "        AND ZAA_CANAL = '01' " + CRLF
 		cSQL += "        AND ZAA.D_E_L_E_T_= ' ' " + CRLF
 	EndIf
+
+	
 
 	cSQL += "      WHERE C5_FILIAL = '" + xFilial("SC5") + "' " + CRLF
 	If !(IsInCallStack("U_WSVTEX46") .Or. "WSVTEX46" $ FunName())
@@ -79,12 +83,15 @@ User Function ADFATSQL()
 
 	cSQL += "        AND SC5.D_E_L_E_T_ = ' ' " + CRLF
 
-    cSQL += "        ORDER BY C5_NUM  ASC " + CRLF
+    //cSQL += "  GROUP BY " + CRLF
+    //cSQL += "  C5_XDATA, C5_XHORA, C5_NUM ,C5_XITEMCC, C5_XPEDLV " + CRLF
+    //cSQL += "  HAVING COUNT(DISTINCT C9_BLEST) = 1 " + CRLF
+	cSQL  += " AND (SELECT COUNT(*) FROM SC9010 SC9 WHERE C9_FILIAL = C5_FILIAL     AND SC9.C9_PEDIDO = C5_NUM         AND SC9.D_E_L_E_T_= ' '  AND C9_BLEST <> ' ' )  = 0 "
+
+	cSQL += "        ORDER BY C5_XDATA ASC, C5_XHORA,C5_NUM  ASC " + CRLF
 
 
-	If _lLogs
-		MemoWrite(cLogDir + cLogArq, cSQL)
-	ENDIF
-
-
+	
+	MemoWrite(cLogDir + cLogArq, cSQL)
+	
 Return(cSQL)

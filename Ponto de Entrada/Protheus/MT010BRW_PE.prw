@@ -2,7 +2,7 @@
 
 
 //------------------------------------------------------------------------------------------
-/*/{Protheus.doc} MT010INC
+/*/{Protheus.doc} MT010BRW
 Adiciona mais Opções no Menu do Browse do Cadastro de Produtos
 
 @author    Douglas F Martins 
