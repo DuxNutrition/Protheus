@@ -3,9 +3,9 @@
  
 /*
 =====================================================================================
-Programa.:              ZCFGF002
+Programa.:              ZCFGF001
 Autor....:              Evandro Mariano
-Data.....:              15/07/2024
+Data.....:              25/07/2024
 Descricao / Objetivo:   Formula Customizada
 Doc. Origem:            
 Solicitante:            
@@ -13,7 +13,7 @@ Uso......:              Dux
 Obs......:
 =====================================================================================
 */
-User Function ZCFGF002()
+User Function ZCFGF001()
 
     Local aArea := GetArea()
     //Variáveis da tela
@@ -30,7 +30,7 @@ User Function ZCFGF002()
     Private nTamBtn  := 048
      
     //Criando a janela
-    DEFINE MSDIALOG oDlgForm TITLE "[ZCFGF002] - Dux - Execução de Fórmulas" FROM 000, 000  TO nJanAltu, nJanLarg COLORS 0, 16777215 PIXEL
+    DEFINE MSDIALOG oDlgForm TITLE "[ZCFGF001] - DUX - Execução de Fórmulas" FROM 000, 000  TO nJanAltu, nJanLarg COLORS 0, 16777215 PIXEL
         //Grupo Fórmula com o Get
         @ 003, 003  GROUP oGrpForm TO 30, (nJanLarg/2)-1        PROMPT "Fórmula: " OF oDlgForm COLOR 0, 16777215 PIXEL
             @ 010, 006  MSGET oGetForm VAR cGetForm SIZE (nJanLarg/2)-9, 013 OF oDlgForm COLORS 0, 16777215 PIXEL
