@@ -20,12 +20,27 @@ User Function A116TECT()
 Local oXML 		:= Paramixb[1]
 Local aRet		:= {} //Deve retornar {TES, CONDICAO_PAGAMENTO}
 Local _cDest 	:= " "
+Local _cRemet 	:= " "
 Local cTesCte   := SuperGetMV("DUX_COM001",.F.,"163")
-Local cCnpjDest := AllTrim(SuperGetMV("DUX_COM002",.F.,"31112243"))
+Local cRaizCNPJ := AllTrim(SuperGetMV("DUX_COM002",.F.,"31112243"))
 Local cCondCte	:= " "
 Local cResult	:= " "
 
 cResult := XmlChildEx(oXml,"_CTEPROC")
+
+If ValType(cResult) <> "U"
+	If ValType(XmlChildEx(oXml:_CteProc:_Cte:_InfCte:_Rem,"_CNPJ")) <> "U"
+		_cRemet	:= Substr(AllTrim(oXml:_CteProc:_Cte:_InfCte:_Rem:_CNPJ:Text),1,8)
+	Else
+		_cRemet	:= Substr(AllTrim(oXml:_CteProc:_Cte:_InfCte:_Rem:_CPF:Text),1,8) 
+	Endif
+Else
+	If ValType(XmlChildEx(oXml:_InfCte:_Rem,"_CNPJ")) <> "U"
+		_cRemet	:= Substr(AllTrim(oXml:_InfCte:_Rem:_CNPJ:Text),1,8)
+	Else
+		_cRemet	:= Substr(AllTrim(oXml:_InfCte:_Rem:_CPF:Text),1,8)
+	Endif
+Endif
 
 If ValType(cResult) <> "U"
 	If ValType(XmlChildEx(oXml:_CteProc:_Cte:_InfCte:_Dest,"_CNPJ")) <> "U"
@@ -41,7 +56,7 @@ Else
 	Endif
 Endif
 
-If _cDest == cCnpjDest
+If _cRemet == cRaizCNPJ .AND. _cDest == cRaizCNPJ 
 	aAdd(aRet,cTesCte)
 	aAdd(aRet,cCondCte)
 Else 
