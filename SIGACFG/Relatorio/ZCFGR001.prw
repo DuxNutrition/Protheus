@@ -2,18 +2,13 @@
 #Include 'Topconn.ch'
 #Include "TOTVS.CH"
 
-/*
-=====================================================================================
-Programa.:              ZCFGR001
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              16/06/2020
-Descricao / Objetivo:   Relatorio de controle de Acessos e Licenças Totvs
-Doc. Origem:            
-Solicitante:            
-Uso......:              
-Obs......:
-=====================================================================================
-*/
+/*/{Protheus.doc} ZCFGR001
+Relatorio de controle de Acessos e Licenças Totvs
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 25/07/2024
+/*/
 User Function ZCFGR001()
 
 	Local cExtens   := "Arquivo XML | *.XML"
@@ -37,18 +32,15 @@ User Function ZCFGR001()
 	
 Return()
 
-/*
-=====================================================================================
-Programa.:              zRel0001
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              16/06/2020
-Descricao / Objetivo:   Gera Excel com os usuários
-Doc. Origem:            
-Solicitante:            
-Uso......:              
-Obs......:
-=====================================================================================
-*/
+/*/{Protheus.doc} zRel0001
+Gera Excel com os usuários
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 25/07/2024
+@param cArquivo, character, caminho do excel
+@return variant, return_description
+/*/
 Static Function zRel0001(cArquivo)
 
 	Local cQryUsr		:= ""
@@ -1747,243 +1739,15 @@ Static Function zRel0001(cArquivo)
 
 Return()
 
-/*
-=====================================================================================
-Programa.:              zRel0002
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              13/06/19
-Descricao / Objetivo:   Gera Excel Notas de Saida
-Doc. Origem:            GAP EST007 E GAP FAT022
-Solicitante:            Fiscal
-Uso......:              zSelect
-Obs......:
-=====================================================================================
-
-Static Function ZPesqMod(cParam01)
-
-Local cMod  := cParam01
-Local cRet  := ""
-
-Do Case
-    Case PadL( cMod, 2, "0" ) == "01" 
-	    cRet := "01 - SIGAATF"   
-    Case PadL( cMod, 2, "0" ) == "02" 
-        cRet := "02 - SIGACOM"   
-    Case PadL( cMod, 2, "0" ) == "03" 
-        cRet := "03 - SIGACON"   
-    Case PadL( cMod, 2, "0" ) == "04" 
-        cRet := "04 - SIGAEST"   
-    Case PadL( cMod, 2, "0" ) == "05" 
-        cRet := "05 - SIGAFAT"   
-    Case PadL( cMod, 2, "0" ) == "06" 
-        cRet := "06 - SIGAFIN"   
-    Case PadL( cMod, 2, "0" ) == "07" 
-        cRet := "07 - SIGAGPE"   
-    Case PadL( cMod, 2, "0" ) == "08" 
-        cRet := "08 - SIGAFAS"   
-    Case PadL( cMod, 2, "0" ) == "09" 
-        cRet := "09 - SIGAFIS"   
-    Case PadL( cMod, 2, "0" ) == "10" 
-        cRet := "10 - SIGAPCP"   
-    Case PadL( cMod, 2, "0" ) == "11" 
-        cRet := "11 - SIGAVEI"   
-    Case PadL( cMod, 2, "0" ) == "12" 
-        cRet := "12 - SIGALOJA"  
-    Case PadL( cMod, 2, "0" ) == "13" 
-        cRet := "13 - SIGATMK"   
-    Case PadL( cMod, 2, "0" ) == "14" 
-        cRet := "14 - SIGAOFI"   
-    Case PadL( cMod, 2, "0" ) == "15" 
-        cRet := "15 - SIGARPM"   
-    Case PadL( cMod, 2, "0" ) == "16" 
-        cRet := "16 - SIGAPON"   
-    Case PadL( cMod, 2, "0" ) == "17" 
-        cRet := "17 - SIGAEIC"   
-    Case PadL( cMod, 2, "0" ) == "18" 
-        cRet := "18 - SIGATCF"   
-    Case PadL( cMod, 2, "0" ) == "19" 
-        cRet := "19 - SIGAMNT"   
-    Case PadL( cMod, 2, "0" ) == "20" 
-        cRet := "20 - SIGARSP"   
-    Case PadL( cMod, 2, "0" ) == "21" 
-        cRet := "21 - SIGAQIE"   
-    Case PadL( cMod, 2, "0" ) == "22" 
-        cRet := "22 - SIGAQMT"   
-    Case PadL( cMod, 2, "0" ) == "23" 
-        cRet := "23 - SIGAFRT"   
-    Case PadL( cMod, 2, "0" ) == "24" 
-        cRet := "24 - SIGAQDO"   
-    Case PadL( cMod, 2, "0" ) == "25" 
-        cRet := "25 - SIGAQIP"   
-    Case PadL( cMod, 2, "0" ) == "26" 
-        cRet := "26 - SIGATRM"   
-    Case PadL( cMod, 2, "0" ) == "27" 
-        cRet := "27 - SIGAEIF"   
-    Case PadL( cMod, 2, "0" ) == "28" 
-        cRet := "28 - SIGATEC"   
-    Case PadL( cMod, 2, "0" ) == "29" 
-        cRet := "29 - SIGAEEC"   
-    Case PadL( cMod, 2, "0" ) == "30" 
-        cRet := "30 - SIGAEFF"   
-    Case PadL( cMod, 2, "0" ) == "30" 
-        cRet := "31 - SIGAECO"   
-    Case PadL( cMod, 2, "0" ) == "32" 
-        cRet := "32 - SIGAAFV"   
-    Case PadL( cMod, 2, "0" ) == "33" 
-        cRet := "33 - SIGAPLS"   
-    Case PadL( cMod, 2, "0" ) == "34" 
-        cRet := "34 - SIGACTB"   
-    Case PadL( cMod, 2, "0" ) == "35" 
-        cRet := "35 - SIGAMDT"   
-    Case PadL( cMod, 2, "0" ) == "36" 
-        cRet := "36 - SIGAQNC"   
-    Case PadL( cMod, 2, "0" ) == "37" 
-        cRet := "37 - SIGAQAD"   
-    Case PadL( cMod, 2, "0" ) == "38" 
-        cRet := "38 - SIGAQCP"   
-    Case PadL( cMod, 2, "0" ) == "39" 
-        cRet := "39 - SIGAOMS"   
-    Case PadL( cMod, 2, "0" ) == "40" 
-        cRet := "40 - SIGACSA"   
-    Case PadL( cMod, 2, "0" ) == "41" 
-        cRet := "41 - SIGAPEC"   
-    Case PadL( cMod, 2, "0" ) == "42" 
-        cRet := "42 - SIGAWMS"   
-    Case PadL( cMod, 2, "0" ) == "43" 
-        cRet := "43 - SIGATMS"   
-    Case PadL( cMod, 2, "0" ) == "44" 
-        cRet := "44 - SIGAPMS"   
-    Case PadL( cMod, 2, "0" ) == "45" 
-        cRet := "45 - SIGACDA"   
-    Case PadL( cMod, 2, "0" ) == "46" 
-        cRet := "46 - SIGAACD"   
-    Case PadL( cMod, 2, "0" ) == "47" 
-        cRet := "47 - SIGAPPAP"  
-    Case PadL( cMod, 2, "0" ) == "48" 
-        cRet := "48 - SIGAREP"   
-    Case PadL( cMod, 2, "0" ) == "49" 
-        cRet := "49 - SIGAGE "   
-    Case PadL( cMod, 2, "0" ) == "50" 
-        cRet := "50 - SIGAEDC"   
-    Case PadL( cMod, 2, "0" ) == "51" 
-        cRet := "51 - SIGAHSP"   
-    Case PadL( cMod, 2, "0" ) == "52" 
-        cRet := "52 - SIGAVDOC"  
-    Case PadL( cMod, 2, "0" ) == "53" 
-        cRet := "53 - SIGAAPD"   
-    Case PadL( cMod, 2, "0" ) == "54" 
-        cRet := "54 - SIGAGSP"   
-    Case PadL( cMod, 2, "0" ) == "55" 
-        cRet := "55 - SIGACRD"   
-    Case PadL( cMod, 2, "0" ) == "56" 
-        cRet := "56 - SIGASGA"   
-    Case PadL( cMod, 2, "0" ) == "57" 
-        cRet := "57 - SIGAPCO"   
-    Case PadL( cMod, 2, "0" ) == "58" 
-        cRet := "58 - SIGAGPR"   
-    Case PadL( cMod, 2, "0" ) == "59" 
-        cRet := "59 - SIGAGAC"   
-    Case PadL( cMod, 2, "0" ) == "60" 
-        cRet := "60 - SIGAPRA"   
-    Case PadL( cMod, 2, "0" ) == "61" 
-        cRet := "61 - SIGAGFP"   
-    Case PadL( cMod, 2, "0" ) == "62" 
-        cRet := "62 - SIGAHHG"   
-    Case PadL( cMod, 2, "0" ) == "63" 
-        cRet := "63 - SIGAHPL"   
-    Case PadL( cMod, 2, "0" ) == "64" 
-        cRet := "64 - SIGAAPT"   
-    Case PadL( cMod, 2, "0" ) == "65" 
-        cRet := "65 - SIGAGAV"   
-    Case PadL( cMod, 2, "0" ) == "66" 
-        cRet := "66 - SIGAICE"   
-    Case PadL( cMod, 2, "0" ) == "67" 
-        cRet := "67 - SIGAAGR"   
-    Case PadL( cMod, 2, "0" ) == "68" 
-        cRet := "68 - SIGAARM"   
-    Case PadL( cMod, 2, "0" ) == "69" 
-        cRet := "69 - SIGAGCT"   
-    Case PadL( cMod, 2, "0" ) == "70" 
-        cRet := "70 - SIGAORG"   
-    Case PadL( cMod, 2, "0" ) == "71" 
-        cRet := "71 - SIGALVE"   
-    Case PadL( cMod, 2, "0" ) == "72" 
-        cRet := "72 - SIGAPHOTO" 
-    Case PadL( cMod, 2, "0" ) == "73" 
-        cRet := "73 - SIGACRM"   
-    Case PadL( cMod, 2, "0" ) == "74" 
-        cRet := "74 - SIGABPM"   
-    Case PadL( cMod, 2, "0" ) == "75" 
-        cRet := "75 - SIGAAPON"  
-    Case PadL( cMod, 2, "0" ) == "76" 
-        cRet := "76 - SIGAJURI"  
-    Case PadL( cMod, 2, "0" ) == "77" 
-        cRet := "77 - SIGAPFS"   
-    Case PadL( cMod, 2, "0" ) == "78" 
-        cRet := "78 - SIGAGFE"   
-    Case PadL( cMod, 2, "0" ) == "79" 
-        cRet := "79 - SIGASFC"   
-    Case PadL( cMod, 2, "0" ) == "80" 
-        cRet := "80 - SIGAACV"   
-    Case PadL( cMod, 2, "0" ) == "81" 
-        cRet := "81 - SIGALOG"   
-    Case PadL( cMod, 2, "0" ) == "82" 
-        cRet := "82 - SIGADPR"   
-    Case PadL( cMod, 2, "0" ) == "83" 
-        cRet := "83 - SIGAVPON"  
-    Case PadL( cMod, 2, "0" ) == "84" 
-        cRet := "84 - SIGATAF"   
-    Case PadL( cMod, 2, "0" ) == "85" 
-        cRet := "85 - SIGAESS"   
-    Case PadL( cMod, 2, "0" ) == "86" 
-        cRet := "86 - SIGAVDF"   
-    Case PadL( cMod, 2, "0" ) == "87" 
-        cRet := "87 - SIGAGCP"   
-    Case PadL( cMod, 2, "0" ) == "88" 
-        cRet := "88 - SIGAGTP"   
-    Case PadL( cMod, 2, "0" ) == "89" 
-        cRet := "89 - SIGATUR"   
-    Case PadL( cMod, 2, "0" ) == "90" 
-        cRet := "90 - SIGAGCV"   
-    Case PadL( cMod, 2, "0" ) == "91" 
-        cRet := "91 - SIGAPDS"   
-    Case PadL( cMod, 2, "0" ) == "92" 
-        cRet := "92 - SIGATFL"   
-    Case PadL( cMod, 2, "0" ) == "96" 
-        cRet := "96 - SIGAESP2"  
-    Case PadL( cMod, 2, "0" ) == "97" 
-        cRet := "97 - SIGAESP"   
-    Case PadL( cMod, 2, "0" ) == "98" 
-        cRet := "98 - SIGAESP1"  
-    Case PadL( cMod, 2, "0" ) == "99" 
-        cRet := "99 - SIGACFG"   
-    OtherWise
-		cRet := "Módulo não encontrado"
-EndCase
-
-
-If aScan(aLicenca,{|x| AllTrim(x[01]) == PadL( cMod, 2, "0" )  }) > 0
-    aLicenca[aScan(aLicenca,{|x| AllTrim(x[01]) == PadL( cMod, 2, "0" ) })][02] := aLicenca[aScan(aLicenca,{|x| AllTrim(x[01]) == PadL( cMod, 2, "0" ) })][02] + 1
-Else 
-    aAdd( aLicenca, { PadL( cMod, 2, "0" )  ,	1	} ) 
-EndIf
-
-
-Return(cRet)
-*/
-/*
-=====================================================================================
-Programa.:              zTrataArray()
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              16/06/19
-Descricao / Objetivo:   Agrupa o array
-Doc. Origem:            
-Solicitante:            
-Uso......:              
-Obs......:
-=====================================================================================
-*/
-
+/*/{Protheus.doc} zTrataArray
+Agrupa o array
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 25/07/2024
+@param aParam, array, grupos dos usuários
+@return array, grupo dos usuarios
+/*/
 Static Function zTrataArray(aParam)
 
 Local aCopia    := aParam
@@ -2501,18 +2265,15 @@ Next
 
 Return(aReturn)
 
-/*
-=====================================================================================
-Programa.:              zTOutUsr()
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              13/07/2020
-Descricao / Objetivo:   Retorna o TimeOut do usuário
-Doc. Origem:            
-Solicitante:            
-Uso......:              
-Obs......:
-=====================================================================================
-*/
+/*/{Protheus.doc} zTOutUsr
+Retorna o TimeOut do usuário
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 25/07/2024
+@param cParam, character, usuário
+@return character, time out do usuário
+/*/
 Static Function zTOutUsr(cParam)
 
 Local cQry      := ""
@@ -2547,19 +2308,16 @@ EndIf
 (cTable)->(DbCloseArea())
 
 Return(cRet)
-/*
-=====================================================================================
-Programa.:              zGrp()
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              13/07/2020
-Descricao / Objetivo:   Retorna os Grupos que o usuário pertence.
-Doc. Origem:            
-Solicitante:            
-Uso......:              
-Obs......:
-=====================================================================================
-*/
 
+/*/{Protheus.doc} zGrp
+Retorna os Grupos que o usuário pertence.
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 25/07/2024
+@param cId, character, id do usuario
+@return array, grupo do usuario
+/*/
 Static Function zGrp(cId)
 
 Local cQry      := ""

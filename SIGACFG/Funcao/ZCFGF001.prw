@@ -1,18 +1,14 @@
 //Bibliotecas
 #Include "Protheus.ch"
- 
-/*
-=====================================================================================
-Programa.:              ZCFGF001
-Autor....:              Evandro Mariano
-Data.....:              25/07/2024
-Descricao / Objetivo:   Formula Customizada
-Doc. Origem:            
-Solicitante:            
-Uso......:              Dux
-Obs......:
-=====================================================================================
-*/
+
+/*/{Protheus.doc} ZCFGF001
+Formula Customizada
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 25/07/2024
+@return variant, return_description
+/*/
 User Function ZCFGF001()
 
     Local aArea := GetArea()
@@ -45,11 +41,14 @@ User Function ZCFGF001()
     RestArea(aArea)
 Return
  
-/*---------------------------------------*
- | Func.: fExecuta                       |
- | Desc.: Executa a fórmula digitada     |
- *---------------------------------------*/
- 
+/*/{Protheus.doc} fExecuta
+Executa o formulas
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 25/07/2024
+@return variant, return_description
+/*/
 Static Function fExecuta()
     Local aArea    := GetArea()
     Local cFormula := Alltrim(cGetForm)
