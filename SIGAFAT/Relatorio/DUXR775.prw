@@ -84,8 +84,8 @@ If Select(cAlsTMP) > 0
 	(cAlsTMP)->(dbCloseArea())
 EndIf
 
-cQryTmp := " "
-cQryTmp += " SELECT	"+ CRLF
+cQryTmp := " SELECT "+CRLF
+cQryTmp += " CASE "+CRLF
 cQryTmp += " 	WHEN SA1.A1_ZZESTAB = 'AC'		THEN 'ACADEMIA/CROSSFIT' "+CRLF
 cQryTmp += " 	WHEN SA1.A1_ZZESTAB = 'BS'		THEN 'BODY SHOP' "+CRLF
 cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'CE'		THEN 'CLUBE ESPORTIVO' "+CRLF
@@ -99,9 +99,9 @@ cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'FS'		THEN 'FOOD SERVICE' "+CRLF
 cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'OU'		THEN 'OUTROS' "+CRLF
 cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'PN'		THEN 'LJ PRODUTOS NATURAIS' " +CRLF
 cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'SM'		THEN 'SUPERMERCADOS' "+CRLF
-cQryTmp += "	ELSE SA1.A1_ZZESTAB "+CRLF
-cQryTmp += "	END AS 'CANAL DE VENDA' "+CRLF
-cQryTmp += "    ,SB1.B1_ZENDPIC "+CRLF	
+cQryTmp += " 	ELSE SA1.A1_ZZESTAB "+CRLF
+cQryTmp += " 	END AS 'CANAL_DE_VENDA' "+CRLF
+cQryTmp += " 	,SB1.B1_ZENDPIC "+CRLF	
 cQryTmp += " 	,SD2.D2_DOC "+CRLF
 cQryTmp += " 	,SD2.D2_FILIAL "+CRLF
 cQryTmp += " 	,SD2.D2_SERIE "+CRLF
@@ -148,8 +148,8 @@ If !Empty(MV_PAR03)
 EndIf
 cQryTmp += " AND SD2.D2_QUANT > 0 "+CRLF
 cQryTmp += " AND SD2.D_E_L_E_T_ = ' ' "+CRLF
-cQryTmp += " ORDER BY SB1.B1_ZENDPIC, SD2.D2_FILIAL,SD2.D2_DOC,SD2.D2_SERIE,SD2.D2_CLIENTE, "+CRLF
-cQryTmp += " SD2.D2_LOJA,SD2.D2_COD,SD2.D2_LOTECTL,SD2.D2_NUMLOTE,SD2.D2_DTVALID "
+cQryTmp += " ORDER BY SB1.B1_ZENDPIC, SD2.D2_FILIAL,SD2.D2_DOC,SD2.D2_SERIE,SD2.D2_CLIENTE "+CRLF
+cQryTmp += " ,SD2.D2_LOJA,SD2.D2_COD,SD2.D2_LOTECTL,SD2.D2_NUMLOTE,SD2.D2_DTVALID "
 		
 DbUseArea(.T.,"TOPCONN",TcGenQry(,,cQryTmp),cAlsTMP,.T.,.F.)
 
@@ -181,15 +181,15 @@ While (cAlsTMP)->(!Eof())
 
 		nLinha += 20
 
-		oPrinter:Say(nLinha, nMargemEsq + 30	, CValToChar((cAlsTMP)->D2_QUANT)	, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq + 50	, (cAlsTMP)->D2_COD					, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq + 100   , Substr((cAlsTMP)->B1_DESC,1,50)	, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq + 320	, (cAlsTMP)->B1_UM 					, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq	+ 350	, (cAlsTMP)->D2_LOCAL				, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq	+ 380	, (cAlsTMP)->B1_ZENDPIC				, oFont10:oFont) 
-		oPrinter:Say(nLinha, nMargemEsq	+ 420	, (cAlsTMP)->D2_LOTECTL				, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq	+ 460	, DToC(SToD((cAlsTMP)->D2_DTVALID))	, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq	+ 460	, cCanal							, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq + 10	, CValToChar((cAlsTMP)->D2_QUANT)	, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq + 20	, (cAlsTMP)->D2_COD					, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq + 50   	, Substr((cAlsTMP)->B1_DESC,1,50)	, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq + 180	, (cAlsTMP)->B1_UM 					, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq	+ 200	, (cAlsTMP)->D2_LOCAL				, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq	+ 220	, (cAlsTMP)->B1_ZENDPIC				, oFont10:oFont) 
+		oPrinter:Say(nLinha, nMargemEsq	+ 300	, (cAlsTMP)->D2_LOTECTL				, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq	+ 330	, DToC(SToD((cAlsTMP)->D2_DTVALID))	, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq	+ 400	, FwCutOff(ALLTRIM(cCanal), .T.)	, oFont10:oFont)
 
 		nSalto ++
 
@@ -281,14 +281,15 @@ Static Function zFimPag()
 	nLinha += 120
 
 	oPrinter:Box(nLinha-10, 025, nLinha+600, 537)	
-	oPrinter:Say(nLinha, nMargemEsq	+ 2		, "Quantidade"				, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq + 50	, "Código"					, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq + 100	, "Nome"					, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq + 320	, "Unid" 					, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq	+ 350	, "Local"					, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq	+ 380	, "Endereço"				, oFont10n:oFont) //Criado por Renan Ranzani - 05/06/2024
-	oPrinter:Say(nLinha, nMargemEsq	+ 420	, "Lote"					, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq	+ 460	, "Validade"				, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq	+ 2		, "Qtd"				, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq + 20	, "Código"			, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq + 50	, "Nome"			, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq + 180	, "Unid" 			, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq	+ 200	, "Local"			, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq	+ 220	, "Endereço"		, oFont10n:oFont) //Criado por Renan Ranzani - 05/06/2024
+	oPrinter:Say(nLinha, nMargemEsq	+ 300	, "Lote"			, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq	+ 330	, "Validade"		, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq	+ 400	, "Canal de Vendas"	, oFont10n:oFont)
 
 Return 
 
