@@ -77,7 +77,7 @@ User Function DUXEMP1(cOrdSep,cOP,cCodTrf,nOpc)
 				//Marca o empenho do produto "MP" como Excluído.
 
 				If ZD3->(DbSeek(xFilial("SD4")+SD4->(D4_OP+D4_COD+D4_LOTECTL)))
-					If  EMPTY(ZD3->ZD3_FLAG) 
+					If  EMPTY(ZD3->ZD3_FLAG)
 						aAdd(aLine,{"AUTDELETA","S",Nil})
 					Endif
 				EndIf
@@ -395,11 +395,6 @@ User Function DUXEMP1(cOrdSep,cOP,cCodTrf,nOpc)
 				DisarmTransaction()
 				break
 
-
-				Else
-				If  lMovto
-					VTALERT("Transferencia realizada com sucesso !", "Aviso",.T.,4000,3)
-				Endif
 				Endif
 
 				If	lMsErroAuto
@@ -408,6 +403,10 @@ User Function DUXEMP1(cOrdSep,cOP,cCodTrf,nOpc)
 			EndIf
 		End Transaction
 
+		If  lMovto .and. !lMsErroAuto
+			VTALERT("Transferencia realizada com sucesso !", "Aviso",.T.,4000,3)
+		Endif
+			
 	endif 
 
 Return
