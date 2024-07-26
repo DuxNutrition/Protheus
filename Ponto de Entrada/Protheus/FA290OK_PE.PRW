@@ -8,7 +8,7 @@ Ponto de entrada que permite incluir validações de usuário na rotina Faturas a P
 @since 25/07/2024
 @return logical, .T.
 @link	https://tdninterno.totvs.com/pages/releaseview.action?pageId=653409728
-@obs
+@obs    GAP030
 /*/
 User Function FA290OK()
 
