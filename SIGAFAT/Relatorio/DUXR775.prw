@@ -183,7 +183,7 @@ While !(cAlsTMP)->(Eof())
 
 		oPrinter:Say(nLinha, nMargemEsq + 30	, CValToChar((cAlsTMP)->D2_QUANT)	, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq + 50	, (cAlsTMP)->D2_COD					, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq + 100   , Substr((cAlsTMP)->B1_DESC,1,50)	, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq + 100   , Substr((cAlsTMP)->B1_DESC,1,51)	, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq + 320	, (cAlsTMP)->B1_UM 					, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq	+ 350	, (cAlsTMP)->D2_LOCAL				, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq	+ 380	, (cAlsTMP)->B1_ZENDPIC				, oFont10:oFont) 
