@@ -2,14 +2,14 @@
 #Include "topconn.ch"
 #Include "rwmake.ch"
 
-/*********************************************************************************************
-* Rotina	:	FA430FIG
-* Autor		:	Marcos Wey da Mata
-* Data		:	04/03/2022
-* Descricao	:	Permitir modificar CNPJ do retorno DDA
-
-* Apoio		: 	
-*********************************************************************************************/
+/*/{Protheus.doc} FA430FIG
+Permitir modificar CNPJ do retorno DDA
+@type function
+@version 12.1.2310
+@author Marcos Wey da Mata
+@since 04/03/2022
+@return variant, return_description
+/*/
 User Function FA430FIG()
            
 Local cCNPJ 		:= ParamIxb[1]
