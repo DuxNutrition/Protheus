@@ -30,30 +30,47 @@ WSMETHOD GET WSSERVICE ZWSF001
     Local _cUser     := ""
     Local _cPass     := ""
     Local jBody    As JSON
-
+    Local cTenantId := ""
+    Local empresa := ""
+    Local filial := ""
+    Local lRet := .F.
 
     Self:SetContentType("application/cJson")
     _cAuthorization := Self:GetHeader('Authorization')
     _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
-    _cUser 	:= AllTrim( superGetMv( "DUX_RES01"	, , "allan.rabelo"	) )	// Usuario para autenticacao no WS
-    _cPass 	:= AllTrim( superGetMv( "DUX_RES02"	, , "123456"	) )	// Senha para autenticao no WS
+    _cUser  		:= Decode64(Self:GetHeader("user", .F.))
+    _cPass          := Decode64(Self:GetHeader("pass", .F. ))
+    
+    _cUserPar 	:= Decode64(AllTrim( superGetMv( "DUX_RES01"	, , "YWxsYW4ucmFiZWxv"	) ))	// Usuario para autenticacao no WS
+    _cPassPar 	:= Decode64(AllTrim( superGetMv( "DUX_RES02"	, , "MTIzNDU2"	) ))	// Senha para autenticao no WS*/
+    
     cBody := ::GetContent()
     jBody    := JSONObject():New()
-    If Empty(_cUser) .Or. Empty(_cPass)
-        _aRet := {302,"Nao Autorizado [Parametros]"}
-    Else
-        _cChave := _cUser+":"+_cPass
-        _cChave := Encode64( _cUser+":"+_cPass)
-        If _cChave == Encode64( _cUser+":"+_cPass)
+
+    cTenantId := HTTPHeader("tenantId")
+
+    If ("," $ cTenantId)
+        empresa := StrTokArr2(cTenantId, ",")[1]
+        filial  := StrTokArr2(cTenantId, ",")[2]
+    EndIf
+
+    cEmpAnt:= empresa
+    cFilAnt:= filial
+
+    if (_cUser!=_cUserPar) .or. (_cPass!=_cPassPar)
+        _aRet := {302,"Usuario ou senha Nao Autorizado "}
+    endif 
+        If _aRet == ''
             _oJson := JsonObject():new()
             _oJson:fromJson(DecodeUTF8(Self:GetContent(,.T.)))
             jBody := u_duxfsc(@_oJson, _cEmpFil)
             Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
             FwFreeObj(jBody)
         Else
-            _aRet := {302,"Nao Autorizado"}
+            jBody := _aRet 
+            Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
+            FwFreeObj(jBody)
         endif
-    endif
 Return .T.
 
 /*ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -302,3 +319,37 @@ user function FIMPOSTOS(cCliente,cLoja,cTipo,cProduto,cTes,nQtd,nPrc,nValor)
     MaFisEnd()
 return aImp
 
+
+/*/{Protheus.doc} ValidRequest
+    Valida os parâmetros de cabeçalho "option" e "key".
+    @type Function
+    @version 12.1.33
+    @author Valdemir Rabelo
+    @since 20/01/2023
+    @return Logical, .T. se os parâmetros forem preenchidos corretamente, .F. se não forem
+/*/
+Static Function ValidRequest(_User,_Pass) As Logical
+    // Variáveis locais
+    Local lOK As Logical // Flag de requisição válida
+    Local _login := ""
+    Local 
+
+    // Inicialização de variáveis
+    lOK := .T.
+
+    // Verifica se a chave enviada está válida
+    If (Empty(Self:key))
+        lOK := .F.
+        SetRestFault(002, FwHTTPEncode("Parâmetro de cabeçalho [key] não informado."), .T., 400,;
+            FwHTTPEncode("O envio do parâmetro [key] é obrigatório neste serviço."))
+    ElseIf (At("'", Self:key) > 0)
+        lOK := .F.
+        SetRestFault(003, FwHTTPEncode("Parâmetro de cabeçalho [key] inválido."), .T., 400,;
+            FwHTTPEncode("Devido ao uso de Embedded SQL, não é possível o envio de aspas simples (apóstrofe) no parâmetro [key]."))
+    ElseIf ((LEN(Self:key) > 13) .OR. (LEN(Self:key) < 13)) .or. (Self:key != "TOTVSPROTHEUS")
+        lOK := .F.
+        SetRestFault(003, FwHTTPEncode("Parâmetro de cabeçalho [key] inválido."), .T., 400,;
+            FwHTTPEncode("A [key] informada no cabecalho é invalida."))     
+    EndIf
+
+Return (lOK)
