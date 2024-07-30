@@ -216,7 +216,7 @@ Static Function zCabPed()
 
 	oPrinter:Say(040, 180, "PICK-LIST PEDIDO DE VENDAS"												, oFont12:oFont)
 
-	oPrinter:Say(060, 220, cNumped																	, oFont18N:oFont)
+	oPrinter:Say(060, 223, cNumped																	, oFont18N:oFont)
 
 	oPrinter:FWMSBAR("CODE128" , nLinC , nColC, cCode, oPrinter,/*lCheck*/,/*Color*/,/*lHorz*/, nWidth, nHeigth,.F.,/*cFont*/,/*cMode*/,.F./*lPrint*/,nPFWidth,nPFHeigth,lCmtr2Pix)
 	
