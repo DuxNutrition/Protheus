@@ -14,6 +14,7 @@ Static oTrb as object
 	(Programa para geração de etiqueta de lote, com código barras, para ser utilizado pelas rotinas MATA103, MATC060 e MATA250 )
 	@type  Static Function
 	@author SR
+	@history 07/2024 - Jedilson Rodrigues - Manutenção do Fonte;
 	@since 21/12/2023
 	@version 12.1.2210
 /*/
