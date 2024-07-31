@@ -15,7 +15,7 @@ Local c_lRet := SPACE(10)
 
 IF M->C2_XRBD == 'S'
 
-	c_lRet := Chr(64+Month(M->C2_EMISSAO))+Right(DToC(M->C2_EMISSAO),1)+Substr(M->C2_NUM,3,4)+If(M->C2_TPPR='E','E','') + "R"
+	c_lRet :=  "R" + Chr(64+Month(M->C2_EMISSAO))+Right(DToC(M->C2_EMISSAO),1)+Substr(M->C2_NUM,3,4)+If(M->C2_TPPR='E','E','') 
 
 Else
 	
