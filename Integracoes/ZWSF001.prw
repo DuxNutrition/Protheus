@@ -65,14 +65,14 @@ WSMETHOD GET WSSERVICE ZWSF001
     if (_cAuthorization!=cLogin) 
         _aRet := {302,"Usuario ou senha Nao Autorizado "}
     endif 
-        If _aRet == ''
+        If Empty(_aRet) 
             _oJson := JsonObject():new()
             _oJson:fromJson(DecodeUTF8(Self:GetContent(,.T.)))
             jBody := u_duxfsc(@_oJson, _cEmpFil)
             Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
             FwFreeObj(jBody)
         Else
-            jBody := _aRet 
+            jBody["Status"]    := _aRet 
             Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
             FwFreeObj(jBody)
         endif
