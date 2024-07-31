@@ -524,10 +524,10 @@ Static function saveetiqueta()
 	printZT230 += "^FT30,660^A0N,30,30^FH\^CI28^FD QTD: ^FS^CI27"+ CRLF
 	printZT230 += "^FT90,720^A0N,110,110^FH\^CI28^FD "+ Alltrim(transform((TRB)->TR_QTDEMB,"@E 999,999,999.999")) +" ^FS^CI27"+ CRLF
 	If !EMPTY(cOpc)
-		If nOpc == "1" 
+		If cOpc == "1" 
 			printZT230 += "^FT140,850^A0N,100,100^FH\^CI28^FD"+ Alltrim(cDescOpc) +"^FS^CI27"+CRLF
 			printZT230 += CRLF
-		Elseif nOpc == "2" 
+		Elseif cOpc == "2" 
 			printZT230 += "^FT45,850^A0N,100,100^FH\^CI28^FD"+ Alltrim(cDescOpc) +"^FS^CI27"+CRLF 
 			printZT230 += CRLF
 		Endif 
