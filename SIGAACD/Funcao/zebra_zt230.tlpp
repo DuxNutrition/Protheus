@@ -464,10 +464,8 @@ Static function saveetiqueta()
 	Local printZT230 := ""
 	Local cIniName   := ""
 	Local nTamProd   := TamSX3("B1_COD")[1]
-	Local cTipo 	 := Posicione("SB1",1,xFilial("SB1")+PAdr((TRB)->TR_SKU,nTamProd),"B1_TIPO")
-	Local nOpc       := Posicione("SB1",1,xFilial("SB1")+PAdr((TRB)->TR_SKU,nTamProd),"B1_ZALERGE")
-	Local cTipoSku   := SuperGetMv("DUX_ETQ001",.F.,"MP#PI#PA")
-	Local cOpc 		 := Iif((nOpc == "1" ),"ALERGENICO","NAO ALERGENICO")
+	Local cOpc       := Posicione("SB1",1,xFilial("SB1")+PAdr((TRB)->TR_SKU,nTamProd),"B1_ZALERGE")
+	Local cDescOpc 	 := Iif((cOpc == "1" ),"ALERGENICO","NAO ALERGENICO")
 	Local _cTxtBat as character
 	Local cLote		 := Alltrim((TRB)->TR_LOTE)
 	Local nLength    := Len(cLote)
@@ -525,13 +523,15 @@ Static function saveetiqueta()
 	printZT230 += CRLF
 	printZT230 += "^FT30,660^A0N,30,30^FH\^CI28^FD QTD: ^FS^CI27"+ CRLF
 	printZT230 += "^FT90,720^A0N,110,110^FH\^CI28^FD "+ Alltrim(transform((TRB)->TR_QTDEMB,"@E 999,999,999.999")) +" ^FS^CI27"+ CRLF
-	If nOpc == "1" .AND. cTipo $ cTipoSku
-		printZT230 += "^FT140,850^A0N,100,100^FH\^CI28^FD"+ Alltrim(cOpc) +"^FS^CI27"+CRLF
-		printZT230 += CRLF
-	Elseif nOpc == "2" .AND. cTipo $ cTipoSku
-		printZT230 += "^FT45,850^A0N,100,100^FH\^CI28^FD"+ Alltrim(cOpc) +"^FS^CI27"+CRLF 
-		printZT230 += CRLF
-	Endif 
+	If !EMPTY(cOpc)
+		If nOpc == "1" 
+			printZT230 += "^FT140,850^A0N,100,100^FH\^CI28^FD"+ Alltrim(cDescOpc) +"^FS^CI27"+CRLF
+			printZT230 += CRLF
+		Elseif nOpc == "2" 
+			printZT230 += "^FT45,850^A0N,100,100^FH\^CI28^FD"+ Alltrim(cDescOpc) +"^FS^CI27"+CRLF 
+			printZT230 += CRLF
+		Endif 
+	Endif
 	printZT230 += "^FT30,900^A0N,30,30^FH\^CI28^FD SKU: ^FS^CI27"+ CRLF
 	printZT230 += "^BY4,2,140"+ CRLF
 	printZT230 += "^FO60,910^BC^FD "+ alltrim((TRB)->TR_SKU) +"^FS"+ CRLF
