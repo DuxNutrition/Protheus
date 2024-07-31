@@ -34,30 +34,35 @@ WSMETHOD GET WSSERVICE ZWSF001
     Local empresa := ""
     Local filial := ""
     Local lRet := .F.
+    Local _cLogin := ""
 
     Self:SetContentType("application/cJson")
-    _cAuthorization := Self:GetHeader('Authorization')
+    _cAuthorization := SUBSTR(Self:GetHeader('Authorization'),7,50)
     _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
-    _cUser  		:= Decode64(Self:GetHeader("user", .F.))
-    _cPass          := Decode64(Self:GetHeader("pass", .F. ))
+    //_cUser  		:= Decode64(Self:GetHeader("user", .F.))
+    //_cPass          := Decode64(Self:GetHeader("pass", .F. ))
     
-    _cUserPar 	:= Decode64(AllTrim( superGetMv( "DUX_RES01"	, , "YWxsYW4ucmFiZWxv"	) ))	// Usuario para autenticacao no WS
-    _cPassPar 	:= Decode64(AllTrim( superGetMv( "DUX_RES02"	, , "MTIzNDU2"	) ))	// Senha para autenticao no WS*/
-    
+    _cUserPar 	:= Encode64(AllTrim( superGetMv( "DUX_RES01", , "allan.rabelo"	) ))	// Usuario para autenticacao no WS
+    _cPassPar 	:= Encode64(AllTrim( superGetMv( "DUX_RES02", , "123456"	) ))	// Senha para autenticao no WS*/
+    cLogin := Encode64(Decode64(_cUserPar) +":"+ Decode64(_cPassPar)) 
     cBody := ::GetContent()
     jBody    := JSONObject():New()
 
     cTenantId := HTTPHeader("tenantId")
 
-    If ("," $ cTenantId)
+    if cTenantid <> "" 
+        If ("," $ cTenantId)
         empresa := StrTokArr2(cTenantId, ",")[1]
         filial  := StrTokArr2(cTenantId, ",")[2]
-    EndIf
+        EndIf
+    else 
+        _aRet := {302," Empresa ou filial não encontrada."}
+    endif 
 
     cEmpAnt:= empresa
     cFilAnt:= filial
 
-    if (_cUser!=_cUserPar) .or. (_cPass!=_cPassPar)
+    if (_cAuthorization!=cLogin) 
         _aRet := {302,"Usuario ou senha Nao Autorizado "}
     endif 
         If _aRet == ''
