@@ -68,8 +68,8 @@ Static Function fReportDef() //Definições do relatório
  
 	//Definições de fonte:
 	oReport:SetLineHeight(50) 			//--Espaçamento entre linhas
-	oReport:cFontBody := 'Courier New' 	//--Tipo da fonte
-	oReport:nFontBody := 12				//--Tamanho da fonte
+	oReport:cFontBody := 'Arial' 		//--Tipo da fonte
+	oReport:nFontBody := 10				//--Tamanho da fonte
 	//oReport:SetEdit(.T.) 
 	//Pergunte(oReport:GetParam(),.F.) 	//--Adicionar as perguntas na SX1
 
@@ -82,10 +82,10 @@ Static Function fReportDef() //Definições do relatório
 	//TRCell():New(oSection2,"CR_DATALIB"	,"SCR"	,'Data Aprov SC'	,/*Picture*/,TamSx3("CR_DATALIB")[1] 	,/*lPixel*/,/* {|| }*/)
 	//--Colunas do relatório
 	TRCell():New( oSection  ,"D2_FILIAL"  	,cTabela ,"Filial"			,/*cPicture*/,TamSx3("D2_FILIAL")[1] 	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)	
-	TRCell():New( oSection  ,"DT_EMIS"  	,cTabela ,"Data de Emissão"	,/*cPicture*/,08 	                    , /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)	
+	TRCell():New( oSection  ,"DT_EMIS"  	,cTabela ,"Data de Emissão"	,/*cPicture*/,TamSx3("D2_EMISSAO")[1] 	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)	
     TRCell():New( oSection  ,"D2_PEDIDO"    ,cTabela ,"Pedido"	        ,/*cPicture*/,TamSx3("D2_PEDIDO")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
     TRCell():New( oSection  ,"B1_COD"       ,cTabela ,"Produto"			,/*cPicture*/,TamSx3("B1_COD")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-    TRCell():New( oSection  ,"B1_DESC"      ,cTabela ,"Descricao"	    ,/*cPicture*/,TamSx3("B1_DESC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+    TRCell():New( oSection  ,"B1_DESC"      ,cTabela ,"Descricao"	    ,/*cPicture*/,60						, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_QUANT"     ,cTabela ,"Quantidade"		,/*cPicture*/,TamSx3("D2_QUANT")[1]     , /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_DOC"       ,cTabela ,"Documento"		,/*cPicture*/,TamSx3("D2_DOC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_SERIE"     ,cTabela ,"Série"	        ,/*cPicture*/,TamSx3("D2_SERIE")[1]	    , /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
@@ -95,7 +95,7 @@ Static Function fReportDef() //Definições do relatório
 	TRCell():New( oSection  ,"A1_EST"       ,cTabela ,"UF"	            ,/*cPicture*/,TamSx3("A1_EST")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)	
 	TRCell():New( oSection  ,"C5_VOLUME1"   ,cTabela ,"Volume"	        ,/*cPicture*/,TamSx3("C5_VOLUME1")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"C5_PBRUTO"    ,cTabela ,"Peso Bruto"		,/*cPicture*/,TamSx3("C5_PBRUTO")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"C5_XITEMCC"  ,cTabela ,"Canal de Vendas"  ,/*cPicture*/,TamSx3("C5_XITEMCC")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"C5_XITEMCC"   ,cTabela ,"Canal"  		    ,/*cPicture*/,TamSx3("C5_XITEMCC")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
     
 
 Return oReport
@@ -111,48 +111,56 @@ Static Function ReportPrint(oReport)
 	//Pegando as secoes do relatório
 	oSectDad := oReport:Section(1) //Primeira seção disponível
 
+	If Select( cTabela ) > 0
+		(cTabela)->(DbCloseArea())
+	EndIf
+
     cQry := " SELECT "                                                      + CRLF
-    cQry += "   D2_FILIAL "                                                 + CRLF
-    cQry += "   ,D2_EMISSAO AS DT_EMIS "                                    + CRLF
-	cQry += "   ,D2_PEDIDO "                                                + CRLF
-    cQry += "   ,B1_COD "                                                   + CRLF
-	cQry += "   ,B1_DESC "                                                  + CRLF
-    cQry += "   ,D2_QUANT "                                                 + CRLF
-	cQry += "   ,D2_DOC "                                                   + CRLF
-    cQry += "   ,D2_SERIE "                                                 + CRLF
-	cQry += "	,D2_CLIENTE "                                               + CRLF
-	cQry += "	,A1_NOME "                                                  + CRLF
-	cQry += "	,A1_CEP "                                                   + CRLF
-	cQry += "	,A1_EST "                                                   + CRLF
-	cQry += "	,C5_VOLUME1 "                                               + CRLF
-	cQry += "	,C5_PBRUTO "                                                + CRLF
-	cQry += "	,C5_XITEMCC "                                               + CRLF
+    cQry += "   SD2.D2_FILIAL "                                             + CRLF
+    cQry += "   ,SD2.D2_EMISSAO AS DT_EMIS "                                + CRLF
+	cQry += "   ,SD2.D2_PEDIDO "                                            + CRLF
+    cQry += "   ,SB1.B1_COD "                                               + CRLF
+	cQry += "   ,SB1.B1_DESC "                                              + CRLF
+    cQry += "   ,SD2.D2_QUANT "                                             + CRLF
+	cQry += "   ,SD2.D2_DOC "                                               + CRLF
+    cQry += "   ,SD2.D2_SERIE "                                             + CRLF
+	cQry += "	,SD2.D2_CLIENTE "                                           + CRLF
+	cQry += "	,SA1.A1_NOME "                                              + CRLF
+	cQry += "	,SA1.A1_CEP "                                               + CRLF
+	cQry += "	,SA1.A1_EST "                                               + CRLF
+	cQry += "	,SC5.C5_VOLUME1 "                                           + CRLF
+	cQry += "	,SC5.C5_PBRUTO "                                            + CRLF
+	cQry += "	,SC5.C5_XITEMCC "                                           + CRLF
     cQry += " FROM " + RetSqlName("SD2") + " AS SD2 WITH(NOLOCK) "          + CRLF
 	cQry += "   INNER JOIN " + RetSqlName("SC5") + " SC5 WITH(NOLOCK) "     + CRLF
-	cQry += "       ON SC5.C5_NUM = SD2.D2_PEDIDO "                         + CRLF
-	cQry += "       AND SC5.C5_FILIAL = '" + FWxFilial("SC5") + "' "        + CRLF
+	cQry += "       ON SC5.C5_FILIAL = '" + FWxFilial("SC5") + "' "         + CRLF
+	cQry += "       AND SC5.C5_NUM = SD2.D2_PEDIDO "        				+ CRLF
 	cQry += "       AND SC5.D_E_L_E_T_ = ' ' "                              + CRLF
 	cQry += "   INNER JOIN " + RetSqlName("SB1") + " SB1 WITH(NOLOCK) "     + CRLF
-	cQry += "       ON SB1.B1_COD = SD2.D2_COD "                            + CRLF
-	cQry += "       AND SB1.B1_FILIAL = '  ' "                              + CRLF
+	cQry += "       ON SB1.B1_FILIAL = '" + FWxFilial("SB1") + "' "         + CRLF
+	cQry += "       AND SB1.B1_COD = SD2.D2_COD "                           + CRLF
 	cQry += "       AND SB1.D_E_L_E_T_ = ' ' "                              + CRLF
 	cQry += "   INNER JOIN " + RetSqlName("SA1") + " SA1 WITH(NOLOCK) "     + CRLF
-	cQry += "       ON SA1.A1_COD = SC5.C5_CLIENTE "                        + CRLF
-    cQry += "       AND SA1.A1_FILIAL = '" + FWxFilial("SA1") + "' "        + CRLF
+	cQry += "       ON SA1.A1_FILIAL = '" + FWxFilial("SA1") + "' "         + CRLF
+    cQry += "       AND SA1.A1_COD = SC5.C5_CLIENTE "       				+ CRLF
 	cQry += "       AND SA1.D_E_L_E_T_ = ' ' "                              + CRLF
     cQry += " WHERE 1=1 "                                                   + CRLF
     cQry += " AND SD2.D2_FILIAL = '" + FWxFilial("SD2") + "' "              + CRLF
     
-	If !Empty(MV_PAR02) //DT INVOICE ATE
+	If !(Empty(MV_PAR01) .AND. Empty(MV_PAR02)) //Parametro por Nf
 		cQry += " AND SD2.D2_DOC BETWEEN '" + MV_PAR01 + "' AND '" + MV_PAR02 + "'" + CRLF
 	EndIf
 
-    If !Empty(MV_PAR03)
+    If !Empty(MV_PAR03) // Parametro por Serie
 	    cQry += " AND SD2.D2_SERIE = '" + MV_PAR03 + "' " + CRLF
     EndIf
 
-	If !Empty(MV_PAR05) // NUM DOCUMENTO NF
-		cQry += " AND SD2.D2_COD BETWEEN '" + DtoS(MV_PAR04) + "' AND '" + DtoS(MV_PAR05) + "'" + CRLF
+	If !(Empty(MV_PAR04) .AND. Empty(MV_PAR05)) // Parametro por Data
+		cQry += " AND SD2.D2_EMISSAO BETWEEN '" + DtoS(MV_PAR04) + "' AND '" + DtoS(MV_PAR05) + "'" + CRLF
+	EndIf
+
+	If !(Empty(MV_PAR06) .AND. Empty(MV_PAR07)) // Parametro por Produto
+		cQry += " AND SD2.D2_COD BETWEEN '" + MV_PAR06 + "' AND '" + MV_PAR07 + "'" + CRLF
 	EndIf
 
     cQry += " AND SD2.D_E_L_E_T_ = ' ' "                                     + CRLF
@@ -179,6 +187,7 @@ Static Function ReportPrint(oReport)
 			oReport:IncMeter()
 
 			oSectDad:Cell("DT_EMIS"):SetValue(StoD((cTabela)->DT_EMIS))
+			//oSectDad:Cell("B1_DESC"):SetValue(ALLTRIM((cTabela)->B1_DESC))
 	
 			//Imprimindo a linha atual
 			oSectDad:PrintLine()
