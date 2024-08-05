@@ -1,14 +1,5 @@
 #INCLUDE "PROTHEUS.CH"
 
-//-------------------------------------------------------------------
-/*/ Geralote
-Geração automatica do numero de lote
-
-
-@version P23.10
-@ return lRet
-/*/
-//-------------------------------------------------------------------
 /*/{Protheus.doc} ZPCPF001
 Geração automatica do numero de lote
 @type function
