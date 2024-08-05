@@ -516,7 +516,7 @@ Static function saveetiqueta()
 			printZT230 += "^BY1,2,130"+ CRLF
 	EndCase
 	//printZT230 += "^FO60,270^BC^FD " + LEFT((TRB)->TR_LOTE,6)+">6-"+substr((TRB)->TR_ITEM,7,3) + " ^FS" + CRLF
-	printZT230 += "^FO60,270^BC^FD " + Alltrim((TRB)->TR_LOTE) + " ^FS"+ CRLF
+	printZT230 += "^FO60,270^BC^FD" + Alltrim((TRB)->TR_LOTE) + " ^FS"+ CRLF
 	printZT230 += CRLF
 	printZT230 += "^FT30,530^A0N,30,30^FH\^CI28^FD VAL:^FS^CI27"+ CRLF
 	printZT230 += "^FT90,590^A0N,110,110^FH\^CI28^FD " + dtoc((TRB)->TR_VALID) + " ^FS^CI27"+ CRLF
@@ -534,7 +534,7 @@ Static function saveetiqueta()
 	Endif
 	printZT230 += "^FT30,900^A0N,30,30^FH\^CI28^FD SKU: ^FS^CI27"+ CRLF
 	printZT230 += "^BY4,2,140"+ CRLF
-	printZT230 += "^FO60,910^BC^FD "+ alltrim((TRB)->TR_SKU) +"^FS"+ CRLF
+	printZT230 += "^FO60,910^BC^FD"+ alltrim((TRB)->TR_SKU) +"^FS"+ CRLF
 	printZT230 += "^XZ"
 
 	If !EXISTDIR( "c:\temp" )
