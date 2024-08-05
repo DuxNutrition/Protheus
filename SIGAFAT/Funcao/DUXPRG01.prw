@@ -136,7 +136,7 @@ Local oModel		:= FWLoadModel( "DUXPRG01" )
 Local oStruCab		:= FWFormStruct(2,"ZAD")
 Local oStruItens	:= FWFormStruct(2,"ZAE" , {|cField| !(AllTrim(Upper(cField)) $ "ZAE_CONTRA|ZAE_REVISA|ZAE_CLIENT|ZAE_LOJACL")})
 Local oView			:= NIL
-Local oStTot        := FWCalcStruct(oModel:GetModel('TOT_SALDO'))
+//Local oStTot        := FWCalcStruct(oModel:GetModel('TOT_SALDO'))
 // Cria objeto de VIEW
 oView := FWFormView():New()
 oView:SetModel(oModel)
@@ -145,15 +145,15 @@ oView:SetModel(oModel)
 // Adiciona controle do tipo enchoice (antiga)
 oView:AddField("VIEWPR2"	, oStruCab	    , "PR2MASTER")
 oView:AddGrid("VIEWITENS"	, oStruItens    , "PR3DETAIL")
-oView:AddField("VIEWRODA"	, oStTot    , "TOT_SALDO")
+//oView:AddField("VIEWRODA"	, oStTot    , "TOT_SALDO")
 //Divisão da tela
 oView:CreateHorizontalBox("TELA"    ,30)
 oView:CreateHorizontalBox("ITENS"   ,60)
-oView:CreateHorizontalBox("RODA"   ,10 ) 
+//oView:CreateHorizontalBox("RODA"   ,10 ) 
 //Seta as view nos box criados.
 oView:SetOwnerView("VIEWPR2"	,"TELA")
 oView:SetOwnerView("VIEWITENS"	,"ITENS")
-oView:SetOwnerView("VIEWRODA"	,"RODA")
+//oView:SetOwnerView("VIEWRODA"	,"RODA")
 
 oView:SetCloseOnOk({||.T.})
 
