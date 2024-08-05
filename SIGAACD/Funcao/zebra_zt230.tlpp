@@ -14,6 +14,7 @@ Static oTrb as object
 	(Programa para geraÁ„o de etiqueta de lote, com cÛdigo barras, para ser utilizado pelas rotinas MATA103, MATC060 e MATA250 )
 	@type  Static Function
 	@author SR
+	@history 07/2024 - Jedilson Rodrigues - ManutenÁ„o do Fonte;
 	@since 21/12/2023
 	@version 12.1.2210
 /*/
@@ -74,7 +75,7 @@ User Function ZT230_10x15()
 				oMark:SetOnlyFields({ 'TR_ITEM','TR_LOTE', 'TR_VALID', 'TR_QTDEMB', 'TR_QTDETQ', 'TR_QTDDOC', 'TR_SKU','TR_ETQ' })
 		*/
 		oMark:SetColumns( {{"Item"		,{||(TRB)->TR_ITEM   },"C","@!S30" ,1, 50, 0,.T.,,,,"TR_ITEM",,,,  }} )
-		oMark:SetColumns( {{"Lote"		,{||(TRB)->TR_LOTE   },"C","@!" ,1, 10, 0,.T.,,,,"TR_LOTE",,,,  }} )
+		oMark:SetColumns( {{"Lote"		,{||(TRB)->TR_LOTE   },"C","@!" ,1, 25, 0,.T.,,,,"TR_LOTE",,,,  }} )
 		oMark:SetColumns( {{"Validade"	,{||(TRB)->TR_VALID  },"D","@D" ,0, 10, 0,.T.,,,,"TR_VALID",,,, }} )
 		oMark:SetColumns( {{"Qtd.Embal.",{||(TRB)->TR_QTDEMB },"N",cPict,2, 13, 3,.T.,,,,"TR_QTDEMB",,,,}} )
 		oMark:SetColumns( {{"Qtd.Etiq."	,{||(TRB)->TR_QTDETQ },"N",cPict,2, 13, 3,.T.,,,,"TR_QTDETQ",,,,}} )
@@ -458,61 +459,17 @@ return
 	@since 20/12/2023
 	@version 12.1.2210
 /*/
-static function saveetiqueta()
+Static function saveetiqueta()
 
 	Local printZT230 := ""
 	Local cIniName   := ""
+	Local nTamProd   := TamSX3("B1_COD")[1]
+	Local cOpc       := Posicione("SB1",1,xFilial("SB1")+PAdr((TRB)->TR_SKU,nTamProd),"B1_ZALERGE")
+	Local cDescOpc 	 := Iif((cOpc == "1" ),"ALERGENICO","NAO ALERGENICO")
 	Local _cTxtBat as character
-	
+	Local cLote		 := Alltrim((TRB)->TR_LOTE)
+	Local nLength    := Len(cLote)
 
-    
-
-	/*printZT230 += "CT~~CD,~CC^~CT~"  + CRLF
-	printZT230 += "^XA"  + CRLF
-	printZT230 += "~TA000"  + CRLF
-	printZT230 += "~JSN"  + CRLF
-	printZT230 += "^LT0"  + CRLF
-	printZT230 += "^MNW"  + CRLF
-	printZT230 += "^MTT"  + CRLF
-	printZT230 += "^PON"  + CRLF
-	printZT230 += "^PMN"  + CRLF
-	printZT230 += "^LH0,0"  + CRLF
-	printZT230 += "^JMA"  + CRLF
-	printZT230 += "^PR6,6"  + CRLF
-	printZT230 += "~SD8"  + CRLF
-	printZT230 += "^JUS"  + CRLF
-	printZT230 += "^LRN"  + CRLF
-	printZT230 += "^CI27"  + CRLF
-	printZT230 += "^PA0,1,1,0"  + CRLF
-	printZT230 += "^XZ"  + CRLF
-	printZT230 += "^XA"  + CRLF
-	printZT230 += "^MMT"  + CRLF
-	printZT230 += "^PW799"  + CRLF
-	printZT230 += "^LL1772"  + CRLF
-	printZT230 += "^LS0"  + CRLF
-	printZT230 += "^FO8,17^GB1156,327,12^FS"  + CRLF
-	printZT230 += "^FO8,332^GB1156,472,12^FS"  + CRLF
-	printZT230 += "^FO8,792^GB1156,210,12^FS"  + CRLF
-	printZT230 += "^FO8,1331^GB1156,429,12^FS"  + CRLF
-	printZT230 += "^FT40,91^A0N,50,51^FH\^CI28^FDITEM:^FS^CI27"  + CRLF
-	printZT230 += "^FT40,171^A0N,50,50^FH\^CI28^FD"+left((TRB)->TR_ITEM,25)+"^FS^CI27" + CRLF
-	printZT230 += "^FT40,265^A0N,50,50^FH\^CI28^FD"+substr((TRB)->TR_ITEM,26,25)+"^FS^CI27" + CRLF
-	printZT230 += "^FT40,413^A0N,50,51^FH\^CI28^FDLOTE:^FS^CI27"  + CRLF
-	printZT230 += "^BY8,3,243^FT59,697^BCN,,Y,N"  + CRLF
-	printZT230 += "^FH\^FD>;"+LEFT((TRB)->TR_LOTE,6)+">6-"+substr((TRB)->TR_ITEM,7,3)+"^FS" + CRLF
-	printZT230 += "^FT40,857^A0N,50,51^FH\^CI28^FDVALIDADE:^FS^CI27"  + CRLF
-	printZT230 += "^FT0,967^A0N,100,100^FB1062,1,30,C^FH\^CI28^FD"+dtoc((TRB)->TR_VALID)+"^FS^CI27" + CRLF
-	printZT230 += "^FO8,1059^GB1156,283,12^FS"  + CRLF
-	printZT230 += "^FT40,1075^A0N,50,51^FH\^CI28^FDQUANTIDADE^FS^CI27"  + CRLF
-	printZT230 += "^FT20,1178^A0N,150,150^FB1161,1,38,C^FH\^CI28^FD"+alltrim(transform((TRB)->TR_QTDEMB,"@E 999,999,999.999"))+"^FS^CI27" + CRLF
-	printZT230 += "^BY10,3,279^FT197,1668^BCN,,Y,N"  + CRLF
-	printZT230 += "^FH\^FD>;"+alltrim((TRB)->TR_SKU)+"^FS" + CRLF
-	printZT230 += "^FT40,1408^A0N,50,51^FH\^CI28^FDSKU^FS^CI27"  + CRLF
-	printZT230 += "^PQ1,,,Y"  + CRLF
-	printZT230 += "^XZ"  + CRLF
-	*/
-
-	//Refeito o codigo ZPL 
 	printZT230 += "^XA"+ CRLF
 	printZT230 += CRLF
 	printZT230 += "~TA000"+ CRLF
@@ -540,34 +497,51 @@ static function saveetiqueta()
 	printZT230 += "^FO8,210^GB800,280,12^FS"+ CRLF
 	printZT230 += "^FO8,470^GB800,150,12^FS"+ CRLF
 	printZT230 += "^FO8,610^GB800,150,12^FS"+ CRLF
+	printZT230 += "^FO8,750^GB800,120,12^FS"+ CRLF
 	printZT230 += "^FO8,750^GB800,350,12^FS"+ CRLF
 	printZT230 += CRLF
-	printZT230 += "^FT30,70^A0N,30,30^FH\^CI28^FDITEM:^FS^CI27" + CRLF
-	printZT230 += "^FT30,140^A0N,50,50^FH\^CI28^FD " + left((TRB)->TR_ITEM,25) + " ^FS^CI27"
-	printZT230 += "^FT30,200^A0N,50,50^FH\^CI28^FD " + substring((TRB)->TR_ITEM,26,25) + " ^FS^CI27"
+	printZT230 += "^FT30,70^A0N,30,30^FH\^CI28^FDITEM:^FS^CI27"+ CRLF
+	printZT230 += "^FT30,140^A0N,50,50^FH\^CI28^FD " + left((TRB)->TR_ITEM,25) + " ^FS^CI27"+ CRLF
+	printZT230 += "^FT30,200^A0N,50,50^FH\^CI28^FD " + substring((TRB)->TR_ITEM,26,25) + " ^FS^CI27"+ CRLF
 	printZT230 += CRLF
-	printZT230 += "^FT30,250^A0N,30,30^FH\^CI28^FDLOTE:^FS^CI27" + CRLF
-	printZT230 += "^BY4,2,130" + CRLF
+	printZT230 += "^FT30,250^A0N,30,30^FH\^CI28^FDLOTE:^FS^CI27"+ CRLF
+	Do CASE
+		Case nLength <= 10
+			printZT230 += "^BY4,2,130"+ CRLF
+		Case nLength <= 15
+			printZT230 += "^BY3,2,130"+ CRLF
+		Case nLength <= 25
+			printZT230 += "^BY2,2,130"+ CRLF
+		Case nLength > 25
+			printZT230 += "^BY1,2,130"+ CRLF
+	EndCase
 	//printZT230 += "^FO60,270^BC^FD " + LEFT((TRB)->TR_LOTE,6)+">6-"+substr((TRB)->TR_ITEM,7,3) + " ^FS" + CRLF
-	printZT230 += "^FO60,270^BC^FD " + Alltrim((TRB)->TR_LOTE) + " ^FS" + CRLF
+	printZT230 += "^FO60,270^BC^FD" + Alltrim((TRB)->TR_LOTE) + "^FS"+ CRLF
 	printZT230 += CRLF
-	printZT230 += "^FT30,530^A0N,30,30^FH\^CI28^FD VAL:^FS^CI27" + CRLF
-	printZT230 += "^FT90,590^A0N,110,110^FH\^CI28^FD " + dtoc((TRB)->TR_VALID) + " ^FS^CI27" + CRLF
+	printZT230 += "^FT30,530^A0N,30,30^FH\^CI28^FD VAL:^FS^CI27"+ CRLF
+	printZT230 += "^FT90,590^A0N,110,110^FH\^CI28^FD " + dtoc((TRB)->TR_VALID) + " ^FS^CI27"+ CRLF
 	printZT230 += CRLF
-	printZT230 += "^FT30,660^A0N,30,30^FH\^CI28^FD QTD: ^FS^CI27" + CRLF
-	printZT230 += "^FT90,720^A0N,110,110^FH\^CI28^FD "+ Alltrim(transform((TRB)->TR_QTDEMB,"@E 999,999,999.999")) +" ^FS^CI27" + CRLF
-	printZT230 += CRLF
-	printZT230 += "^FT30,800^A0N,30,30^FH\^CI28^FD SKU: ^FS^CI27" + CRLF
-	printZT230 += "^BY5,2,230" + CRLF
-	printZT230 += "^FO60,810^BC^FD "+ alltrim((TRB)->TR_SKU) +"^FS" + CRLF
+	printZT230 += "^FT30,660^A0N,30,30^FH\^CI28^FD QTD: ^FS^CI27"+ CRLF
+	printZT230 += "^FT90,720^A0N,110,110^FH\^CI28^FD "+ Alltrim(transform((TRB)->TR_QTDEMB,"@E 999,999,999.999")) +" ^FS^CI27"+ CRLF
+	If !EMPTY(cOpc)
+		If cOpc == "1" 
+			printZT230 += "^FT140,850^A0N,100,100^FH\^CI28^FD"+ Alltrim(cDescOpc) +"^FS^CI27"+CRLF
+			printZT230 += CRLF
+		Elseif cOpc == "2" 
+			printZT230 += "^FT45,850^A0N,100,100^FH\^CI28^FD"+ Alltrim(cDescOpc) +"^FS^CI27"+CRLF 
+			printZT230 += CRLF
+		Endif 
+	Endif
+	printZT230 += "^FT30,900^A0N,30,30^FH\^CI28^FD SKU: ^FS^CI27"+ CRLF
+	printZT230 += "^BY4,2,140"+ CRLF
+	printZT230 += "^FO60,910^BC^FD"+ alltrim((TRB)->TR_SKU) +"^FS"+ CRLF
 	printZT230 += "^XZ"
 
-	if !EXISTDIR( "c:\temp" )
+	If !EXISTDIR( "c:\temp" )
 		MAKEDIR( "c:\temp" )
-	endif
+	Endif
 
 	//MEMOWRITE( "c:\temp\etiquetaZT230.txt", printZT230 )
-
 
 	cIniName := GetRemoteIniName() // Resultado: "C:\totvs\bin\SmartClient\smartclient.ini"
 
@@ -593,10 +567,10 @@ static function saveetiqueta()
 	_cCaminho := _cCamLoc + "\" + alltrim(cCodImpr) + ".bat"
 
 	if CB5SetImp(cCodImpr)
-		Sleep(200) // Como esta em rede, esperar 2 seg para impressao (Atualizacao necess·ria)
+		Sleep(200) // Como esta em rede, esperar 2 seg para impressao (Atualizacao necess√°ria)
 		WinExec(_cCaminho)
 	else
-		MsgStop("N„o foi possivel comunicar com a impressora")
+		MsgStop("N√£o foi possivel comunicar com a impressora")
 	EndIf
 return
 
@@ -657,7 +631,7 @@ static function criaTemporario()
 	AAdd(aFields, {"TR_OK" 	  ,"C", 02, 0}) // Este campo ser· usado para marcar/desmarcar
 	AAdd(aFields, {"TR_ETQ"   ,"C", 03, 0})
 	AAdd(aFields, {"TR_ITEM"  ,"C", 60, 0})
-	AAdd(aFields, {"TR_LOTE"  ,"C", 10, 0})
+	AAdd(aFields, {"TR_LOTE"  ,"C", 25, 0})
 	AAdd(aFields, {"TR_VALID" ,"D", 08, 0})
 	AAdd(aFields, {"TR_QTDEMB","N", 12, 3})
 	AAdd(aFields, {"TR_QTDETQ","N", 08, 0})
