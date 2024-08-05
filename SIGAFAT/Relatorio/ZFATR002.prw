@@ -44,7 +44,7 @@ Return
 Static Function fReportDef() //Definições do relatório
 
 	Local oReport
-	Local oSection	:= Nil
+	Local oSection := Nil
 	
 	oReport:= TReport():New("ZFATR002",;				// --Nome da impressão
                             "Relatorio de Saidas ME",;  // --Título da tela de parâmetros
@@ -84,7 +84,8 @@ Static Function fReportDef() //Definições do relatório
 	TRCell():New( oSection  ,"D2_EMISSAO"  	,cTabela ,"Emissao"			,PesqPict("SD2","D2_EMISSAO")	,TamSx3("D2_EMISSAO")[1] 	, /*lPixel*/, /*{|| code-block de impressao }*/, "CENTER"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)	
     TRCell():New( oSection  ,"D2_PEDIDO"    ,cTabela ,"Pedido"	        ,PesqPict("SD2","D2_PEDIDO")	,TamSx3("D2_PEDIDO")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
     TRCell():New( oSection  ,"B1_COD"       ,cTabela ,"Produto"			,PesqPict("SB1","B1_COD")		,TamSx3("B1_COD")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-    TRCell():New( oSection  ,"B1_DESC"      ,cTabela ,"Descricao"	    ,PesqPict("SB1","B1_DESC")		,TamSx3("B1_DESC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+    //TRCell():New( oSection  ,"B1_DESC"      ,cTabela ,"Descricao"	    ,PesqPict("SB1","B1_DESC")		,TamSx3("B1_DESC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"DESCRI"     	,cTabela ,"Descricao"	    ,								,TamSx3("B1_DESC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_QUANT"     ,cTabela ,"Quantidade"		,PesqPict("SD2","D2_QUANT")    	,TamSx3("D2_QUANT")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_DOC"       ,cTabela ,"Documento"		,PesqPict("SD2","D2_DOC")		,TamSx3("D2_DOC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_SERIE"     ,cTabela ,"Série"	        ,PesqPict("SD2","D2_SERIE")		,TamSx3("D2_SERIE")[1]	    , /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
@@ -118,7 +119,7 @@ Static Function ReportPrint(oReport)
     cQry += "   ,D2_EMISSAO "                                				+ CRLF
 	cQry += "   ,D2_PEDIDO "                                            	+ CRLF
     cQry += "   ,B1_COD "                                               	+ CRLF
-	cQry += "   ,B1_DESC "                                              	+ CRLF
+	cQry += "   ,B1_DESC AS DESCRI "                                        + CRLF
     cQry += "   ,D2_QUANT "                                             	+ CRLF
 	cQry += "   ,D2_DOC "                                               	+ CRLF
     cQry += "   ,D2_SERIE "                                             	+ CRLF
@@ -188,7 +189,7 @@ Static Function ReportPrint(oReport)
 			oSectDad:Cell("D2_EMISSAO"):SetValue(StoD((cTabela)->D2_EMISSAO))
 			oSectDad:Cell("D2_PEDIDO"):SetValue((cTabela)->D2_PEDIDO)
 			oSectDad:Cell("B1_COD"):SetValue((cTabela)->B1_COD)
-			oSectDad:Cell("B1_DESC"):SetValue(FwCutOff((cTabela)->B1_DESC, .T.))
+			oSectDad:Cell("DESCRI"):SetValue(ALLTRIM(FwCutOff((cTabela)->DESCRI, .T.)))
 			oSectDad:Cell("D2_QUANT"):SetValue((cTabela)->D2_QUANT)
 			oSectDad:Cell("D2_DOC"):SetValue((cTabela)->D2_DOC)
 			oSectDad:Cell("D2_SERIE"):SetValue((cTabela)->D2_SERIE)
