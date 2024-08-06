@@ -19,7 +19,7 @@ User Function ZCOMF001(dDtVencto)
 Local _aArea    := GetArea()
 Local _lRet     := .T.
 
-If !EMPTY(dDtVencto) .AND. dDtVencto < dDataBase
+If !EMPTY(dDtVencto) .AND. dDtVencto <= Date()
     _lRet := .F.
 Endif 
 

@@ -21,13 +21,20 @@ User Function A103VCTO()
 Local _aArea        := GetArea()
 Local aVencto       := {} //Array com os vencimentos e valores para geração dos títulos.
 Local aPELinhas     := PARAMIXB[1]
+Local nDia          := SuperGetMv("DUX_COM003",.F.,1)
 Local i             := 0
-
-Public lZCom001     := .T.
+Local dData         := Date()
+Local dDataVenc     := CTOD(" ")
+Local lZCom001      := .T.
 
 If ExistFunc("U_ZCOMF001")
     For i:= 1 to Len(aPELinhas)
         lZCom001 := U_ZCOMF001(aPELinhas[i][2])
+        If lZCom001 == .F.
+             dDataVenc := ( dData + nDia )
+            //Aadd(aVencto,{dDataVenc})
+            //aadd(aVencto,{stod("20181004"),10})
+        Endif
     Next i
 Endif
 
