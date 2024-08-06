@@ -1,17 +1,13 @@
 #INCLUDE 'TOTVS.CH'
 
-/*
-=====================================================================================
-Programa.:              MLFL01SA2
-Autor....:              Atos
-Data.....:              Não Há
-Descricao / Objetivo:   Não Há
-Doc. Origem:            GAP
-Solicitante:            Dux
-Uso......:              
-Obs......:
-=====================================================================================
-*/ 
+/*/{Protheus.doc} MLFL01SA2
+Ponto de entrada para tratar os campos na inclusao do fornecedor.
+@type function
+@version 12.1.2310
+@author Atos Data
+@since 06/08/2024
+@return array, acampos
+/*/
 User Function MLFL01SA2()
 
     Local   aCampos     := {}
@@ -24,6 +20,10 @@ User Function MLFL01SA2()
     aAdd(aCampos, {"A2_RECCOFI"  	, "2"	    ,	NIL} )
     aAdd(aCampos, {"A2_RECCSLL"  	, "2"	    ,	NIL} )
     aAdd(aCampos, {"A2_CONTA"  	    , cContaCTB	,	NIL} )
+    aAdd(aCampos, {"A2_ZZCTAAD"  	, '11303001'	,	NIL} )
+    aAdd(aCampos, {"A2_FORMPAG"  	, 'CC'	,	NIL} )
+    
+    
     
 
 Return(aCampos)
