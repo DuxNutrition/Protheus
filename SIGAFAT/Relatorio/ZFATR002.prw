@@ -145,7 +145,7 @@ Static Function ReportPrint(oReport)
     cQry += " WHERE 1=1 "                                                   + CRLF
     cQry += " AND SD2.D2_FILIAL = '" + FWxFilial("SD2") + "' "              + CRLF
     
-	If !(Empty(MV_PAR01) .AND. Empty(MV_PAR02)) //Parametro por Nf
+	If !Empty(MV_PAR02) //Parametro por Nf
 		cQry += " AND SD2.D2_DOC BETWEEN '" + MV_PAR01 + "' AND '" + MV_PAR02 + "'" + CRLF
 	EndIf
 
@@ -157,7 +157,7 @@ Static Function ReportPrint(oReport)
 		cQry += " AND SD2.D2_EMISSAO BETWEEN '" + DtoS(MV_PAR04) + "' AND '" + DtoS(MV_PAR05) + "'" + CRLF
 	EndIf
 
-	If !(Empty(MV_PAR06) .AND. Empty(MV_PAR07)) // Parametro por Produto
+	If !Empty(MV_PAR07) // Parametro por Produto
 		cQry += " AND SD2.D2_COD BETWEEN '" + MV_PAR06 + "' AND '" + MV_PAR07 + "'" + CRLF
 	EndIf
 
