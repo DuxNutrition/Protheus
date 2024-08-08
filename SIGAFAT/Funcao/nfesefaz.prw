@@ -3931,8 +3931,6 @@ If cTipo == "1"
 							EndIf
 					    Endif
 						
-						
-						
 						If SFT->(FieldPos("FT_CSTPIS")) > 0 .And. SFT->(FieldPos("FT_CSTCOF")) > 0
 							
 							dbSelectArea("SFT") //Livro Fiscal Por Item da NF
@@ -8132,6 +8130,7 @@ If (aCST[01] = "60" .or. cCsosn$ "500") .and. !Empty(cUltAqui)  .and. Len(aIcms)
 	//novos campos na tabela SFT são: FT_BSTANT (Base) FT_PSTANT (Percentual) FT_VSTANT (Valor) Atenciosamente.
 	nBaseIcm :=  aICMS[20]      //SFT->FT_BSTANT
 	nValICM  :=  aICMS[21]      //SFT->FT_VSTANT
+	//Ajuste no ICMS para AGRUPAMENTO
 	nAlqICM  :=  aICMS[22]      //SFT->FT_PSTANT
 	//novos campos do FECP na tabela SFT são: FT_BFCANTS (Base) FT_PFCANTS (Percentual) FT_VFCANTS (Valor) Atenciosamente.
 	nBfcpant := aICMS[23]    //SFT->FT_BFCANTS
@@ -8642,7 +8641,7 @@ If  !lIssQn
 			cString += '<pICMSEfet>'+ConvType(aICMS[6],8,4)+'</pICMSEfet>'
 			cString += '<vICMSEfet>'+ConvType(aICMS[7],16,2)+'</vICMSEfet>'
 		Endif
-		
+		//////////// posicionamento imp ST
 		cString += '<vBCSTDest>'+ConvType(aComb[21],15,2)+'</vBCSTDest>' 	   	
 		cString += '<vICMSSTDest>'+ConvType(aComb[22],15,2)+'</vICMSSTDest>'
 		

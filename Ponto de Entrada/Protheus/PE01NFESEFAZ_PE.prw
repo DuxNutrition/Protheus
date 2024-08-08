@@ -51,7 +51,10 @@ User Function PE01NFESEFAZ()
 	aadd(aParam,cCodCliFor)
 	aadd(aParam,cLoja)
 
+	
+
 	// Integração Protheus x VTEX - Atos Data Consultoria
+
 	If ExistBlock("ADPE01NFESEFAZ")
 		ExecBlock("ADPE01NFESEFAZ", .F., .F., aParam)
 	EndIf
@@ -60,6 +63,7 @@ User Function PE01NFESEFAZ()
 		aRetornoPE := ExecBlock("DUXFAT01", .F., .F., aParam)
 		If ValType(aRetornoPE) == "A" .And. Len(aRetornoPE) > 0
 			aRetorno := aRetornoPE
+
 		Endif
 	EndIf
 
