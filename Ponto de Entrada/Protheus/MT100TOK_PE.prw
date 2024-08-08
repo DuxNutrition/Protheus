@@ -21,7 +21,6 @@ Local lRet 	    := .T.
 Local i         
 Local nVlrIR    := 0
 Local nVlrPCC   := 0 
-Local cMsg 		:= " "
 
 // Validações Universais TOTVS IP
 If ExistBlock("TIPAC007",.F.,.T.) .and. !FwIsInCallStack("SCHEDCOMCOL")  .And. U_ADIGNGAT()
