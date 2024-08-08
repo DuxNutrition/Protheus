@@ -86,15 +86,17 @@ Static Function fReportDef() //Definições do relatório
     TRCell():New( oSection  ,"B1_COD"       ,cTabela ,"Produto"			,PesqPict("SB1","B1_COD")		,TamSx3("B1_COD")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"DESCRI"     	,cTabela ,"Descricao"	    ,								,TamSx3("B1_DESC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_QUANT"     ,cTabela ,"Quantidade"		,PesqPict("SD2","D2_QUANT")    	,TamSx3("D2_QUANT")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"D2_DOC"       ,cTabela ,"Documento"		,PesqPict("SD2","D2_DOC")		,TamSx3("D2_DOC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"D2_TOTAL"     ,cTabela ,"Vlr.Total"		,PesqPict("SD2","D2_TOTAL")    	,TamSx3("D2_TOTAL")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"F2_VALBRUT"   ,cTabela ,"Vlr.Bruto"		,PesqPict("SF2","F2_VALBRUT")   ,TamSx3("F2_VALBRUT")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"D2_DOC"       ,cTabela ,"Num. Docto."		,PesqPict("SD2","D2_DOC")		,TamSx3("D2_DOC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_SERIE"     ,cTabela ,"Série"	        ,PesqPict("SD2","D2_SERIE")		,TamSx3("D2_SERIE")[1]	    , /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_CLIENTE"   ,cTabela ,"Cliente"			,PesqPict("SD2","D2_CLIENTE")	,TamSx3("D2_CLIENTE")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"A1_NOME"      ,cTabela ,"Desc.Cliente"	,PesqPict("SA1","A1_NOME")		,TamSx3("A1_NOME")[1]	    , /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"A1_NOME"      ,cTabela ,"Desc.Cliente"	,PesqPict("SA1","A1_NOME")		,55	    					, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"A1_CEP"  	    ,cTabela ,"CEP"		        ,PesqPict("SA1","A1_CEP")		,TamSx3("A1_CEP")[1]	    , /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)	
 	TRCell():New( oSection  ,"A1_EST"       ,cTabela ,"UF"	            ,PesqPict("SA1","A1_EST")		,TamSx3("A1_EST")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)	
 	TRCell():New( oSection  ,"C5_VOLUME1"   ,cTabela ,"Volume"	        ,PesqPict("SC5","C5_VOLUME1")	,TamSx3("C5_VOLUME1")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"C5_PBRUTO"    ,cTabela ,"Peso Bruto"		,PesqPict("SC5","C5_PBRUTO")	,TamSx3("C5_PBRUTO")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"C5_XITEMCC"   ,cTabela ,"Canal"  		    ,PesqPict("SC5","C5_XITEMCC")	,TamSx3("C5_XITEMCC")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"C5_XITEMCC"   ,cTabela ,"Canal"  		    ,PesqPict("SC5","C5_XITEMCC")	,TamSx3("C5_XITEMCC")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "LEFT"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
     
 Return oReport
 
@@ -120,6 +122,8 @@ Static Function ReportPrint(oReport)
     cQry += "   ,B1_COD "                                               	+ CRLF
 	cQry += "   ,B1_DESC AS DESCRI "                                        + CRLF
     cQry += "   ,D2_QUANT "                                             	+ CRLF
+	cQry += "   ,D2_TOTAL "                                             	+ CRLF
+	cQry += "   ,F2_VALBRUT "                                             	+ CRLF
 	cQry += "   ,D2_DOC "                                               	+ CRLF
     cQry += "   ,D2_SERIE "                                             	+ CRLF
 	cQry += "	,D2_CLIENTE "                                           	+ CRLF
@@ -130,6 +134,11 @@ Static Function ReportPrint(oReport)
 	cQry += "	,C5_PBRUTO "                                            	+ CRLF
 	cQry += "	,C5_XITEMCC "                                          		+ CRLF
     cQry += " FROM " + RetSqlName("SD2") + " AS SD2 WITH(NOLOCK) "          + CRLF
+	cQry += "   INNER JOIN " + RetSqlName("SF2") + " SF2 WITH(NOLOCK) "     + CRLF
+	cQry += "       ON SF2.F2_FILIAL = '" + FWxFilial("SF2") + "' "         + CRLF
+	cQry += "       AND SF2.F2_DOC = SD2.D2_DOC "        					+ CRLF
+	cQry += "       AND SF2.F2_SERIE = SD2.D2_SERIE "                       + CRLF
+	cQry += "       AND SF2.D_E_L_E_T_ = ' ' "                              + CRLF
 	cQry += "   INNER JOIN " + RetSqlName("SC5") + " SC5 WITH(NOLOCK) "     + CRLF
 	cQry += "       ON SC5.C5_FILIAL = '" + FWxFilial("SC5") + "' "         + CRLF
 	cQry += "       AND SC5.C5_NUM = SD2.D2_PEDIDO "        				+ CRLF
@@ -190,6 +199,8 @@ Static Function ReportPrint(oReport)
 			oSectDad:Cell("B1_COD"):SetValue((cTabela)->B1_COD)
 			oSectDad:Cell("DESCRI"):SetValue(ALLTRIM(FwCutOff((cTabela)->DESCRI, .T.)))
 			oSectDad:Cell("D2_QUANT"):SetValue((cTabela)->D2_QUANT)
+			oSectDad:Cell("D2_TOTAL"):SetValue((cTabela)->D2_TOTAL)
+			oSectDad:Cell("F2_VALBRUT"):SetValue((cTabela)->F2_VALBRUT)
 			oSectDad:Cell("D2_DOC"):SetValue((cTabela)->D2_DOC)
 			oSectDad:Cell("D2_SERIE"):SetValue((cTabela)->D2_SERIE)
 			oSectDad:Cell("D2_CLIENTE"):SetValue((cTabela)->D2_CLIENTE)
