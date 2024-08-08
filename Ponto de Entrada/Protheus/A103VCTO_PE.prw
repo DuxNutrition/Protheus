@@ -18,19 +18,16 @@ dos títulos financeiro(tabela SE2) no momento da inclusão do documento de entrad
 
 User Function A103VCTO()
 
-Local aVencto       := {} //Array com os vencimentos e valores para geração dos títulos.
-Local aPELinhas     := PARAMIXB[1]
+Local aVencto       := condicao(PARAMIXB[2],PARAMIXB[3],PARAMIXB[4],PARAMIXB[5],PARAMIXB[6])
 Local nDia          := SuperGetMv("DUX_COM003",.F.,1)
 Local i             := 0
 Local dData         := Date()
 Local dDataVenc     := CTOD(" ")
 
-For i:= 1 to Len(aPELinhas)
-    If aPELinhas[i][3] > 0 
-        If aPELinhas[i][2] < dData
-            dDataVenc := ( dData + nDia )
-            Aadd(aVencto,{dDataVenc,aPELinhas[i][3]})
-            aPELinhas[i][2] := dDataVenc
+For i:= 1 to Len(aVencto)
+    If aVencto[i][1] <= dData
+        dDataVenc := ( dData + nDia )
+        aVencto[i][1] := dDataVenc
     Endif
 Next i
 
