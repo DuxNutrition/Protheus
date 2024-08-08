@@ -133,9 +133,9 @@ User function ZGENETQ(cCodPrint ,cDesc  ,cLote  ,dDtVld ,nQtdEmb, cProduto)
             Sleep(200) // Como esta em rede, esperar 2 seg para impressao (Atualizacao necessÃ¡ria)
             WinExec(_cCaminho)
         Else
-            FWAlertWarning("Nao foi possivel comunicar com a Impressora", "Atenção [ ZESTF002 ]")
+            FWAlertWarning("Nao foi possivel comunicar com a Impressora", "Atenção [ ZGENETQ ]")
         EndIf
     Else
-        FWAlertWarning("Impressora não informada", "Atenção [ ZESTF002 ]")
+        FWAlertWarning("Impressora não informada", "Atenção [ ZGENETQ ]")
     EndIf
 Return()
