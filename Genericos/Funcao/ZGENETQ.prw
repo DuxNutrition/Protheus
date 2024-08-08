@@ -14,20 +14,27 @@ Impressão generica de etiquetas
 @author Dux | Evandro Mariano
 @since 07/08/2024
 /*/
-User function ZGENETQ(cCodPrint)
+User function ZGENETQ(cCodPrint ,cDesc  ,cLote  ,dDtVld ,nQtdEmb, cProduto)
 
-	Local cPrint     := ""
-	Local cIniName   := ""
-    Local _cCaminho  := ""
-    Local _cCamLoc   := ""
-	Local cAlerg     := Posicione("SB1",1,xFilial("SB1")+Padr((cAliasTRB)->TR_PRODUTO,TamSX3("B1_COD")[1]),"B1_ZALERGE")
-	Local cDescAlerg := IIf((cAlerg == "1" ),"ALERGENICO","NAO ALERGENICO")
-	Local cTxtBat    := ""
-	Local nLength    := Len(AllTrim((cAliasTRB)->TR_LOTE))
+	Local cPrint        := ""
+	Local cIniName      := ""
+    Local _cCaminho     := ""
+    Local _cCamLoc      := ""
+	Local cAlerg        := ""
+	Local cDescAlerg    := ""
+	Local cTxtBat       := ""
 
-    Default cCodPrint := " "
+    Default cCodPrint   := ""
+    Default cDesc       := ""
+    Default cLote       := ""
+    Default dDtVld      := Date()
+    Default nQtdEmb     := 0
+    Default cProduto    := ""
 
     If !Empty(cCodPrint)
+
+        cAlerg      := Posicione("SB1",1,xFilial("SB1")+Padr(cProduto,TamSX3("B1_COD")[1]),"B1_ZALERGE")
+        cDescAlerg  := IIf((cAlerg == "1" ),"ALERGENICO","NAO ALERGENICO")
 
         cPrint += "^XA"+ CRLF
         cPrint += CRLF
@@ -60,27 +67,27 @@ User function ZGENETQ(cCodPrint)
         cPrint += "^FO8,750^GB800,350,12^FS"+ CRLF
         cPrint += CRLF
         cPrint += "^FT30,70^A0N,30,30^FH\^CI28^FDITEM:^FS^CI27"+ CRLF
-        cPrint += "^FT30,140^A0N,50,50^FH\^CI28^FD " + Left((cAliasTRB)->TR_DESCR,25) + " ^FS^CI27"+ CRLF
-        cPrint += "^FT30,200^A0N,50,50^FH\^CI28^FD " + SubString((cAliasTRB)->TR_DESCR,26,25) + " ^FS^CI27"+ CRLF
+        cPrint += "^FT30,140^A0N,50,50^FH\^CI28^FD " + Left(cDesc,25) + " ^FS^CI27"+ CRLF
+        cPrint += "^FT30,200^A0N,50,50^FH\^CI28^FD " + SubString(cDesc,26,25) + " ^FS^CI27"+ CRLF
         cPrint += CRLF
         cPrint += "^FT30,250^A0N,30,30^FH\^CI28^FDLOTE:^FS^CI27"+ CRLF
         Do Case
-            Case nLength <= 10
+            Case Len(AllTrim(cLote)) <= 10
                 cPrint += "^BY4,2,130"+ CRLF
-            Case nLength <= 15
+            Case Len(AllTrim(cLote)) <= 15
                 cPrint += "^BY3,2,130"+ CRLF
-            Case nLength <= 25
+            Case Len(AllTrim(cLote)) <= 25
                 cPrint += "^BY2,2,130"+ CRLF
-            Case nLength > 25
+            Case Len(AllTrim(cLote)) > 25
                 cPrint += "^BY1,2,130"+ CRLF
         EndCase
-        cPrint += "^FO60,270^BC^FD" + Alltrim((cAliasTRB)->TR_LOTE) + "^FS"+ CRLF
+        cPrint += "^FO60,270^BC^FD" + Alltrim(cLote) + "^FS"+ CRLF
         cPrint += CRLF
         cPrint += "^FT30,530^A0N,30,30^FH\^CI28^FD VAL:^FS^CI27"+ CRLF
-        cPrint += "^FT90,590^A0N,110,110^FH\^CI28^FD " + DToC((cAliasTRB)->TR_VLD) + " ^FS^CI27"+ CRLF
+        cPrint += "^FT90,590^A0N,110,110^FH\^CI28^FD " + DToC(dDtVld) + " ^FS^CI27"+ CRLF
         cPrint += CRLF
         cPrint += "^FT30,660^A0N,30,30^FH\^CI28^FD QTD: ^FS^CI27"+ CRLF
-        cPrint += "^FT90,720^A0N,110,110^FH\^CI28^FD "+ AllTrim(Transform((cAliasTRB)->TR_QTDEMB,"@E 999,999,999.999")) +" ^FS^CI27"+ CRLF
+        cPrint += "^FT90,720^A0N,110,110^FH\^CI28^FD "+ AllTrim(Transform(nQtdEmb,"@E 999,999,999.999")) +" ^FS^CI27"+ CRLF
         If !Empty(cAlerg)
             If cAlerg == "1" 
                 cPrint += "^FT140,850^A0N,100,100^FH\^CI28^FD"+ Alltrim(cDescAlerg) +"^FS^CI27"+CRLF

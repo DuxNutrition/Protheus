@@ -335,7 +335,7 @@ Prepara as Etiquetas para impressao
 /*/
 Static Function ZESTS004(oMarkBrowse)
 
-	Local nX 		    := 0
+	Local nX := 0
 
     Default oMarkBrowse     := Nil
 
@@ -347,7 +347,7 @@ Static Function ZESTS004(oMarkBrowse)
 
 			//Repetir a impressao da mesma etiqueta conforme selecionado pelo usuario
 			For nX := 1 To (cAliasTRB)->TR_QTDETQ
-				Processa({|| U_ZGENETQ(cCodPrint) },"Imprimindo etiqueta " + cValToChar(nX))
+				Processa({|| U_ZGENETQ(cCodPrint ,(cAliasTRB)->TR_DESCR ,Alltrim((cAliasTRB)->TR_LOTE), (cAliasTRB)->TR_VLD ,(cAliasTRB)->TR_QTDEMB ,(cAliasTRB)->TR_PRODUTO) },"Imprimindo etiqueta " + cValToChar(nX))
 				Sleep(500)
 			Next nX
 		Endif
