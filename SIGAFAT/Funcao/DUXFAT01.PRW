@@ -45,6 +45,7 @@ User Function DUXFAT01()
 	Local aTotal		:= PARAMIXB[29]
     local aICMSZFM		:= PARAMIXB[30]
     local aICMUFDest	:= PARAMIXB[31]
+	local aCST 			:= PARAMIXB[32]
 	Local aNfe      	:= PARAMIXB
 	Local aRetorno		:= {}
 	Local aArea			:= GetArea()
@@ -53,11 +54,11 @@ User Function DUXFAT01()
 	local cNota			:= aNota[2]
 	local cSerie		:= aNota[1]
 	Local cTPNf			:= aNota[4]
-	Local cClifor		:= PARAMIXB[32]
-	Local cLoja			:= PARAMIXB[33]
+	Local cClifor		:= PARAMIXB[33]
+	Local cLoja			:= PARAMIXB[34]
 	Local lAglutProd    := iif(posicione("SA1",1,xFilial("SA1") +;
-												 padr(PARAMIXB[32],tamsx3("A1_COD")[1]) +;
-												 padr(PARAMIXB[33],tamsx3("A1_LOJA")[1]),;
+												 padr(PARAMIXB[33],tamsx3("A1_COD")[1]) +;
+												 padr(PARAMIXB[34],tamsx3("A1_LOJA")[1]),;
 												 "A1_XAGPRNF") == "S",.t.,.f.)
 	Private cLote   := ""
 	Private cValid	:= ""
@@ -93,7 +94,8 @@ User Function DUXFAT01()
 						 @aISSQN,;
 						 @aICMSZFM,;
 						 @aICMUFDest,;
-						 aInfoItem)
+						 aInfoItem,;
+						 @aCST)
 	endif
 
 	aadd(aRetorno,aProd)
@@ -128,6 +130,7 @@ User Function DUXFAT01()
 	aadd(aRetorno , aTotal)
 	aadd(aRetorno , aICMSZFM)
 	aadd(aRetorno , aICMUFDest)
+	aadd(aRetorno , aCST)
 
 	RestArea(aArea)
 
@@ -198,7 +201,7 @@ Aglutina os produtos.
 /*/
 Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 								 aProd,aICMS,aIPI,aICMSST,aPIS,aPISST,aCOFINS,;
-								 aCOFINSST,aISSQN,aICMSZFM,aICMUFDest,aInfoItem)
+								 aCOFINSST,aISSQN,aICMSZFM,aICMUFDest,aInfoItem,aCst)
 	local cProduto	    := "" as character
 	local cItem		    := "" as character
 	local cNumPV 	    := "" as character
@@ -272,11 +275,85 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			aProdAgrp   := {}
 		endif
 
+
+
+		//02.01. CST - Aglutina 
+	   //--------------------------------------------------------------------
+	   //02.02.01.01 - CST
+	   //--------------------------------------------------------------------   
+		 if(valtype(aCst) == "A" .and. len(aCst) > 0)	
+	    atmp := {}
+	   	for nCont := 1 to Len(aCst)
+			nPos := aScan(atmp,{|x| x[3] == aCst[nCont][3]})
+			if nPos == 0 
+				aadd(atmp,aCst[nCont])
+			else 
+				atmp[nPos][1]	:= aCst[nCont][1]
+			endif  
+		next     
+		aCst := aClone(atmp)
+			for nCont := 1 to len(aCst)
+				if(valtype(aCst[1]) == "A")
+					/*if(len(aCst[nCont]) > 0) 
+					    
+						nCampo   := len(aCst[nCont])
+						cProduto := aCst[nCont,nCampo]
+						cItem	 := aInfoItem[nCont,04]
+					endif 
+						dbSelectArea("SB1")
+						SB1->(dbSetOrder(1))
+						SB1->(MsSeek(xFilial("SB1")+cProduto))*/
+					/*	
+						dbSelectArea("SD2")
+						SD2->(dbSetOrder(3)) 
+						SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem)) 
+						*/
+						//aadd(aICMS[nCont],SD2->D2_CF)
+					    /*	                
+						if((len(aImpAgrp) > 0) .and. (len(aImpAgrp[01]) > 0) )
+							nPos := aScan( aImpAgrp , {|Registro| iif((len(aICMS[nCont])-1 >= nCampo) .and.; 
+                                                                        len(Registro) >= nCampo,;
+                                                                        Registro[nCampo] + ;
+                                                                        Registro[len(aICMS[nCont])] ==; 
+                                                                        aICMS[nCont,nCampo] + ;
+                                                                        aICMS[nCont,len(aICMS[nCont])], .F.) } )
+						else
+							nPos := 0
+						endif
+				   	    	
+						if(nPos == 0)
+							aadd( aImpAgrp , aICMS[nCont] )
+						else
+							aImpAgrp[nPos,05] += aICMS[nCont,05]
+							aImpAgrp[nPos,07] += aICMS[nCont,07]
+							aImpAgrp[nPos,09] += aICMS[nCont,09]
+							aImpAgrp[nPos,15] += aICMS[nCont,15]
+						endif
+					else
+						aadd( aImpAgrp , {} )
+					endif
+					*/
+				endif
+			next nCont
+		endif
+			aCst 	:= aClone(atmp)
+			atmp:= {}
+		
         //02.02-Aglutina os Impostos
 	   //--------------------------------------------------------------------
 	   //02.02.01 - ICMS
 	   //--------------------------------------------------------------------   
-	   if(valtype(aICMS) == "A" .and. len(aICMS) > 0)	    
+	   if(valtype(aICMS) == "A" .and. len(aICMS) > 0)	
+	    atmp := {}
+	   	for nCont := 1 to Len(aICMS)
+			nPos := aScan(atmp,{|x| x[31] == aICMS[nCont][31]})
+			if nPos == 0 
+				aadd(atmp,aICMS[nCont])
+			else 
+				atmp[nPos][21]	+= aICMS[nCont][21]
+			endif  
+		next     
+		aICMS := aClone(atmp)
 			for nCont := 1 to len(aICMS)
 				if(valtype(aICMS[1]) == "A")
 					if(len(aICMS[nCont]) > 0) 
@@ -381,6 +458,47 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	   //02.02.02 - ICMS ST
 	   //--------------------------------------------------------------------
 	    if(valtype(aICMSST) == "A" .and. len(aICMSST) > 0)
+		atmp := {}
+		for nCont := 1 to Len(aICMSST)
+			if Len(aICMSST[nCont]) == 0
+				aICMSST[nCont] := array(18)
+				aICMSST[nCont][18] := ""
+				aICMSST[nCont][17] := ""
+				aICMSST[nCont][16] := 0
+				aICMSST[nCont][15] := 0
+				aICMSST[nCont][14] := 0
+				aICMSST[nCont][13] := 0
+				aICMSST[nCont][12] := 0
+				aICMSST[nCont][11] := ""
+				aICMSST[nCont][10] := 0
+				aICMSST[nCont][9] := 0
+				aICMSST[nCont][8] := 0
+				aICMSST[nCont][7] := 0
+				aICMSST[nCont][6] := 0
+				aICMSST[nCont][5] := 0
+				aICMSST[nCont][4] := 0
+				aICMSST[nCont][3] := ""
+				aICMSST[nCont][2] := ""
+				aICMSST[nCont][1] := ""
+
+			endif
+		next 
+	   	for nCont := 1 to Len(aICMSST)
+			nPos := aScan(atmp,{|x| x[18] == aICMSST[nCont][18]})
+			if nPos == 0 
+				if len(aICMSST[nCont]) > 0 
+					aadd(atmp,aICMSST[nCont])
+				else
+					aadd(atmp,array(18)) 
+					atmp[len(atmp)][18] := ""
+				endif  
+			else 
+				if aICMSST[nCont][7] <> NIL 
+					atmp[nPos][7]	+= aICMSST[nCont][7]
+				endif 
+			endif  
+		next     
+		aICMSST := aClone(atmp)
 			for nCont:=1 to len(aICMSST)
 				if(valtype(aICMSST[1]) == "A")
 					if(len(aICMSST[nCont]) > 0 )

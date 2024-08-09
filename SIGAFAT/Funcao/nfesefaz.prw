@@ -3092,7 +3092,7 @@ If cTipo == "1"
 							})
 							
 												
-						aadd(aCST,{cCSTrib,cOrigem})
+						aadd(aCST,{cCSTrib,cOrigem,cCodProd})
 						aadd(aICMS,{})
 						aadd(aICMSMono,{})
 						aadd(aIPI,{})
@@ -6773,10 +6773,11 @@ IF lPe01Nfe
 	aISSQN,;		//28 | DUX | Personalização
 	aTotal,;		//29 | DUX | Personalização
 	aICMSZFM,;		//30 | DUX | Personalização
-	aICMUFDest}		//31 | DUX | Personalização
+	aICMUFDest;		//31 | DUX | Personalização
+	aCST }          // 32 | DUX | Personalização - Allan
 */	
 	
-	aParam := {aProd,cMensCli,cMensFis,aDest,aNota,aInfoItem,aDupl,aTransp,aEntrega,aRetirada,aVeiculo,aReboque,aNfVincRur,aEspVol,aNfVinc,aDetPag,aObsCont,aProcRef,aMed,aLote,aICMS,aIPI,aICMSST,aPIS,aPISST,aCOFINS,aCOFINSST,aISSQN,aTotal,aICMSZFM,aICMUFDest}
+	aParam := {aProd,cMensCli,cMensFis,aDest,aNota,aInfoItem,aDupl,aTransp,aEntrega,aRetirada,aVeiculo,aReboque,aNfVincRur,aEspVol,aNfVinc,aDetPag,aObsCont,aProcRef,aMed,aLote,aICMS,aIPI,aICMSST,aPIS,aPISST,aCOFINS,aCOFINSST,aISSQN,aTotal,aICMSZFM,aICMUFDest,aCst}
 
 	aParam := ExecBlock("PE01NFESEFAZ",.F.,.F.,aParam)
 	
@@ -6825,6 +6826,8 @@ IF lPe01Nfe
 		aTotal		:= aParam[29]
 		aICMSZFM	:= aParam[30]
 		aICMUFDest  := aParam[31]
+		aCst := {} 
+		aCST 		:= aParam[32]
 		//--Término	
 	EndIf
 Endif 
@@ -10439,7 +10442,7 @@ Return cString
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
 ±±³ Uso      ³ SIGAFIS                                                           ³±±
 ±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±x
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
 Static Function MyGetEnd(cEndereco,cAlias)
 
