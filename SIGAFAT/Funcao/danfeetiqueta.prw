@@ -125,14 +125,14 @@ user function ImpDfEtq(cUrl, cIdEnt, lUsaColab)
         endif
         // Dux - Custom - Fim    
 
-        cNotaIni := MV_PAR01 // Nota Inicial
-        cNotaFim := MV_PAR02 // Nota Final
-        cSerie   := MV_PAR03 // Serie
-        dDtIni   := MV_PAR04 // Data de emissão Inicial
-        dDtFim   := MV_PAR05 // Data de emissão Final
-        nTipoDoc := MV_PAR06 // Tipo de Operação (1 - Entrada / 2 - Saída)
-        nTipImp  := MV_PAR07 // Tipo de Impressora (1 - Térmica / 2 - Normal)
-        cLocImp  := MV_PAR08 // Impressora
+    cNotaIni := MV_PAR01 // Nota Inicial
+    cNotaFim := MV_PAR02 // Nota Final
+    cSerie := MV_PAR03 // Serie
+    dDtIni := MV_PAR04 // Data de emissão Inicial
+    dDtFim := MV_PAR05 // Data de emissão Final
+    nTipoDoc := MV_PAR06 // Tipo de Operação (1 - Entrada / 2 - Saída)
+    nTipImp := MV_PAR07 // Tipo de Impressora (1 - Térmica / 2 - Normal)
+    cLocImp := MV_PAR08 // Impressora 
         
         // Validações para impressoras termicas
         if nTipImp == 1
@@ -183,18 +183,16 @@ user function ImpDfEtq(cUrl, cIdEnt, lUsaColab)
         cAliasQry := getNextAlias()
 
         BeginSql Alias cAliasQry
-            SELECT
-                MIN(SF3.F3_NFISCAL) NOTAINI,
-                MAX(SF3.F3_NFISCAL) NOTAFIM
+            SELECT MIN(SF3.F3_NFISCAL) NOTAINI, MAX(SF3.F3_NFISCAL) NOTAFIM
             FROM
                 %Table:SF3% SF3
             WHERE
-                SF3.F3_FILIAL = %xFilial:SF3%
-                AND SF3.F3_NFISCAL >= %Exp:cNotaIni%
-                AND SF3.F3_NFISCAL <= %Exp:cNotaFim%
-                AND SF3.F3_DTCANC = %Exp:Space(8)%
-                AND %Exp:cWhere%
-                AND SF3.D_E_L_E_T_ = ' '
+                SF3.F3_FILIAL = %xFilial:SF3% AND
+                SF3.F3_NFISCAL >= %Exp:cNotaIni% AND
+                SF3.F3_NFISCAL <= %Exp:cNotaFim% AND
+                SF3.F3_DTCANC = %Exp:Space(8)% AND
+                %Exp:cWhere% AND
+                SF3.D_E_L_E_T_ = ' '
         EndSql
 
         (cAliasQry)->(dbGoTop())
@@ -611,8 +609,6 @@ Impressão de danfe simplificada - Etiqueta para impressora Zebra
 //-------------------------------------------------------------------
 static function impZebra(aNFe, aEmit, aDest)
 
-//    local cFontMaior := "016,013" //Fonte maior - títulos dos campos obrigatórios do DANFE ("altura da fonte, largura da fonte")
-//    local cFontMenor := "015,008" //Fonte menor - campos variáveis do DANFE ("altura da fonte, largura da fonte")
 // Customização - Mauricio Junior para adequação dos tamanhos de fontes da Mini DANFE    
     local cFontMaior := "014,012" //Fonte maior - títulos dos campos obrigatórios do DANFE ("altura da fonte, largura da fonte")
     local cFontMenor := "014,012" //Fonte menor - campos variáveis do DANFE ("altura da fonte, largura da fonte")
@@ -646,99 +642,67 @@ static function impZebra(aNFe, aEmit, aDest)
     MSCBBegin(1,6,150)
 
     //Criação do Box
-   //MSCBBox(02,02,98,148)
+    MSCBBox(04,02,120,148) //Dux - Ajuste nas posições
    
-   // Inicio dos ajustes by Mauricio junior para adequação do tamanho do BOX da Mini DANFE na Zebra
-        //Criação do Box
-       MSCBBox(04,02,120,148)  //Coluna inicial, nao sei ainda, coluna final, nao sei ainda
-   // Termino
-
     //Criação das linhas Horizontais - sentido: de cima para baixo
-    //MSCBLineH(02, 012, 98)
-   // MSCBLineH(02, 047, 98)
-   // MSCBLineH(02, 057, 98)
-  //  MSCBLineH(02, 084, 98)
- //   MSCBLineH(40, 101, 98)
- //   MSCBLineH(02, 101, 98)
- //   MSCBLineH(02, 111, 98)
- //   MSCBLineH(02, 138, 98)
-
-
-// Inicio dos ajustes by Mauricio junior para adequação do tamanho do BOX da Mini DANFE na Zebra
-    //Criação das linhas Horizontais - sentido: de cima para baixo
-    MSCBLineH(04, 012, 120)  //inicio, linha, comprimento 
-    MSCBLineH(04, 047, 120)
-    MSCBLineH(04, 057, 120)
-    MSCBLineH(04, 084, 120)
-    MSCBLineH(40, 101, 120)
-    MSCBLineH(04, 101, 120)
-    MSCBLineH(04, 111, 120)
-    MSCBLineH(04, 138, 120)
-// Termino
-
+    MSCBLineH(04, 012, 120) //Dux - Ajuste nas posições
+    MSCBLineH(04, 047, 120) //Dux - Ajuste nas posições
+    MSCBLineH(04, 057, 120) //Dux - Ajuste nas posições
+    MSCBLineH(04, 084, 120) //Dux - Ajuste nas posições
+    MSCBLineH(40, 101, 120) //Dux - Ajuste nas posições
+    MSCBLineH(04, 101, 120) //Dux - Ajuste nas posições
+    MSCBLineH(04, 111, 120) //Dux - Ajuste nas posições
+    MSCBLineH(04, 138, 120) //Dux - Ajuste nas posições
 
     //Criação das linhas verticais - sentido: da direita para esquerda
-    //MSCBLineV(32, 84, 101)
-   // MSCBLineV(64, 84, 101)
-
-// Inicio dos ajustes by Mauricio junior para adequação do tamanho do BOX da Mini DANFE na Zebra
-    //Criação das linhas verticais - sentido: da direita para esquerda
-    MSCBLineV(32, 84, 101) // nao sei ainda, linha, nao sei ainda
+    MSCBLineV(32, 84, 101)
     MSCBLineV(64, 84, 101) 
-// termino
 
     //Imprime o código de barras
-    //MSCBSayBar(14, 24, aNFe[nChave], "N", "C", 10, .F., .F., .F., "C", 2, 1, .F., .F., "1", .T.)
-    
-    
-    // Inicio dos ajustes by Mauricio junior para adequação do tamanho do BOX da Mini DANFE na Zebra
-        //Imprime o código de barras
-        MSCBSayBar(14, 24, aNFe[nChave], "N", "C", 10, .F., .F., .F., "C", 2, 1, .F., .F., "1", .T.)  //coluna, linha
-// termino
+    MSCBSayBar(14, 24, aNFe[nChave], "N", "C", 10, .F., .F., .F., "C", 2, 1, .F., .F., "1", .T.)
 
     lProtEPEC  := !empty( aNFe[nProt_EPEC] ) //Se utilizado evento EPEC para emissão da Nota lProtEPEC = .T.
     lEmitJurid := len( aEmit[nCNPJ] ) == 14 //Se emitente pessoa jurídica lEmitJurid = .T.
     lDestJurid := len( aDest[nCNPJ] ) == 14 //Se destinatário pessoa jurídica lDestJurid = .T.
 
-// Inicio dos ajustes by Mauricio junior para adequação das posições dos textos
     //Criação dos campos de textos fixos da etiqueta
-    MSCBSay(20, 06.25, "DANFE SIMPLIFICADO - ETIQUETA", "N", "A", "016,013")
-    MSCBSay(06  , 15   , "CHAVE DE ACESSO:"             , "N", "A", cFontMaior)
+    MSCBSay(20, 06.25, "DANFE SIMPLIFICADO - ETIQUETA", "N", "A", "016,013") //Dux - Ajuste nas posições
+    MSCBSay(06  , 15   , "CHAVE DE ACESSO:"             , "N", "A", cFontMaior) //Dux - Ajuste nas posições
 
     if !lProtEPEC
-        MSCBSay(30, 48.75, "PROTOCOLO DE AUTORIZACAO:"     , "N", "A", cFontMaior)
+        MSCBSay(30, 48.75, "PROTOCOLO DE AUTORIZACAO:"     , "N", "A", cFontMaior) //Dux - Ajuste nas posições
     else
-        MSCBSay(30, 48.75, "PROTOCOLO DE AUTORIZACAO EPEC:", "N", "A", cFontMaior)
+        MSCBSay(30, 48.75, "PROTOCOLO DE AUTORIZACAO EPEC:", "N", "A", cFontMaior) //Dux - Ajuste nas posições
     endIf
 
-    MSCBSay(08, 60, "NOME/RAZAO SOCIAL:", "N", "A", cFontMaior)
+    MSCBSay(08, 60, "NOME/RAZAO SOCIAL:", "N", "A", cFontMaior) //Dux - Ajuste nas posições
 
     if lEmitJurid
-        MSCBSay(08, 66.25 , "CNPJ:", "N", "A", cFontMaior)
+        MSCBSay(08, 66.25 , "CNPJ:", "N", "A", cFontMaior)//Dux - Ajuste nas posições
     else
-        MSCBSay(08, 66.25 , "CPF:", "N", "A", cFontMaior)
+        MSCBSay(08, 66.25 , "CPF:", "N", "A", cFontMaior)//Dux - Ajuste nas posições
     endIf
 
-    MSCBSay(08  , 70    , "IE:"               , "N", "A", cFontMaior)
-    MSCBSay(08  , 73.75 , "UF:"               , "N", "A", cFontMaior)
-    MSCBSay(06  , 88.75 , "SERIE:"            , "N", "A", cFontMaior)
-    MSCBSay(06  , 93.75 , "N_A7:"             , "N", "A", cFontMaior)
+    MSCBSay(08  , 70    , "IE:"               , "N", "A", cFontMaior) //Dux - Ajuste nas posições
+    MSCBSay(08  , 73.75 , "UF:"               , "N", "A", cFontMaior) //Dux - Ajuste nas posições
+    MSCBSay(06  , 88.75 , "SERIE:"            , "N", "A", cFontMaior) //Dux - Ajuste nas posições
+    MSCBSay(06  , 93.75 , "N_A7:"             , "N", "A", cFontMaior) //Dux - Ajuste nas posições
     MSCBSay(34  , 88.75 , "DATA EMISSAO:"     , "N", "A", cFontMaior)
     MSCBSay(65.5, 88.75 , "TIPO OPER.:"       , "N", "A", cFontMaior)
     MSCBSay(65.5, 92.5  , "0 - ENTRADA"       , "N", "A", cFontMenor)
     MSCBSay(65.5, 96.25 , "1 - SAIDA"         , "N", "A", cFontMenor)
-    MSCBSay(50  , 105.5 , "DESTINATARIO"      , "N", "A", cFontMaior)
-    MSCBSay(08  , 113.75, "NOME/RAZAO SOCIAL:", "N", "A", cFontMaior)
+    MSCBSay(50  , 105.5 , "DESTINATARIO"      , "N", "A", cFontMaior) //Dux - Ajuste nas posições
+    MSCBSay(08  , 113.75, "NOME/RAZAO SOCIAL:", "N", "A", cFontMaior) //Dux - Ajuste nas posições
 
     if lDestJurid
-        MSCBSay(08, 120, "CNPJ:", "N", "A", cFontMaior)
+        MSCBSay(08, 120, "CNPJ:", "N", "A", cFontMaior) //Dux - Ajuste nas posições
     else
-        MSCBSay(08, 120, "CPF:" , "N", "A", cFontMaior)
+        MSCBSay(08, 120, "CPF:" , "N", "A", cFontMaior) //Dux - Ajuste nas posições
     endIf
 
-    MSCBSay(08  , 123.75, "IE:"         , "N", "A", cFontMaior)
-    MSCBSay(08  , 127.5 , "UF:"         , "N", "A", cFontMaior)
-    MSCBSay(08  , 142.5 , "VALOR TOTAL:", "N", "A", cFontMaior)
+    MSCBSay(08  , 123.75, "IE:"         , "N", "A", cFontMaior) //Dux - Ajuste nas posições
+    MSCBSay(08  , 127.5 , "UF:"         , "N", "A", cFontMaior) //Dux - Ajuste nas posições
+    MSCBSay(08  , 142.5 , "VALOR TOTAL:", "N", "A", cFontMaior) //Dux - Ajuste nas posições
     MSCBSay(62.5, 142.5 , "R$"          , "N", "A", cFontMaior)
 
     lNomeEmit := nTamEmit > nMaxNome //Se quantidade de caracteres da razão social do emitente for maior que o permitido para a primeira linha lNomeEmit := T
@@ -755,43 +719,42 @@ static function impZebra(aNFe, aEmit, aDest)
 
     if lNomeEmit
         MSCBSay(44, 60, allTrim( subStr( aEmit[nNome], 1, nMaxNome ) ), "N", "A", cFontMenor)
-        MSCBSay(08, 62.5, allTrim( subStr( aEmit[nNome], nMaxNome + 1, nTamEmit ) ), "N", "A", cFontMenor)
+        MSCBSay(08, 62.5, allTrim( subStr( aEmit[nNome], nMaxNome + 1, nTamEmit ) ), "N", "A", cFontMenor) //Dux - Ajuste nas posições
     else
         MSCBSay(44, 60, allTrim( aEmit[nNome] ), "N", "A", cFontMenor)
     endIf
 
     if lEmitJurid
-        MSCBSay(20, 66.25, transform( aEmit[nCNPJ], "@R 99.999.999/9999-99" ), "N", "A", cFontMenor) //Emitente pessoa jurídica
+        MSCBSay(20, 66.25, transform( aEmit[nCNPJ], "@R 99.999.999/9999-99" ), "N", "A", cFontMenor) //Dux - Ajuste nas posições //Emitente pessoa jurídica
     else
-        MSCBSay(20, 66.25, transform( aEmit[nCNPJ], "@R 999.999.999-99" ), "N", "A", cFontMenor) //Emitente pessoa física
+        MSCBSay(20, 66.25, transform( aEmit[nCNPJ], "@R 999.999.999-99" ), "N", "A", cFontMenor) //Dux - Ajuste nas posições //Emitente pessoa física
     endIf
 
-    MSCBSay(15, 70,    aEmit[nIE], "N", "A", cFontMenor)
-    MSCBSay(15, 73.75, aEmit[nUF], "N", "A", cFontMenor)
-    MSCBSay(20, 88.75, aNFe[nSerie], "N", "A", cFontMenor)  //coluna, linha
-    MSCBSay(13, 93.75, aNFe[nNumero], "N", "A", cFontMenor)
-    MSCBSay(35, 93.75, ajustaData( aNFe[nData] ) , "N", "A", cFontMenor)
+    MSCBSay(15, 70,    aEmit[nIE], "N", "A", cFontMenor) //Dux - Ajuste nas posições
+    MSCBSay(15, 73.75, aEmit[nUF], "N", "A", cFontMenor) //Dux - Ajuste nas posições
+    MSCBSay(20, 88.75, aNFe[nSerie], "N", "A", cFontMenor) //Dux - Ajuste nas posições
+    MSCBSay(13, 93.75, aNFe[nNumero], "N", "A", cFontMenor) //Dux - Ajuste nas posições
+    MSCBSay(35, 93.75, ajustaData( aNFe[nData] ) , "N", "A", cFontMenor) //Dux - Ajuste nas posições
     MSCBSay(93, 88.75, aNFe[nOperacao], "N", "A", cFontMenor)
 
     if lNomeDest
         MSCBSay(44, 113.75, allTrim( subStr( aDest[nNome], 1, nMaxNome ) ), "N", "A", cFontMenor)
-        MSCBSay(08, 116.25, allTrim( subStr( aDest[nNome], nMaxNome + 1, nTamDest ) ), "N", "A", cFontMenor)
+        MSCBSay(08, 116.25, allTrim( subStr( aDest[nNome], nMaxNome + 1, nTamDest ) ), "N", "A", cFontMenor) //Dux - Ajuste nas posições
     else
         MSCBSay(44, 113.75, allTrim( aDest[nNome] ), "N", "A", cFontMenor)
     endIf
 
     if lDestJurid
-        MSCBSay(17, 120, transform( aDest[nCNPJ], "@R 99.999.999/9999-99" ), "N", "A", cFontMenor) //Destinatário pessoa jurídica
+        MSCBSay(17, 120, transform( aDest[nCNPJ], "@R 99.999.999/9999-99" ), "N", "A", cFontMenor) //Dux - Ajuste nas posições //Destinatário pessoa jurídica
     else
-        MSCBSay(17, 120, transform( aDest[nCNPJ], "@R 999.999.999-99" ), "N", "A", cFontMenor) //Destinatário pessoa física
+        MSCBSay(17, 120, transform( aDest[nCNPJ], "@R 999.999.999-99" ), "N", "A", cFontMenor) //Dux - Ajuste nas posições //Destinatário pessoa física
     endIf
 
-    MSCBSay(17, 123.75, aDest[nIE]  , "N", "A", cFontMenor)
-    MSCBSay(17, 127.5 , aDest[nUF]  , "N", "A", cFontMenor)
+    MSCBSay(17, 123.75, aDest[nIE]  , "N", "A", cFontMenor) //Dux - Ajuste nas posições
+    MSCBSay(17, 127.5 , aDest[nUF]  , "N", "A", cFontMenor) //Dux - Ajuste nas posições
     MSCBSay(70, 142.5 , aNFe[nValor], "N", "A", cFontMenor)
 
     //Finaliza a impressão
-    //TErmino 
     MSCBEND()
 
 return
