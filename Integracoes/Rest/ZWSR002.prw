@@ -114,8 +114,8 @@ Static Function ZPRODGET(_oJson, _cEmpFil)
         aAdd(jBody["Produto"], JSONObject():New() )
         nLength++
         // Adiciona os atributos básicos do produto
-        jBody["Produto"]["Produto"]    := SB1->B1_COD 
-
+        jBody["Produto"]["Codigo"]    := SB1->B1_COD 
+        jBody["Produto"]["Descricao"]    := SB1->B1_DESC
     endif     
     RestArea(aArea)
 
