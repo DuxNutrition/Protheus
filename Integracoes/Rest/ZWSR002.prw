@@ -14,66 +14,99 @@
 ±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
-WSRESTFUL ZWSF002 DESCRIPTION "Cadastro de produtos"
-    WSMETHOD GET  DESCRIPTION "ZWS002 GET PRODUTO" WSSYNTAX "ZWS002GET"
-    WSMETHOD POST DESCRIPTION "ZWS002 CAD PRODUTO" WSSYNTAX "ZWS002POST"
-    WSMETHOD PUT  DESCRIPTION "ZWS002 ALT PRODUTO" WSSYNTAX "ZWS002PUT"
+WSRESTFUL ZWSR002 DESCRIPTION "Cadastro de produtos"
+    WSMETHOD GET  DESCRIPTION "ZWSR002 GET PRODUTO" WSSYNTAX "ZWS002GET"
+    WSMETHOD POST DESCRIPTION "ZWSR002 CAD PRODUTO" WSSYNTAX "ZWS002POST"
+    WSMETHOD PUT  DESCRIPTION "ZWSR002 ALT PRODUTO" WSSYNTAX "ZWS002PUT"
 END WSRESTFUL
 
-WSMETHOD GET WSSERVICE ZWSF002
-    Local _aRet       := ""
-    Local cBody      := ""
-    Local _cAuthorization := ""
-    Local _cEmpFil   := ""
-    Local _cUser     := ""
-    Local _cPass     := ""
-    Local jBody    As JSON
-    Local cTenantId := ""
-    Local empresa := ""
-    Local filial := ""
-    Local lRet := .F.
-    Local _cLogin := ""
+WSMETHOD GET WSSERVICE ZWSR002
+    Local _aRet             := ""
+    Local cBody             := ""
+    Local _cAuthorization   := ""
+    Local _cEmpFil          := ""
+    Local _cUserPar         := ""
+    Local _cPassPar         := ""
+    Local jBody             As JSON
+    Local _cEmpresa         := ""
+    Local _cFilial          := ""
+    Local _cLogin           := ""
+    Local _nPos
 
-    Self:SetContentType("application/cJson")
-    _cAuthorization := SUBSTR(Self:GetHeader('Authorization'),7,50)
-    _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
-    //_cUser  		:= Decode64(Self:GetHeader("user", .F.))
-    //_cPass          := Decode64(Self:GetHeader("pass", .F. ))
-    
-    _cUserPar 	:= Encode64(AllTrim( superGetMv( "DUX_RES01", , "allan.rabelo"	) ))	// Usuario para autenticacao no WS
-    _cPassPar 	:= Encode64(AllTrim( superGetMv( "DUX_RES02", , "123456"	) ))	// Senha para autenticao no WS*/
-    cLogin := Encode64(Decode64(_cUserPar) +":"+ Decode64(_cPassPar)) 
-    cBody := ::GetContent()
-    jBody    := JSONObject():New()
+    Begin Sequence
 
-    cTenantId := HTTPHeader("tenantId")
+        Conout("ZWSR002 - Inicio "+DtoC(date())+" "+Time())
 
-    if cTenantid <> "" 
-        If ("," $ cTenantId)
-        empresa := StrTokArr2(cTenantId, ",")[1]
-        filial  := StrTokArr2(cTenantId, ",")[2]
+        Self:SetContentType("application/cJson")
+
+        cBody           := ::GetContent()
+        jBody           := JSONObject():New()
+        _cAuthorization := Self:GetHeader('Authorization')
+        _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
+
+        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_RES01", , "allan.rabelo"))	    // Usuario para autenticacao no WS
+        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_RES02", , "123456"	))	        // Senha para autenticao no WS*/
+        _cLogin     := _cUserPar+":"+_cPassPar
+
+        //Verifica se o usuário de autenticação é igual ao do Parametro.
+        If AllTrim(_cLogin) <> AllTrim(Decode64(StrTran(_cAuthorization, "Basic ", "")))
+            _aRet := {302,"Usuario ou senha Nao Autorizado "}
+            Break
         EndIf
-    else 
-        _aRet := {302," Empresa ou filial não encontrada."}
-    endif 
 
-    cEmpAnt:= empresa
-    cFilAnt:= filial
+        _nPos := At(",", _cEmpFil)
+        If _nPos <= 0
+            _aRet := {302,"Tenanid nao informado ."}
+            Break
+        EndIf
 
-    if (_cAuthorization!=cLogin) 
-        _aRet := {302,"Usuario ou senha Nao Autorizado "}
-    endif 
-        If !Empty(_aRet) 
-            _oJson := JsonObject():new()
-            _oJson:fromJson(DecodeUTF8(Self:GetContent(,.T.)))
-            jBody := ZPRODGET(@_oJson, _cEmpFil)
-            Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
-            FwFreeObj(jBody)
-        Else
-            jBody["Status"]    := _aRet 
-            Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
-            FwFreeObj(jBody)
-        endif
+        _cEmpresa := SubsTr(_cEmpFil,1,_nPos-1)
+        _cFilial  := SubsTr(_cEmpFil,_nPos+1)
+
+        If Empty(_cEmpresa)
+            _aRet := {302,"Empresa nao encontrada."}
+            Break
+        Endif
+
+        If Empty(_cFilial)
+            _aRet := {302,"Filial nao encontrada."}
+            Break
+        Endif
+
+        //Verifica a existencia empresa, para não ficar retornando erro 5, valida se a tabela esta abertar
+        If Select("SM0") > 0
+            SM0->(DbSetOrder(1))  //M0_CODIGO+M0_CODFIL
+            If !SM0->(DbSeek(_cEmpresa+_cFilial))
+                _aRet := {302,"Dados da Empresa inconsistente"}
+                Break
+            Endif
+        Endif
+
+        //Tratar abertura da empresa conforme enviado no parametro
+        If cEmpAnt <> _cEmpresa .or. cFilAnt <> _cFilial
+            RpcClearEnv()
+            RPCSetType(3)
+            If !RpcSetEnv(_cEmpresa,_cFilial,,,,GetEnvServer(),{ })
+                _aRet := {302,"Nao foi possivel acessar ambiente"}
+                Break
+            Endif
+        EndIf
+
+    End Sequence
+
+    If Empty(_aRet)
+        _oJson := JsonObject():new()
+        _oJson:fromJson(DecodeUTF8(Self:GetContent(,.T.)))
+        jBody := ZPRODGET(@_oJson, _cEmpFil)
+        Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
+        FwFreeObj(jBody)
+    Else
+        jBody["Status"]    := _aRet
+        Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
+        FwFreeObj(jBody)
+    EndIf
+
+    Conout("ZWSR002 - Fim "+DtoC(date())+" "+Time())
 Return .T.
 /*ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
@@ -105,21 +138,19 @@ Static Function ZPRODGET(_oJson, _cEmpFil)
     aItens  := {}
     aImpItem := {}
     JBody   := JSONObject():New()
-    JBody["Status"] := {}
 
     DbSelectArea('SB1')
     SB1->(dbSetOrder(1))
     IF (SB1->(dbSeek(FWxFilial("SB1")+PadR(_oJson:GetJsonObject('Codigo'),TamSX3("B1_COD")[1]))))
         jBody["Status"]    := "200 - OK"
         aAdd(jBody["Produto"], JSONObject():New() )
-        nLength++
+        //nLength++
         // Adiciona os atributos básicos do produto
-        jBody["Produto"]["Codigo"]    := SB1->B1_COD 
+        jBody["Produto"]["Codigo"]    := SB1->B1_COD
         jBody["Produto"]["Descricao"]    := SB1->B1_DESC
-    endif     
+    endif
     RestArea(aArea)
 
-    
+
 Return (jBody)
 
-     
