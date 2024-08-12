@@ -8,7 +8,7 @@ O ponto de entrada A103VCTO será utilizado para manipular as informações do Arra
 dos títulos financeiro(tabela SE2) no momento da inclusão do documento de entrada (MATA103).
 
 @author Jedielson Rodrigues
-@since 28/06/2024
+@since 12/08/2024
 @history 
 @version P11,P12
 @database MSSQL
