@@ -42,12 +42,11 @@ Private nMargemEsq  := 25
 Private cNumPed     := " "
 Private cLoja       := " "
 Private cEmissao   	:= CTOD(" ")
-Private cCanal		:= " "
 Private cLogo		:= "system\LGMID.png"
 
 //PutSX1( cGrupo, cOrdem, cTexto		, cMVPar	, cVariavel	, cTipoCamp	, nTamanho, nDecimal	, cTipoPar	, cValid			, cF3		, cPicture	, cDef01	, cDef02			, cDef03	, cDef04	, cDef05	, cHelp	, cGrpSXG	)
 U_PutSX1( cPerg	, "01"	, "Do Pedido  :"	, "mv_par01", "mv_ch1"	, "C"		, 06	  , 0			, "G"		,               	, 			, 			, 			,					,			,			,			,		, 			)
-U_PutSX1( cPerg	, "02"	, "Até Pedido :"	, "mv_par02", "mv_ch2"	, "C"		, 06	  , 0			, "G"		,               	, 			, 			, 			,					,			,			,			,		, 			)
+U_PutSX1( cPerg	, "02"	, "Ate Pedido :"	, "mv_par02", "mv_ch2"	, "C"		, 06	  , 0			, "G"		,               	, 			, 			, 			,					,			,			,			,		, 			)
 
 Pergunte(cPerg,.T.)
 
@@ -102,8 +101,7 @@ cQryTmp += "	SB1.B1_UM, "+CRLF
 cQryTmp += "	SC6.C6_LOCAL, "+CRLF
 cQryTmp += "	SB1.B1_ZENDPIC, "+CRLF
 cQryTmp += "	SC6.C6_LOTECTL, "+CRLF
-cQryTmp += "	SC6.C6_DTVALID, "+CRLF
-cQryTmp += "	SX5.X5_DESCRI "+CRLF
+cQryTmp += "	SC6.C6_DTVALID "+CRLF
 cQryTmp += " FROM " + RetSqlName("SC6") + " SC6 WITH(NOLOCK) "+CRLF
 cQryTmp += " 	INNER JOIN " + RetSqlName("SC5") + " SC5 WITH(NOLOCK) "+CRLF
 cQryTmp += " 		ON SC5.C5_FILIAL = SC6.C6_FILIAL "+CRLF
@@ -121,11 +119,6 @@ cQryTmp += "		ON SA1.A1_FILIAL = '"+FWxFilial("SA1")+"' "+CRLF
 cQryTmp += "		AND SA1.A1_COD = SC6.C6_CLI "+CRLF
 cQryTmp += "		AND SA1.A1_LOJA = SC6.C6_LOJA "+CRLF
 cQryTmp += "		AND SA1.D_E_L_E_T_ = ' ' "+CRLF
-cQryTmp += "	INNER JOIN " + RetSqlName("SX5") + " SX5 WITH(NOLOCK) "+CRLF
-cQryTmp += "		ON SX5.X5_FILIAL = '"+FWxFilial("SX5")+"' "+CRLF
-cQryTmp += "		AND SX5.X5_CHAVE = SA1.A1_ZZESTAB "+CRLF
-cQryTmp += "		AND SX5.X5_TABELA = 'ES' "+CRLF
-cQryTmp += "		AND SX5.D_E_L_E_T_ = ' ' "+CRLF
 cQryTmp += " WHERE SC6.C6_FILIAL = '"+FWxFilial("SC6")+"' "+CRLF 
 cQryTmp += " AND SC6.C6_NOTA = ' ' "+CRLF
 cQryTmp += " AND SC6.C6_NUM BETWEEN '"+MV_PAR01+"' AND '"+MV_PAR02+"' "+CRLF
@@ -149,8 +142,7 @@ While !(cAlsTMP)->(Eof())
 	cNumPed  := ALLTRIM((cAlsTMP)->C5_NUM)
 	cLoja    := (cAlsTMP)->C5_LOJACLI
 	cEmissao  := SToD((cAlsTMP)->C5_EMISSAO)
-	cCanal 	  := FwCutOff(ALLTRIM((cAlsTMP)->X5_DESCRI), .T.) 
-
+	 
 	While !(cAlsTMP)->(Eof()) .and. cNumPed == (cAlsTMP)->C5_NUM 
 
 		If  nSalto >= 29
@@ -223,7 +215,7 @@ Static Function zCabPed()
 	oPrinter:Say(040, 420, "Emissao do Pedido:"														, oFont10n:oFont)
 	oPrinter:Say(060, 420, cvaltochar(cEmissao)			        									, oFont16:oFont)
 
-	oPrinter:Say(075, 420, cCanal			        												, oFont12N:oFont)
+	//oPrinter:Say(075, 420, cCanal			        												, oFont12N:oFont)
 
 	nFolha ++
 
