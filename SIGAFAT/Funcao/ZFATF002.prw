@@ -222,6 +222,7 @@ Static Function ZChaveNfe()
 	EndIf
 
 	cSql += "  AND SF2.F2_EMISSAO BETWEEN '"+DToS(dDataDe)+"' AND '"+DToS(dDataAte)+"' " + CRLF
+	cSql += "  AND SF2.F2_CHVNFE <> ' ' " +CRLF
 	cSql += "  AND   SF2.D_E_L_E_T_ = '' " + CRLF
 	cSql += " ORDER BY 1 " + CRLF
 
