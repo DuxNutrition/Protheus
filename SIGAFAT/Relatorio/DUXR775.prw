@@ -46,7 +46,6 @@ Private nMargemEsq  := 25
 Private cNFiscal    := " "
 Private cSerie      := " "
 Private cDtFat   	:= CTOD(" ")
-Private cCanal		:= " "
 Private cLogo		:= "system\LGMID.png"
 
 //PutSX1( cGrupo, cOrdem, cTexto		, cMVPar	, cVariavel	, cTipoCamp	, nTamanho, nDecimal	, cTipoPar	, cValid			, cF3		, cPicture	, cDef01	, cDef02			, cDef03	, cDef04	, cDef05	, cHelp	, cGrpSXG	)
@@ -86,23 +85,7 @@ If Select(cAlsTMP) > 0
 EndIf
 
 cQryTmp := " SELECT "+CRLF
-cQryTmp += " CASE "+CRLF
-cQryTmp += " 	WHEN SA1.A1_ZZESTAB = 'AC'		THEN 'ACADEMIA/CROSSFIT' "+CRLF
-cQryTmp += " 	WHEN SA1.A1_ZZESTAB = 'BS'		THEN 'BODY SHOP' "+CRLF
-cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'CE'		THEN 'CLUBE ESPORTIVO' "+CRLF
-cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'CREF'	THEN 'EDUCADOR FISICO' "+CRLF
-cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'CRM'		THEN 'MEDICOS' "+CRLF
-cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'CRN'		THEN 'NUTRICIONISTAS' "+CRLF
-cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'DF'		THEN 'DROGARIA/ FARMACIA' "+CRLF
-cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'DI'		THEN 'DISTRIBUIDORA' "+CRLF
-cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'EC'		THEN 'ECOMMERCE' "+CRLF
-cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'FS'		THEN 'FOOD SERVICE' "+CRLF
-cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'OU'		THEN 'OUTROS' "+CRLF
-cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'PN'		THEN 'LJ PRODUTOS NATURAIS' " +CRLF
-cQryTmp += "	WHEN SA1.A1_ZZESTAB = 'SM'		THEN 'SUPERMERCADOS' "+CRLF
-cQryTmp += " 	ELSE SA1.A1_ZZESTAB "+CRLF
-cQryTmp += " 	END AS 'CANAL_DE_VENDA' "+CRLF
-cQryTmp += " 	,SB1.B1_ZENDPIC "+CRLF	
+cQryTmp += " 	SB1.B1_ZENDPIC "+CRLF	
 cQryTmp += " 	,SD2.D2_DOC "+CRLF
 cQryTmp += " 	,SD2.D2_FILIAL "+CRLF
 cQryTmp += " 	,SD2.D2_SERIE "+CRLF
@@ -166,8 +149,7 @@ While !(cAlsTMP)->(Eof())
 
 	cNFiscal := (cAlsTMP)->D2_DOC
 	cSerie   := (cAlsTMP)->D2_SERIE
-	cDtFat   := SToD((cAlsTMP)->D2_EMISSAO)
-	cCanal 	 := FwCutOff(ALLTRIM((cAlsTMP)->CANAL_DE_VENDA), .T.) 
+	cDtFat   := SToD((cAlsTMP)->D2_EMISSAO) 
 
 	While !(cAlsTMP)->(Eof()) .and. cNFiscal == (cAlsTMP)->D2_DOC .and. cSerie == (cAlsTMP)->D2_SERIE 
 
@@ -241,7 +223,7 @@ Static Function zFimPag()
 	oPrinter:Say(040, 420, "Data Faturamento:"												, oFont10n:oFont)
 	oPrinter:Say(060, 420, cvaltochar(cDtFat)			        							, oFont16:oFont)
 
-	oPrinter:Say(075, 420, cCanal			        										, oFont12N:oFont)
+	//oPrinter:Say(075, 420, cCanal			        										, oFont12N:oFont)
 
 	nFolha ++
 
