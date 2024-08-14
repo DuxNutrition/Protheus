@@ -13,9 +13,9 @@ User Function MA103OPC()
     Local aRet := {}
     
     If Len(aRotina[1]) == 4
-		 aadd(aRotina,{"Etiqueta Dux" ,"U_ZESTF002('SD1')"  , 0 ,   6   })
+		 aadd(aRotina,{"Etiqueta Dux" ,"U_ZESTF002('SF1')"  , 0 ,   6   })
 	Else
-        aadd(aRotina,{"Etiqueta Dux" ,"U_ZESTF002('SD1')"   ,0 ,6 ,0 , })
+        aadd(aRotina,{"Etiqueta Dux" ,"U_ZESTF002('SF1')"   ,0 ,6 ,0 , })
 	EndIf
     
 Return aRet
