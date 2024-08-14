@@ -110,10 +110,10 @@ Default cTabela     := ""
 		    oMarkBrowse:DisableReport() //Desabilita a impressao do browser
 
             //Permite adicionar legendas no Browse
-            oMarkBrowse:AddLegend( "TR_VLD < Date() .And. TR_STATUS == 'SIM'"  ,"BLACK"    ,"Lote Vencido, etiqueta já impressa"       )
-		    oMarkBrowse:AddLegend( "TR_VLD < Date() .And. TR_STATUS <>'SIM'"   ,"RED"      ,"Lote Vencido, não foi impresso etiqueta"  )
-		    oMarkBrowse:AddLegend( "TR_STATUS =='SIM'"                         ,"GREEN"	,"Etiqueta Impressa"                        )
-		    oMarkBrowse:AddLegend( "TR_STATUS =='NAO'"                         ,"YELLOW"   ,"Etiqueta Aguardando impressão"            )
+            oMarkBrowse:AddLegend( "TR_VLD < Date() .And. TR_STATUS == 'SIM'"  ,"BLACK"     ,"Lote Vencido, etiqueta já impressa"       )
+		    oMarkBrowse:AddLegend( "TR_VLD < Date() .And. TR_STATUS <>'SIM'"   ,"RED"       ,"Lote Vencido, não foi impresso etiqueta"  )
+		    oMarkBrowse:AddLegend( "TR_STATUS =='SIM'"                         ,"GREEN"	    ,"Etiqueta Impressa"                        )
+		    oMarkBrowse:AddLegend( "TR_STATUS =='NAO'"                         ,"YELLOW"    ,"Etiqueta Aguardando impressão"            )
 
             //Adiciona uma coluna no Browse em tempo de execução
             oMarkBrowse:SetColumns(ZESTS002("TR_DESCR"      ,"Descricao"    ,02 ,"@!"                   ,1  ,60 ,0  ))
@@ -135,14 +135,6 @@ Default cTabela     := ""
             FWAlertWarning("Não existe dados para serem exibidos", "Atenção [ ZESTF002 ]")
             Return
         EndIf
-
-        //Limpar o arquivo temporário
-        //If !Empty(cArqTrb)
-           // Ferase(cArqTrb+GetDBExtension())
-            //Ferase(cArqTrb+OrdBagExt())
-            //cArqTrb := ""
-            //(cAliasTRB)->(DbCloseArea())
-        //Endif
     Else
         FWAlertWarning("Não existe dados para serem exibidos", "Atenção [ ZESTF002 ]")
     EndIf
