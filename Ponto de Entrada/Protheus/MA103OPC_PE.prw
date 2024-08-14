@@ -6,7 +6,7 @@ Ponto de Entrada utilizado para adicionar itens no menu
 @version 12.1.2310
 @author Dux | Evandro Mariano
 @since 14/08/2024
-@return aRet, Rotinas
+@return logical, Retorna o menu adicionado
 /*/
 User Function MA103OPC()
 
