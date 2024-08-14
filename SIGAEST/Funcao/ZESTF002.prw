@@ -131,6 +131,12 @@ Default cTabela     := ""
            
             //Método de ativação da classe
             oMarkBrowse:Activate()
+
+            //Efetuar a exclusão da tabela, e fechar o alias
+            oTempTable:Delete()
+
+            //Método de destruição da classe
+            oMarkBrowse:DeActivate() 
         Else
             FWAlertWarning("Não existe dados para serem exibidos", "Atenção [ ZESTF002 ]")
             Return
@@ -138,11 +144,6 @@ Default cTabela     := ""
     Else
         FWAlertWarning("Não existe dados para serem exibidos", "Atenção [ ZESTF002 ]")
     EndIf
-    
-    //Efetuar a exclusão da tabela, e fechar o alias
-    oTempTable:Delete()
-
-    oMarkBrowse:DeActivate() //Método de destruição da classe
 
 Return()   
 
