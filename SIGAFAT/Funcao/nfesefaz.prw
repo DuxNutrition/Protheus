@@ -3095,7 +3095,7 @@ If cTipo == "1"
 						aadd(aICMS,{})
 						aadd(aICMSMono,{})
 						aadd(aIPI,{})
-						aadd(aICMSST,{})
+						aadd(aICMSST,{,,,,,,,,,,,,,,,,,cCodProd})
 						aadd(aPIS,{})
 						aadd(aPISST,{})
 						aadd(aCOFINS,{})
@@ -3571,10 +3571,10 @@ If cTipo == "1"
 									IIf(CD2->(ColumnPos("CD2_VFCP")) > 0,CD2->CD2_VFCP,0),;
 									IIf(CD2->(ColumnPos("CD2_PICMDF")) > 0,CD2->CD2_PICMDF,0),;
 									IIf(SFT->(ColumnPos("FT_MOTICMS")) > 0,SFT->FT_MOTICMS,""),;
-									CD2->CD2_CODPRO } // DUX - Personalização - Para Tratar no PE
+									(cAliasSD2)->D2_COD/*CD2->CD2_CODPRO*/ } // DUX - Personalização - Para Tratar no PE
 
 									If lConsig .And. (Alltrim((cAliasSD2)->D2_CF) $ cMVCFOPREM)  .And. CD2->CD2_VLTRIB > 0
-										aTail(aICMSST):= {CD2->CD2_ORIGEM,;
+										aTail(,):= {CD2->CD2_ORIGEM,;
 										CD2->CD2_CST,;
 										CD2->CD2_MODBC,;
 										0,;
@@ -3591,7 +3591,7 @@ If cTipo == "1"
 										0,;
 										IIf(CD2->(ColumnPos("CD2_PICMDF")) > 0,CD2->CD2_PICMDF,0),;
 										IIf(SFT->(ColumnPos("FT_MOTICMS")) > 0,SFT->FT_MOTICMS,""),;
-										CD2->CD2_CODPRO} // DUX - Personalização - Para Tratar no PE
+										(cAliasSD2)->D2_COD/*CD2->CD2_CODPRO*/ } // DUX - Personalização - Para Tratar no PE
 									EndIf
 
 									lCalSol := .T.
@@ -3630,7 +3630,7 @@ If cTipo == "1"
 											0,;
 											0,;
 											IIf(SFT->(ColumnPos("FT_MOTICMS")) > 0,SFT->FT_MOTICMS,""),;
-											CD2->CD2_CODPRO} // DUX - Personalização - Para Tratar no PE
+											(cAliasSD2)->D2_COD/*CD2->CD2_CODPRO*/ } // DUX - Personalização - Para Tratar no PE
 										EndIf
 									EndIf
 									
@@ -3654,7 +3654,7 @@ If cTipo == "1"
 										CD2->CD2_MODBC,;
 										IiF(CD2->CD2_PREDBC>0,IiF(CD2->CD2_PREDBC > 100,0,100-CD2->CD2_PREDBC),CD2->CD2_PREDBC),;
 										CD2->CD2_PAUTA/CD2->CD2_QTRIB,;
-										CD2->CD2_CODPRO}// Dux - Personalização - Para Tratar no PE
+										(cAliasSD2)->D2_COD/*CD2->CD2_CODPRO*/ }// Dux - Personalização - Para Tratar no PE
 										nValIPI := CD2->CD2_VLTRIB
 										If (Alltrim((cAliasSD2)->D2_CF) $ cMVCFOPREM) .And. !Empty(nValIPI) 
 											aTail(aIPI) := {SB1->B1_SELOEN,SB1->B1_CLASSE,0,IIf(CD2->(FieldPos("CD2_GRPCST")) > 0  .and. !Empty(CD2->CD2_GRPCST),CD2->CD2_GRPCST,"999"),CD2->CD2_CST,0,0,CD2->CD2_PAUTA,0,0,CD2->CD2_MODBC,0,CD2->CD2_PAUTA/CD2->CD2_QTRIB,CD2->CD2_CODPRO} // Dux - Personalização - Para Tratar no PE
@@ -3821,7 +3821,7 @@ If cTipo == "1"
 										IIf(CD2->(FieldPos("CD2_VFCP")) > 0 .and. CD2->CD2_VFCP > 0,CD2->CD2_VFCP,0),;//[6]vFCPUFDest
 										IIf(CD2->(FieldPos("CD2_VDDES")) > 0 .and. CD2->CD2_VDDES > 0,CD2->CD2_VDDES,0),;//[7]vICMSUFDest
 										IIf(CD2->(FieldPos("CD2_VLTRIB")) > 0 .and. CD2->CD2_VLTRIB > 0,CD2->CD2_VLTRIB,0),;//[8]vICMSUFRemet
-													CD2->CD2_CODPRO } // Dux - Personalização - Para Tratar no PE
+													(cAliasSD2)->D2_COD/*CD2->CD2_CODPRO*/  } // Dux - Personalização - Para Tratar no PE
 
 								Case AllTrim(CD2->CD2_IMP) == "TST" 
 
@@ -5804,7 +5804,7 @@ Else
 					IIF(!Empty((cAliasSD1)->D1_CLASFIS),SubStr((cAliasSD1)->D1_CLASFIS,1,1),'0')})
 				aadd(aICMS,{})
 				aadd(aIPI,{})
-				aadd(aICMSST,{})
+				aadd(aICMSST,{,,,,,,,,,,,,,,,,,cCodProd})
 				aadd(aICMSMono,{})
 				aadd(aPIS,{})
 				aadd(aPISST,{})
@@ -6288,7 +6288,8 @@ Else
 							IIf(CD2->(ColumnPos("CD2_PFCP")) > 0,CD2->CD2_PFCP,0),;
 							IIf(CD2->(ColumnPos("CD2_VFCP")) > 0,CD2->CD2_VFCP,0),;
 							IIf(CD2->(ColumnPos("CD2_PICMDF")) > 0,CD2->CD2_PICMDF,0),;
-							IIf(SFT->(ColumnPos("FT_MOTICMS")) > 0,IIF(SF1->(F1_STATUS) == 'C',SF4->F4_MOTICMS ,SFT->FT_MOTICMS),"")}   
+							IIf(SFT->(ColumnPos("FT_MOTICMS")) > 0,IIF(SF1->(F1_STATUS) == 'C',SF4->F4_MOTICMS ,SFT->FT_MOTICMS),""),;
+							cCodProd}   
 							
 							If lConsig .And. (Alltrim((cAliasSD1)->D1_CF) $ cMVCFOPREM)  .And. CD2->CD2_VLTRIB > 0
 								aTail(aICMSST):= {CD2->CD2_ORIGEM,;
@@ -6307,7 +6308,8 @@ Else
 								0,;
 								0,;
 								0,;
-								IIf(SFT->(ColumnPos("FT_MOTICMS")) > 0,IIF(SF1->(F1_STATUS) == 'C',SF4->F4_MOTICMS ,SFT->FT_MOTICMS),"")}
+								IIf(SFT->(ColumnPos("FT_MOTICMS")) > 0,IIF(SF1->(F1_STATUS) == 'C',SF4->F4_MOTICMS ,SFT->FT_MOTICMS),""),;
+								cCodProd}
 							EndIf
 							
 							If lCD2PARTIC .And. CD2->CD2_PARTIC == "2"
@@ -6352,7 +6354,7 @@ Else
 									0,;
 									0,;
 									IIf(SFT->(ColumnPos("FT_MOTICMS")) > 0,IIF(SF1->(F1_STATUS) == 'C',SF4->F4_MOTICMS ,SFT->FT_MOTICMS),""),;
-									CD2->CD2_CODPRO} // Dux - Personalização - Para Tratar no PE 
+									cCodProd} // Dux - Personalização - Para Tratar no PE 
 								EndIf
 							EndIf
 							

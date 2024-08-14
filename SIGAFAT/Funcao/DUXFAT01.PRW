@@ -35,16 +35,16 @@ User Function DUXFAT01()
 	Local aMed			:= PARAMIXB[19]
 	Local aLote 		:= PARAMIXB[20]
 	Local aICMS			:= PARAMIXB[21]
-    Local aIPI			:= PARAMIXB[22]
-    Local aICMSST		:= PARAMIXB[23]
-    Local aPIS			:= PARAMIXB[24]
-    Local aPISST		:= PARAMIXB[25]
-    Local aCOFINS		:= PARAMIXB[26]
-    Local aCOFINSST		:= PARAMIXB[27]
-    Local aISSQN		:= PARAMIXB[28]
+	Local aIPI			:= PARAMIXB[22]
+	Local aICMSST		:= PARAMIXB[23]
+	Local aPIS			:= PARAMIXB[24]
+	Local aPISST		:= PARAMIXB[25]
+	Local aCOFINS		:= PARAMIXB[26]
+	Local aCOFINSST		:= PARAMIXB[27]
+	Local aISSQN		:= PARAMIXB[28]
 	Local aTotal		:= PARAMIXB[29]
-    local aICMSZFM		:= PARAMIXB[30]
-    local aICMUFDest	:= PARAMIXB[31]
+	local aICMSZFM		:= PARAMIXB[30]
+	local aICMUFDest	:= PARAMIXB[31]
 	local aCST 			:= PARAMIXB[32]
 	Local aNfe      	:= PARAMIXB
 	Local aRetorno		:= {}
@@ -57,9 +57,9 @@ User Function DUXFAT01()
 	Local cClifor		:= PARAMIXB[33]
 	Local cLoja			:= PARAMIXB[34]
 	Local lAglutProd    := iif(posicione("SA1",1,xFilial("SA1") +;
-												 padr(PARAMIXB[33],tamsx3("A1_COD")[1]) +;
-												 padr(PARAMIXB[34],tamsx3("A1_LOJA")[1]),;
-												 "A1_XAGPRNF") == "S",.t.,.f.)
+		padr(PARAMIXB[33],tamsx3("A1_COD")[1]) +;
+		padr(PARAMIXB[34],tamsx3("A1_LOJA")[1]),;
+		"A1_XAGPRNF") == "S",.t.,.f.)
 	Private cLote   := ""
 	Private cValid	:= ""
 	Private nQuant	:= 0
@@ -80,22 +80,22 @@ User Function DUXFAT01()
 
 	if(lNfSaida .and. lAglutProd)
 		aglutinaProdutos(cNota,;
-						 cSerie,;
-						 cClifor,;
-						 cLoja,;
-						 @aProd,;
-						 @aICMS,;
-						 @aIPI,;
-						 @aICMSST,;
-						 @aPIS,;
-						 @aPISST,;
-						 @aCOFINS,;
-						 @aCOFINSST,;
-						 @aISSQN,;
-						 @aICMSZFM,;
-						 @aICMUFDest,;
-						 aInfoItem,;
-						 @aCST)
+			cSerie,;
+			cClifor,;
+			cLoja,;
+			@aProd,;
+			@aICMS,;
+			@aIPI,;
+			@aICMSST,;
+			@aPIS,;
+			@aPISST,;
+			@aCOFINS,;
+			@aCOFINSST,;
+			@aISSQN,;
+			@aICMSZFM,;
+			@aICMUFDest,;
+			aInfoItem,;
+			@aCST)
 	endif
 
 	aadd(aRetorno,aProd)
@@ -118,7 +118,7 @@ User Function DUXFAT01()
 	aadd(aRetorno,aProcRef)
 	aadd(aRetorno,aMed)
 	aadd(aRetorno,aLote)
-	
+
 	aadd(aRetorno , aICMS)
 	aadd(aRetorno , aIPI)
 	aadd(aRetorno , aICMSST)
@@ -140,7 +140,7 @@ Static Function retDadosProd(cDoc,cSerie,cProduto,cTipo,cItem,i,aLote)
 	local cRet 		:= ""
 	Local cQuery 	:= ""
 	local cAlias	:= getNextAlias()
-	
+
 
 	if Alltrim(cTipo) == "1"
 		cQuery := "SELECT SD2.D2_LOTECTL LOTECTL, SD2.D2_DTVALID DTVALID, SD2.D2_QUANT QUANT, SD2.D2_DFABRIC DTFABRIC" +CRLF
@@ -200,265 +200,273 @@ Aglutina os produtos.
 @since 01/11/2023
 /*/
 Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
-								 aProd,aICMS,aIPI,aICMSST,aPIS,aPISST,aCOFINS,;
-								 aCOFINSST,aISSQN,aICMSZFM,aICMUFDest,aInfoItem,aCst)
+		aProd,aICMS,aIPI,aICMSST,aPIS,aPISST,aCOFINS,;
+		aCOFINSST,aISSQN,aICMSZFM,aICMUFDest,aInfoItem,aCst)
 	local cProduto	    := "" as character
 	local cItem		    := "" as character
 	local cNumPV 	    := "" as character
 	local cItemPV 	    := "" as character
 	local nCont 	    := 0  as numeric
 	local nG 		    := 0  as numeric
-    local nPos          := 0  as numeric
-    local nCampo        := 0  as numeric
-    local aLoteProd     := {} as array
-    local aProdAgrp     := {} as array
-    local aImpAgrp      := {} as array
-    local aICMSZF		:= {} as array
+	local nPos          := 0  as numeric
+	local nCampo        := 0  as numeric
+	local aLoteProd     := {} as array
+	local aProdAgrp     := {} as array
+	local aImpAgrp      := {} as array
+	local aICMSZF		:= {} as array
 	default aInfoItem   := {}
 
-		for nCont := 1 to len(aProd)
-		   
-			cProduto	:= aProd[nCont,02]
-			cItem		:= aInfoItem[nCont,04]
-			cNumPV 		:= aInfoItem[nCont,01]
-			cItemPV		:= aInfoItem[nCont,02]
-								
-			dbSelectArea("SD2")
-			SD2->(dbSetOrder(3))
-			SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
-						
-			aadd(aProd[nCont],SD2->D2_CF)
-			
-			nPos := aScan(aProdAgrp , {|Registro| Registro[02]+Registro[len(aProd[nCont])] ==;
-                                        aProd[nCont,02]+aProd[nCont,len(aProd[nCont])] })
-	    	             
-			if(nPos == 0)
-				aadd( aProdAgrp , aProd[nCont] )
-                aadd( aICMSZF	, {aProd[nCont,02], iif(Empty(aICMSZFM[nCont]), 0, aICMSZFM[nCont][1]), iif(Empty(aICMSZFM[nCont]), "", aICMSZFM[nCont][2] )})
+	for nCont := 1 to len(aProd)
 
-				if(!empty(SD2->D2_LOTECTL))
-					aadd( aLoteProd , { SD2->D2_COD,;				
-					                    alltrim(SD2->D2_LOTECTL)})	
-				endif
-			else
-                aICMSZF[nPos][2]	+= iif(Empty(aICMSZFM[nCont]), 0, aICMSZFM[nCont][1])
+		cProduto	:= aProd[nCont,02]
+		cItem		:= aInfoItem[nCont,04]
+		cNumPV 		:= aInfoItem[nCont,01]
+		cItemPV		:= aInfoItem[nCont,02]
 
-				aProdAgrp[nPos,09]	+= aProd[nCont,09] 
-				aProdAgrp[nPos,10]	+= aProd[nCont,10] 
-				aProdAgrp[nPos,12]	+= aProd[nCont,12] 
-				aProdAgrp[nPos,13]	+= aProd[nCont,13] 
-				aProdAgrp[nPos,16]	:= aProd[nCont,16] 
-				aProdAgrp[nPos,26]  += aProd[nCont,26]
-				aProdAgrp[nPos,31]  += aProd[nCont,31]
-				aProdAgrp[nPos,32]	+= aProd[nCont,32]
-				aProdAgrp[nPos,15]	+= aProd[nCont,15]
+		dbSelectArea("SD2")
+		SD2->(dbSetOrder(3))
+		SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
 
-				nPos := aScan(aLoteProd , {|Registro| Registro[1] == SD2->D2_COD })
-				if(nPos > 0) 
-                    if(!(alltrim(SD2->D2_LOTECTL) $ aLoteProd[nPos,02]))
-                        if !empty(aLoteProd[nPos,02])
-                            aLoteProd[nPos,02] += "," + alltrim(SD2->D2_LOTECTL)
-                        else
-                            aLoteProd[nPos,02] := alltrim(SD2->D2_LOTECTL)
-                        endif
-                    endif
+		aadd(aProd[nCont],SD2->D2_CF)
+
+		nPos := aScan(aProdAgrp , {|Registro| Registro[02]+Registro[len(aProd[nCont])] ==;
+			aProd[nCont,02]+aProd[nCont,len(aProd[nCont])] })
+
+		if(nPos == 0)
+			aadd( aProdAgrp , aProd[nCont] )
+			aadd( aICMSZF	, {aProd[nCont,02], iif(Empty(aICMSZFM[nCont]), 0, aICMSZFM[nCont][1]), iif(Empty(aICMSZFM[nCont]), "", aICMSZFM[nCont][2] )})
+
+			if(!empty(SD2->D2_LOTECTL))
+				aadd( aLoteProd , { SD2->D2_COD,;
+					alltrim(SD2->D2_LOTECTL)})
+			endif
+		else
+			aICMSZF[nPos][2]	+= iif(Empty(aICMSZFM[nCont]), 0, aICMSZFM[nCont][1])
+
+			aProdAgrp[nPos,09]	+= aProd[nCont,09]
+			aProdAgrp[nPos,10]	+= aProd[nCont,10]
+			aProdAgrp[nPos,12]	+= aProd[nCont,12]
+			aProdAgrp[nPos,13]	+= aProd[nCont,13]
+			aProdAgrp[nPos,16]	:= aProd[nCont,16]
+			aProdAgrp[nPos,26]  += aProd[nCont,26]
+			aProdAgrp[nPos,31]  += aProd[nCont,31]
+			aProdAgrp[nPos,32]	+= aProd[nCont,32]
+			aProdAgrp[nPos,15]	+= aProd[nCont,15]
+
+			nPos := aScan(aLoteProd , {|Registro| Registro[1] == SD2->D2_COD })
+			if(nPos > 0)
+				if(!(alltrim(SD2->D2_LOTECTL) $ aLoteProd[nPos,02]))
+					if !empty(aLoteProd[nPos,02])
+						aLoteProd[nPos,02] += "," + alltrim(SD2->D2_LOTECTL)
+					else
+						aLoteProd[nPos,02] := alltrim(SD2->D2_LOTECTL)
+					endif
 				endif
 			endif
-		next nCont
-		
-		if(len(aProdAgrp) > 0)
-			for nG := 1 to len(aProdAgrp)
-				aProdAgrp[nG][1] := cValtoChar(nG)
-			next 
-			
-			aProd 		:= aClone(aProdAgrp)
-			aProdAgrp   := {}
 		endif
+	next nCont
+
+	if(len(aProdAgrp) > 0)
+		for nG := 1 to len(aProdAgrp)
+			aProdAgrp[nG][1] := cValtoChar(nG)
+		next
+
+		aProd 		:= aClone(aProdAgrp)
+		aProdAgrp   := {}
+	endif
 
 
 
-		//02.01. CST - Aglutina 
-	   //--------------------------------------------------------------------
-	   //02.02.01.01 - CST
-	   //--------------------------------------------------------------------   
-		 if(valtype(aCst) == "A" .and. len(aCst) > 0)	
-	    atmp := {}
-	   	for nCont := 1 to Len(aCst)
+	//02.01. CST - Aglutina
+	//--------------------------------------------------------------------
+	//02.02.01.01 - CST
+	//--------------------------------------------------------------------
+	if(valtype(aCst) == "A" .and. len(aCst) > 0)
+		atmp := {}
+		for nCont := 1 to Len(aCst)
 			nPos := aScan(atmp,{|x| x[3] == aCst[nCont][3]})
-			if nPos == 0 
+			if nPos == 0
 				aadd(atmp,aCst[nCont])
-			else 
+			else
 				atmp[nPos][1]	:= aCst[nCont][1]
-			endif  
-		next     
+			endif
+		next
 		aCst := aClone(atmp)
-			for nCont := 1 to len(aCst)
-				if(valtype(aCst[1]) == "A")
-					/*if(len(aCst[nCont]) > 0) 
-					    
+		for nCont := 1 to len(aCst)
+			if(valtype(aCst[1]) == "A")
+				/*if(len(aCst[nCont]) > 0)
+
 						nCampo   := len(aCst[nCont])
 						cProduto := aCst[nCont,nCampo]
 						cItem	 := aInfoItem[nCont,04]
-					endif 
-						dbSelectArea("SB1")
-						SB1->(dbSetOrder(1))
-						SB1->(MsSeek(xFilial("SB1")+cProduto))*/
-					/*	
-						dbSelectArea("SD2")
-						SD2->(dbSetOrder(3)) 
-						SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem)) 
-						*/
-						//aadd(aICMS[nCont],SD2->D2_CF)
-					    /*	                
-						if((len(aImpAgrp) > 0) .and. (len(aImpAgrp[01]) > 0) )
-							nPos := aScan( aImpAgrp , {|Registro| iif((len(aICMS[nCont])-1 >= nCampo) .and.; 
-                                                                        len(Registro) >= nCampo,;
-                                                                        Registro[nCampo] + ;
-                                                                        Registro[len(aICMS[nCont])] ==; 
-                                                                        aICMS[nCont,nCampo] + ;
-                                                                        aICMS[nCont,len(aICMS[nCont])], .F.) } )
-						else
-							nPos := 0
-						endif
-				   	    	
-						if(nPos == 0)
-							aadd( aImpAgrp , aICMS[nCont] )
-						else
-							aImpAgrp[nPos,05] += aICMS[nCont,05]
-							aImpAgrp[nPos,07] += aICMS[nCont,07]
-							aImpAgrp[nPos,09] += aICMS[nCont,09]
-							aImpAgrp[nPos,15] += aICMS[nCont,15]
-						endif
-					else
-						aadd( aImpAgrp , {} )
 					endif
-					*/
-				endif
-			next nCont
-		endif
-			aCst 	:= aClone(atmp)
-			atmp:= {}
-		
-        //02.02-Aglutina os Impostos
-	   //--------------------------------------------------------------------
-	   //02.02.01 - ICMS
-	   //--------------------------------------------------------------------   
-	   if(valtype(aICMS) == "A" .and. len(aICMS) > 0)	
-	    atmp := {}
-	   	for nCont := 1 to Len(aICMS)
-			nPos := aScan(atmp,{|x| x[31] == aICMS[nCont][31]})
-			if nPos == 0 
-				aadd(atmp,aICMS[nCont])
-			else 
-				atmp[nPos][21]	+= aICMS[nCont][21]
-			endif  
-		next     
-		aICMS := aClone(atmp)
-			for nCont := 1 to len(aICMS)
-				if(valtype(aICMS[1]) == "A")
-					if(len(aICMS[nCont]) > 0) 
-					    
-						nCampo   := len(aICMS[nCont])
-						cProduto := aICMS[nCont,nCampo]
-						cItem	 := aInfoItem[nCont,04]
-					
 						dbSelectArea("SB1")
 						SB1->(dbSetOrder(1))
-						SB1->(MsSeek(xFilial("SB1")+cProduto))
-						
+				SB1->(MsSeek(xFilial("SB1")+cProduto))*/
+				/*
 						dbSelectArea("SD2")
-						SD2->(dbSetOrder(3)) 
-						SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem)) 
-						
-						aadd(aICMS[nCont],SD2->D2_CF)
-					    	                
-						if((len(aImpAgrp) > 0) .and. (len(aImpAgrp[01]) > 0) )
-							nPos := aScan( aImpAgrp , {|Registro| iif((len(aICMS[nCont])-1 >= nCampo) .and.; 
-                                                                        len(Registro) >= nCampo,;
-                                                                        Registro[nCampo] + ;
-                                                                        Registro[len(aICMS[nCont])] ==; 
-                                                                        aICMS[nCont,nCampo] + ;
-                                                                        aICMS[nCont,len(aICMS[nCont])], .F.) } )
-						else
-							nPos := 0
-						endif
-				   	    	
-						if(nPos == 0)
-							aadd( aImpAgrp , aICMS[nCont] )
-						else
-							aImpAgrp[nPos,05] += aICMS[nCont,05]
-							aImpAgrp[nPos,07] += aICMS[nCont,07]
-							aImpAgrp[nPos,09] += aICMS[nCont,09]
-							aImpAgrp[nPos,15] += aICMS[nCont,15]
-						endif
-					else
-						aadd( aImpAgrp , {} )
-					endif
-				endif
-			next nCont
-		endif
-	   	
-		if len(aImpAgrp) > 0
-			aICMS 	:= aClone(aImpAgrp)
-			aImpAgrp:= {}
-		endif
-
-		//--------------------------------------------------------------------
-	   //02.02.02 - ICMS DIFAL
-	   //--------------------------------------------------------------------   
-	   if(valtype(aICMUFDest) == "A" .and. len(aICMUFDest) > 0)	    
-			for nCont:=1 to len(aICMUFDest)
-				if(valtype(aICMUFDest[1]) == "A")
-					if(len(aICMUFDest[nCont]) > 0)
-					    
-						nCampo   := len(aICMUFDest[nCont])
-						cProduto := aICMUFDest[nCont,nCampo]
-						cItem	 := aInfoItem[nCont,04]
-					
-						dbSelectArea("SB1")
-						SB1->(dbSetOrder(1))
-						SB1->(MsSeek(xFilial("SB1")+cProduto))
-						
-						dbSelectArea("SD2")
-						SD2->(dbSetOrder(3)) 
+						SD2->(dbSetOrder(3))
 						SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
-						
-						aadd(aICMUFDest[nCont],SD2->D2_CF)
-					    	                
-						if((len(aImpAgrp) > 0) .and. (len(aImpAgrp[01]) > 0)) 
-							nPos 	:= aScan( aImpAgrp , {|Registro| iif((len(aICMUFDest[nCont])-1 >= nCampo) .and.; 
-                                                                          len(Registro) >= nCampo,; 
-                                                                          Registro[nCampo] + ;
-                                                                          Registro[len(aICMUFDest[nCont])] == ;
-                                                                          aICMUFDest[nCont,nCampo] + ;
-                                                                          aICMUFDest[nCont,len(aICMUFDest[nCont])], .F.)}) 
+				*/
+				//aadd(aICMS[nCont],SD2->D2_CF)
+				/*
+						if((len(aImpAgrp) > 0) .and. (len(aImpAgrp[01]) > 0) )
+							nPos := aScan( aImpAgrp , {|Registro| iif((len(aICMS[nCont])-1 >= nCampo) .and.;
+                                                                        len(Registro) >= nCampo,;
+                                                                        Registro[nCampo] + ;
+                                                                        Registro[len(aICMS[nCont])] ==;
+                                                                        aICMS[nCont,nCampo] + ;
+                                                                        aICMS[nCont,len(aICMS[nCont])], .F.) } )
 						else
 							nPos := 0
 						endif
-				   	    	
+
 						if(nPos == 0)
-							aadd(aImpAgrp , aICMUFDest[nCont] )
+							aadd( aImpAgrp , aICMS[nCont] )
 						else
-							aImpAgrp[nPos,01] += aICMUFDest[nCont,01]
-							aImpAgrp[nPos,07] += aICMUFDest[nCont,07]
+							aImpAgrp[nPos,05] += aICMS[nCont,05]
+							aImpAgrp[nPos,07] += aICMS[nCont,07]
+							aImpAgrp[nPos,09] += aICMS[nCont,09]
+							aImpAgrp[nPos,15] += aICMS[nCont,15]
 						endif
 					else
 						aadd( aImpAgrp , {} )
 					endif
-				endif
-			next nCont
+				*/
+			endif
+		next nCont
+	endif
+	aCst 	:= aClone(atmp)
+	atmp:= {}
+
+	//02.02-Aglutina os Impostos
+	//--------------------------------------------------------------------
+	//02.02.01 - ICMS
+	//--------------------------------------------------------------------
+	for nCont := 1 to Len(aICMS)
+		if Len(aICMS[nCont]) == 0
+			cAux := 0
+		else
+			cAux := 1
 		endif
-	   	
-		if len(aImpAgrp) > 0
-			aICMUFDest 	:= aClone(aImpAgrp)
-			aImpAgrp:= {}
-		endif
-			
-	   //--------------------------------------------------------------------
-	   //02.02.02 - ICMS ST
-	   //--------------------------------------------------------------------
-	    if(valtype(aICMSST) == "A" .and. len(aICMSST) > 0)
+	next
+	if(valtype(aICMS) == "A" .and. len(aICMS) > 0)	.and. cAux == 1
 		atmp := {}
+		for nCont := 1 to Len(aICMS)
+			nPos := aScan(atmp,{|x| x[31] == aICMS[nCont][31]})
+			if nPos == 0
+				aadd(atmp,aICMS[nCont])
+			else
+				atmp[nPos][21]	+= aICMS[nCont][21]
+			endif
+		next
+		aICMS := aClone(atmp)
+		for nCont := 1 to len(aICMS)
+			if(valtype(aICMS[1]) == "A")
+				if(len(aICMS[nCont]) > 0)
+
+					nCampo   := len(aICMS[nCont])
+					cProduto := aICMS[nCont,nCampo]
+					cItem	 := aInfoItem[nCont,04]
+
+					dbSelectArea("SB1")
+					SB1->(dbSetOrder(1))
+					SB1->(MsSeek(xFilial("SB1")+cProduto))
+
+					dbSelectArea("SD2")
+					SD2->(dbSetOrder(3))
+					SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
+
+					aadd(aICMS[nCont],SD2->D2_CF)
+
+					if((len(aImpAgrp) > 0) .and. (len(aImpAgrp[01]) > 0) )
+						nPos := aScan( aImpAgrp , {|Registro| iif((len(aICMS[nCont])-1 >= nCampo) .and.;
+							len(Registro) >= nCampo,;
+							Registro[nCampo] + ;
+							Registro[len(aICMS[nCont])] ==;
+							aICMS[nCont,nCampo] + ;
+							aICMS[nCont,len(aICMS[nCont])], .F.) } )
+					else
+						nPos := 0
+					endif
+
+					if(nPos == 0)
+						aadd( aImpAgrp , aICMS[nCont] )
+					else
+						aImpAgrp[nPos,05] += aICMS[nCont,05]
+						aImpAgrp[nPos,07] += aICMS[nCont,07]
+						aImpAgrp[nPos,09] += aICMS[nCont,09]
+						aImpAgrp[nPos,15] += aICMS[nCont,15]
+					endif
+				else
+					aadd( aImpAgrp , {} )
+				endif
+			endif
+		next nCont
+	endif
+
+	if len(aImpAgrp) > 0
+		aICMS 	:= aClone(aImpAgrp)
+		aImpAgrp:= {}
+	endif
+
+	//--------------------------------------------------------------------
+	//02.02.02 - ICMS DIFAL
+	//--------------------------------------------------------------------
+	if(valtype(aICMUFDest) == "A" .and. len(aICMUFDest) > 0)
+		for nCont:=1 to len(aICMUFDest)
+			if(valtype(aICMUFDest[1]) == "A")
+				if(len(aICMUFDest[nCont]) > 0)
+
+					nCampo   := len(aICMUFDest[nCont])
+					cProduto := aICMUFDest[nCont,nCampo]
+					cItem	 := aInfoItem[nCont,04]
+
+					dbSelectArea("SB1")
+					SB1->(dbSetOrder(1))
+					SB1->(MsSeek(xFilial("SB1")+cProduto))
+
+					dbSelectArea("SD2")
+					SD2->(dbSetOrder(3))
+					SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
+
+					aadd(aICMUFDest[nCont],SD2->D2_CF)
+
+					if((len(aImpAgrp) > 0) .and. (len(aImpAgrp[01]) > 0))
+						nPos 	:= aScan( aImpAgrp , {|Registro| iif((len(aICMUFDest[nCont])-1 >= nCampo) .and.;
+							len(Registro) >= nCampo,;
+							Registro[nCampo] + ;
+							Registro[len(aICMUFDest[nCont])] == ;
+							aICMUFDest[nCont,nCampo] + ;
+							aICMUFDest[nCont,len(aICMUFDest[nCont])], .F.)})
+					else
+						nPos := 0
+					endif
+
+					if(nPos == 0)
+						aadd(aImpAgrp , aICMUFDest[nCont] )
+					else
+						aImpAgrp[nPos,01] += aICMUFDest[nCont,01]
+						aImpAgrp[nPos,07] += aICMUFDest[nCont,07]
+					endif
+				else
+					aadd( aImpAgrp , {} )
+				endif
+			endif
+		next nCont
+	endif
+
+	if len(aImpAgrp) > 0
+		aICMUFDest 	:= aClone(aImpAgrp)
+		aImpAgrp:= {}
+	endif
+
+	//--------------------------------------------------------------------
+	//02.02.02 - ICMS ST
+	//--------------------------------------------------------------------
+	if(valtype(aICMSST) == "A" .and. len(aICMSST) > 0)
+		atmp := {}
+		/*
 		for nCont := 1 to Len(aICMSST)
 			if Len(aICMSST[nCont]) == 0
 				aICMSST[nCont] := array(18)
@@ -482,380 +490,390 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 				aICMSST[nCont][1] := ""
 
 			endif
-		next 
-	   	for nCont := 1 to Len(aICMSST)
-			nPos := aScan(atmp,{|x| x[18] == aICMSST[nCont][18]})
-			if nPos == 0 
-				if len(aICMSST[nCont]) > 0 
-					aadd(atmp,aICMSST[nCont])
-				else
-					aadd(atmp,array(18)) 
-					atmp[len(atmp)][18] := ""
-				endif  
-			else 
-				if aICMSST[nCont][7] <> NIL 
-					atmp[nPos][7]	+= aICMSST[nCont][7]
-				endif 
-			endif  
-		next     
-		aICMSST := aClone(atmp)
-			for nCont:=1 to len(aICMSST)
-				if(valtype(aICMSST[1]) == "A")
-					if(len(aICMSST[nCont]) > 0 )
-
-						nCampo   := len(aICMSST[nCont])
-						cProduto := aICMSST[nCont,nCampo]						
-						cItem	 := aInfoItem[nCont,04]
-					
-						dbSelectArea("SB1")
-						SB1->(dbSetOrder(1))
-						SB1->(MsSeek(xFilial("SB1")+cProduto))
-						
-						dbSelectArea("SD2")
-						SD2->(dbSetOrder(3)) 
-						SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
-						
-						aadd(aICMSST[nCont],SD2->D2_CF)
-					    	                
-						if((len(aImpAgrp) > 0) .and. (len(aICMSST[nCont]) > 0))
-							nPos 	:= aScan( aImpAgrp , {|Registro| iif(len(aICMSST[nCont])-1 >= nCampo .and.; 
-                                                                         len(Registro) >= nCampo,; 
-                                                                         Registro[nCampo] + ;
-                                                                         Registro[len(aICMSST[nCont])] == ;
-                                                                         aICMSST[nCont,nCampo] + ;
-                                                                         aICMSST[nCont,len(aICMSST[nCont])], .F.)})
-						else
-							nPos := 0
-						endif
-				   	    	
-						if(nPos == 0)
-							aadd( aImpAgrp , aICMSST[nCont] )
-						else
-							aImpAgrp[nPos,05] += aICMSST[nCont,05]
-							aImpAgrp[nPos,07] += aICMSST[nCont,07]
-							aImpAgrp[nPos,09] += aICMSST[nCont,09]
-							aImpAgrp[nPos,13] += aICMSST[nCont,13]
-							aImpAgrp[nPos,15] += aICMSST[nCont,15]
-							aImpAgrp[nPos,12] += aICMSST[nCont,12]
-						endif
-					else
-						aadd( aImpAgrp , {} )
-					endif
-				endif
-			next nCont
-		endif
-	   	   
-		if(len(aImpAgrp) > 0)
-			aICMSST := aClone(aImpAgrp)
-			aImpAgrp:= {}
-		endif
-	
-	   //--------------------------------------------------------------------
-	   //02.02.03 - IPI                                                      
-	   //--------------------------------------------------------------------
-	   if((valtype(aIPI) == "A") .and. (len(aIPI) > 0))
-	   		aImpAgrp := {}
-	   		
-	   		for nCont := 1 to len(aProd)
-	   			aadd(aImpAgrp, {})
-	   		next
-	  
-		   	for nCont := 1 to len(aIPI)
-				if(valtype(aIPI[1]) == "A")
-					if(len(aIPI[nCont]) > 0)
-						
-                        nCampo   	:= len(aIPI[nCont])
-						cProduto 	:= aIPI[nCont,nCampo]
-						cItem	    := aInfoItem[nCont,04]
-
-						dbSelectArea("SB1")
-						SB1->(dbSetOrder(1))
-						SB1->(MsSeek(xFilial("SB1")+cProduto))
-						
-						dbSelectArea("SD2")
-						SD2->(dbSetOrder(3))
-						SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
-						
-						aadd(aIPI[nCont],SD2->D2_CF)
-					   			    						    	               			
-						nPos := aScan( aProd , {|Registro| alltrim(Upper(Registro[2])) ==; 
-                                                            alltrim(Upper(cProduto))}) 
-												
-						if(nPos > 0)
-					    	if(len(aImpAgrp[nPos]) > 0)
-								aImpAgrp[nPos,06]	+= aIPI[nCont,06]
-								aImpAgrp[nPos,07]	+= aIPI[nCont,07]
-								aImpAgrp[nPos,10] 	+= aIPI[nCont,10]								
-							else
-								aImpAgrp[nPos]		:= aIPI[nCont]							
-							endif
-						endif					
-					endif
-				endif
-			next nCont
-	    endif
-	   
-		if len(aImpAgrp) > 0
-			aIPI  	:= aClone(aImpAgrp)
-			aImpAgrp:= {}
-		endif
-			
-	    //--------------------------------------------------------------------
-	    //02.02.04 - PIS
-	    //--------------------------------------------------------------------
-	    if((valtype(aPIS) == "A") .and. (len(aPIS) > 0))
-			for nCont:=1 to len(aPIS)
-				if(valtype(aPIS[1]) == "A")		
-					if(len(aPIS[nCont]) > 0) 
-					
-                    	nCampo   := len(aPIS[nCont]) 
-						cProduto := aPIS[nCont,nCampo]	
-						cItem	 := aInfoItem[nCont,04]
-					
-						dbSelectArea("SB1")
-						SB1->(dbSetOrder(1))
-						SB1->(MsSeek(xFilial("SB1")+cProduto))
-						
-						dbSelectArea("SD2")
-						SD2->(dbSetOrder(3))
-						SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
-						
-						aadd(aPIS[nCont],SD2->D2_CF)
-					    	                
-						if(len(aImpAgrp) > 0)
-							nPos 	:= aScan( aImpAgrp , {|Registro| iif(len(aPIS[nCont])-1 >= nCampo .and.; 
-                                                                         len(Registro) >= nCampo,; 
-                                                                         Registro[nCampo] + ;
-                                                                         Registro[len(aPIS[nCont])] == ;
-                                                                         aPIS[nCont,nCampo] + ;
-                                                                         aPIS[nCont,len(aPIS[nCont])], .F.)})
-						else
-							nPos := 0
-						endif
-				   	    	
-						if(nPos == 0)
-							aadd( aImpAgrp , aPIS[nCont] )
-						else
-							aImpAgrp[nPos,02] += aPIS[nCont,02]
-							aImpAgrp[nPos,04] += aPIS[nCont,04]
-							aImpAgrp[nPos,05] += aPIS[nCont,05]
-						endif
-					else
-						aadd( aImpAgrp , {} )
-					endif
-				endif
-			next nCont
-		endif
-	   
-		if len(aImpAgrp) > 0
-			aPIS  	:= aClone(aImpAgrp)
-			aImpAgrp:= {}
-		endif
-			
-	    //--------------------------------------------------------------------
-	    //02.02.05 - PIS ST
-	    //--------------------------------------------------------------------
-	    if(valtype(aPISST) == "A" .and. len(aPISST) > 0)
-			for nCont:=1 to len(aPISST)
-				if(valtype(aPISST[1]) == "A")
-					if(len(aPISST[nCont]) > 0)
-						
-                        nCampo   := len(aPISST[nCont])
-						cProduto := aPISST[nCont,nCampo]
-						cItem	 := aInfoItem[nCont,04]
-					
-						dbSelectArea("SB1")
-						SB1->(dbSetOrder(1))
-						SB1->(MsSeek(xFilial("SB1")+cProduto))
-						
-						dbSelectArea("SD2")
-						SD2->(dbSetOrder(3))
-						SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
-						
-						aadd(aPISST[nCont],SD2->D2_CF)
-					    	                
-						if(len(aImpAgrp) > 0)
-							nPos := aScan( aImpAgrp , {|Registro| iif(len(aPISST[nCont])-1 >= nCampo .and.; 
-                                                                      len(Registro) >= nCampo,; 
-                                                                      Registro[nCampo] + ;
-                                                                      Registro[len(aPISST[nCont])] ==; 
-                                                                      aPISST[nCont,nCampo] + ;
-                                                                      aPISST[nCont,len(aPISST[nCont])], .F.)})
-						else
-							nPos := 0
-						endif
-				   	    	
-						if(nPos == 0) 
-							aadd( aImpAgrp , aPISST[nCont] )
-						else
-							aImpAgrp[nPos,02] += aPISST[nCont,02]
-							aImpAgrp[nPos,04] += aPISST[nCont,04]
-							aImpAgrp[nPos,05] += aPISST[nCont,05]
-						endif
-					else
-						aadd( aImpAgrp , {} )
-					endif
-				endif
-			next nCont
-		endif
-		  	   
-		if(len(aImpAgrp) > 0)
-			aPISST 	:= aClone(aImpAgrp)
-			aImpAgrp:= {}
-		endif
-			
-	   	//--------------------------------------------------------------------
-	   	//02.02.06 - COFINS
-	  	//--------------------------------------------------------------------
-	  	if(valtype(aCOFINS) == "A" .and. len(aCOFINS) > 0)
-			for nCont:=1 to len(aCOFINS)
-				if(valtype(aCOFINS[1]) == "A")
-					if(len(aCOFINS[nCont]) > 0)
-
-						nCampo   := len(aCOFINS[nCont])
-						cProduto := aCOFINS[nCont,nCampo]
-						cItem	 := aInfoItem[nCont,04]
-					
-						dbSelectArea("SB1")
-						SB1->(dbSetOrder(1))
-						SB1->(MsSeek(xFilial("SB1")+cProduto))
-						
-						dbSelectArea("SD2")
-						SD2->(dbSetOrder(3))
-						SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
-						
-						aadd(aCOFINS[nCont],SD2->D2_CF)
-					    	                
-						if(len(aImpAgrp) > 0)
-							nPos 	:= aScan( aImpAgrp , {|Registro| iif(len(aCOFINS[nCont])-1 >= nCampo .and. len(Registro) >= nCampo, Registro[nCampo]+Registro[len(aCOFINS[nCont])] == aCOFINS[nCont,nCampo]+aCOFINS[nCont,len(aCOFINS[nCont])], .F.) } ) //Procura o Produto no Array de Aglutinados
-						else
-							nPos := 0
-						endif
-				   	    	
-						if(nPos == 0)
-							aadd( aImpAgrp , aCOFINS[nCont] )
-						else
-							aImpAgrp[nPos,02] += aCOFINS[nCont,02]
-							aImpAgrp[nPos,04] += aCOFINS[nCont,04]
-							aImpAgrp[nPos,05] += aCOFINS[nCont,05]
-						endif
-					else
-						aadd( aImpAgrp , {} )
-					endif
-				endif
-			next 
-		endif
-	   
-		if len(aImpAgrp) > 0
-			aCOFINS	:= aClone(aImpAgrp)
-			aImpAgrp:= {}
-		endif
-			
-	    //--------------------------------------------------------------------
-	    //02.02.07 - COFINS ST
-	    //--------------------------------------------------------------------
-	    if(valtype(aCOFINSST) == "A" .and. len(aCOFINSST) > 0)
-			for nCont := 1 to len(aCOFINSST)
-				if(valtype(aCOFINSST[1]) == "A")
-					if(len(aCOFINSST[nCont]) > 0)
-
-						nCampo   := len(aCOFINSST[nCont])
-						cProduto := aCOFINSST[nCont,nCampo]	
-						cItem	 := aInfoItem[nCont,04]
-					
-						dbSelectArea("SB1")
-						SB1->(dbSetOrder(1))
-						SB1->(MsSeek(xFilial("SB1")+cProduto))
-						
-						dbSelectArea("SD2")
-						SD2->(dbSetOrder(3))
-						SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem)) 
-						
-						aadd(aCOFINSST[nCont],SD2->D2_CF)
-					    	                
-						if(len(aImpAgrp) > 0)
-							nPos := aScan( aImpAgrp , {|Registro| iif(len(aCOFINSST[nCont])-1 >= nCampo .and.; 
-                                                                      len(Registro) >= nCampo,; 
-                                                                      Registro[nCampo] + ;
-                                                                      Registro[len(aCOFINSST[nCont])] == ;
-                                                                      aCOFINSST[nCont,nCampo] + ;
-                                                                      aCOFINSST[nCont,len(aCOFINSST[nCont])], .F.)})
-						else
-							nPos := 0
-						endif
-				   	    	
-						if(nPos == 0)
-							aadd( aImpAgrp , aCOFINSST[nCont] )
-						else
-							aImpAgrp[nPos,02] += aCOFINSST[nCont,02]
-							aImpAgrp[nPos,04] += aCOFINSST[nCont,04]
-							aImpAgrp[nPos,05] += aCOFINSST[nCont,05]
-						endif
-					else
-						aadd( aImpAgrp , {} )
-					endif
-				endif
-			next nCont
-		endif
-	   	
-		if(len(aImpAgrp) > 0)
-			aCOFINSST:= aClone(aImpAgrp)
-			aImpAgrp:= {}
-		endif
-			
-	   	//--------------------------------------------------------------------
-	   	//02.02.08 - ISSQN
-	  	//--------------------------------------------------------------------
-	  	if(valtype(aISSQN) == "A" .and. len(aISSQN) > 0)
-			for nCont:=1 to len(aISSQN)
-				if(valtype(aISSQN[1]) == "A")
-					if(len(aISSQN[nCont]) > 0)
-						
-                        nCampo   := len(aISSQN[nCont])
-						cProduto := aISSQN[nCont,nCampo]
-						cItem	 := aInfoItem[nCont,04]
-					
-						dbSelectArea("SB1")
-						SB1->(dbSetOrder(1))
-						SB1->(MsSeek(xFilial("SB1")+cProduto))
-						
-						dbSelectArea("SD2")
-						SD2->(dbSetOrder(3))
-						SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
-						
-						aadd(aISSQN[nCont],SD2->D2_CF)
-					    	                
-						if(len(aImpAgrp) > 0)
-							nPos := aScan( aImpAgrp , {|Registro| iif(len(aISSQN[nCont]) >= nCampo .and.; 
-                                                                      len(Registro) >= nCampo, ;
-                                                                      Registro[nCampo] + ;
-                                                                      Registro[len(aISSQN[nCont])] ==;
-                                                                      aISSQN[nCont,nCampo] + ;
-                                                                      aISSQN[nCont,len(aISSQN[nCont])], .F.)})
-						else
-							nPos := 0
-						endif
-				   	    	
-						if(nPos == 0)
-							aadd( aImpAgrp , aISSQN[nCont] )
-						else
-							aImpAgrp[nPos,01] += aISSQN[nCont,01]
-							aImpAgrp[nPos,03] += aISSQN[nCont,03]
-						endif
-					else
-						aadd( aImpAgrp , {} )
-					endif
-				endif
-			next 
-		endif
-	   
-		if(len(aImpAgrp) > 0)
-			aISSQN	:= aClone(aImpAgrp)
-			aImpAgrp:= {}
-		endif
-		
-		aICMSZFM := {}
-		for nCont := 1 to len(aICMSZF)
-			aadd(aICMSZFM, {aICMSZF[nCont][2], aICMSZF[nCont][3]})
 		next
-Return 
+		*/
+
+		for nCont := 1 to Len(aICMSST)
+			if Len(aICMSST[nCont])>17
+				nPos := aScan(atmp,{|x| x[18] == aICMSST[nCont][18]})
+				if nPos == 0
+					if len(aICMSST[nCont]) > 0
+						aadd(atmp,aICMSST[nCont])
+					endif
+				else
+					if aICMSST[nCont][7] <> NIL
+						atmp[nPos][7]	+= aICMSST[nCont][7]
+					endif
+				endif
+			else 
+				//aICMSST[nCont] := 0 
+				aadd(atmp,nCont)
+			endif
+		next
+		for nCont := 1 to Len(atmp)
+			if atmp[nCont][18] <> "" .and. atmp[nCont][7] == NIL 
+				atmp[nCont] := {} 
+			endif  
+		next 
+		aICMSST := aClone(atmp)
+		for nCont:=1 to len(aICMSST)
+			if(valtype(aICMSST[1]) == "A")
+				if(len(aICMSST[nCont]) > 0 )
+
+					nCampo   := len(aICMSST[nCont])
+					cProduto := aICMSST[nCont,nCampo]
+					cItem	 := aInfoItem[nCont,04]
+
+					dbSelectArea("SB1")
+					SB1->(dbSetOrder(1))
+					SB1->(MsSeek(xFilial("SB1")+cProduto))
+
+					dbSelectArea("SD2")
+					SD2->(dbSetOrder(3))
+					SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
+
+					aadd(aICMSST[nCont],SD2->D2_CF)
+
+					if((len(aImpAgrp) > 0) .and. (len(aICMSST[nCont]) > 0))
+						nPos 	:= aScan( aImpAgrp , {|Registro| iif(len(aICMSST[nCont])-1 >= nCampo .and.;
+							len(Registro) >= nCampo,;
+							Registro[nCampo] + ;
+							Registro[len(aICMSST[nCont])] == ;
+							aICMSST[nCont,nCampo] + ;
+							aICMSST[nCont,len(aICMSST[nCont])], .F.)})
+					else
+						nPos := 0
+					endif
+
+					if(nPos == 0)
+						aadd( aImpAgrp , aICMSST[nCont] )
+					else
+						aImpAgrp[nPos,05] += aICMSST[nCont,05]
+						aImpAgrp[nPos,07] += aICMSST[nCont,07]
+						aImpAgrp[nPos,09] += aICMSST[nCont,09]
+						aImpAgrp[nPos,13] += aICMSST[nCont,13]
+						aImpAgrp[nPos,15] += aICMSST[nCont,15]
+						aImpAgrp[nPos,12] += aICMSST[nCont,12]
+					endif
+				else
+					aadd( aImpAgrp , {} )
+				endif
+			endif
+		next nCont
+	endif
+
+
+	if(len(aImpAgrp) > 0)
+		aICMSST := aClone(aImpAgrp)
+		aImpAgrp:= {}
+	endif
+
+	//--------------------------------------------------------------------
+	//02.02.03 - IPI
+	//--------------------------------------------------------------------
+	if((valtype(aIPI) == "A") .and. (len(aIPI) > 0))
+		aImpAgrp := {}
+
+		for nCont := 1 to len(aProd)
+			aadd(aImpAgrp, {})
+		next
+
+		for nCont := 1 to len(aIPI)
+			if(valtype(aIPI[1]) == "A")
+				if(len(aIPI[nCont]) > 0)
+
+					nCampo   	:= len(aIPI[nCont])
+					cProduto 	:= aIPI[nCont,nCampo]
+					cItem	    := aInfoItem[nCont,04]
+
+					dbSelectArea("SB1")
+					SB1->(dbSetOrder(1))
+					SB1->(MsSeek(xFilial("SB1")+cProduto))
+
+					dbSelectArea("SD2")
+					SD2->(dbSetOrder(3))
+					SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
+
+					aadd(aIPI[nCont],SD2->D2_CF)
+
+					nPos := aScan( aProd , {|Registro| alltrim(Upper(Registro[2])) ==;
+						alltrim(Upper(cProduto))})
+
+					if(nPos > 0)
+						if(len(aImpAgrp[nPos]) > 0)
+							aImpAgrp[nPos,06]	+= aIPI[nCont,06]
+							aImpAgrp[nPos,07]	+= aIPI[nCont,07]
+							aImpAgrp[nPos,10] 	+= aIPI[nCont,10]
+						else
+							aImpAgrp[nPos]		:= aIPI[nCont]
+						endif
+					endif
+				endif
+			endif
+		next nCont
+	endif
+
+	if len(aImpAgrp) > 0
+		aIPI  	:= aClone(aImpAgrp)
+		aImpAgrp:= {}
+	endif
+
+	//--------------------------------------------------------------------
+	//02.02.04 - PIS
+	//--------------------------------------------------------------------
+	if((valtype(aPIS) == "A") .and. (len(aPIS) > 0))
+		for nCont:=1 to len(aPIS)
+			if(valtype(aPIS[1]) == "A")
+				if(len(aPIS[nCont]) > 0)
+
+					nCampo   := len(aPIS[nCont])
+					cProduto := aPIS[nCont,nCampo]
+					cItem	 := aInfoItem[nCont,04]
+
+					dbSelectArea("SB1")
+					SB1->(dbSetOrder(1))
+					SB1->(MsSeek(xFilial("SB1")+cProduto))
+
+					dbSelectArea("SD2")
+					SD2->(dbSetOrder(3))
+					SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
+
+					aadd(aPIS[nCont],SD2->D2_CF)
+
+					if(len(aImpAgrp) > 0)
+						nPos 	:= aScan( aImpAgrp , {|Registro| iif(len(aPIS[nCont])-1 >= nCampo .and.;
+							len(Registro) >= nCampo,;
+							Registro[nCampo] + ;
+							Registro[len(aPIS[nCont])] == ;
+							aPIS[nCont,nCampo] + ;
+							aPIS[nCont,len(aPIS[nCont])], .F.)})
+					else
+						nPos := 0
+					endif
+
+					if(nPos == 0)
+						aadd( aImpAgrp , aPIS[nCont] )
+					else
+						aImpAgrp[nPos,02] += aPIS[nCont,02]
+						aImpAgrp[nPos,04] += aPIS[nCont,04]
+						aImpAgrp[nPos,05] += aPIS[nCont,05]
+					endif
+				else
+					aadd( aImpAgrp , {} )
+				endif
+			endif
+		next nCont
+	endif
+
+	if len(aImpAgrp) > 0
+		aPIS  	:= aClone(aImpAgrp)
+		aImpAgrp:= {}
+	endif
+
+	//--------------------------------------------------------------------
+	//02.02.05 - PIS ST
+	//--------------------------------------------------------------------
+	if(valtype(aPISST) == "A" .and. len(aPISST) > 0)
+		for nCont:=1 to len(aPISST)
+			if(valtype(aPISST[1]) == "A")
+				if(len(aPISST[nCont]) > 0)
+
+					nCampo   := len(aPISST[nCont])
+					cProduto := aPISST[nCont,nCampo]
+					cItem	 := aInfoItem[nCont,04]
+
+					dbSelectArea("SB1")
+					SB1->(dbSetOrder(1))
+					SB1->(MsSeek(xFilial("SB1")+cProduto))
+
+					dbSelectArea("SD2")
+					SD2->(dbSetOrder(3))
+					SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
+
+					aadd(aPISST[nCont],SD2->D2_CF)
+
+					if(len(aImpAgrp) > 0)
+						nPos := aScan( aImpAgrp , {|Registro| iif(len(aPISST[nCont])-1 >= nCampo .and.;
+							len(Registro) >= nCampo,;
+							Registro[nCampo] + ;
+							Registro[len(aPISST[nCont])] ==;
+							aPISST[nCont,nCampo] + ;
+							aPISST[nCont,len(aPISST[nCont])], .F.)})
+					else
+						nPos := 0
+					endif
+
+					if(nPos == 0)
+						aadd( aImpAgrp , aPISST[nCont] )
+					else
+						aImpAgrp[nPos,02] += aPISST[nCont,02]
+						aImpAgrp[nPos,04] += aPISST[nCont,04]
+						aImpAgrp[nPos,05] += aPISST[nCont,05]
+					endif
+				else
+					aadd( aImpAgrp , {} )
+				endif
+			endif
+		next nCont
+	endif
+
+	if(len(aImpAgrp) > 0)
+		aPISST 	:= aClone(aImpAgrp)
+		aImpAgrp:= {}
+	endif
+
+	//--------------------------------------------------------------------
+	//02.02.06 - COFINS
+	//--------------------------------------------------------------------
+	if(valtype(aCOFINS) == "A" .and. len(aCOFINS) > 0)
+		for nCont:=1 to len(aCOFINS)
+			if(valtype(aCOFINS[1]) == "A")
+				if(len(aCOFINS[nCont]) > 0)
+
+					nCampo   := len(aCOFINS[nCont])
+					cProduto := aCOFINS[nCont,nCampo]
+					cItem	 := aInfoItem[nCont,04]
+
+					dbSelectArea("SB1")
+					SB1->(dbSetOrder(1))
+					SB1->(MsSeek(xFilial("SB1")+cProduto))
+
+					dbSelectArea("SD2")
+					SD2->(dbSetOrder(3))
+					SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
+
+					aadd(aCOFINS[nCont],SD2->D2_CF)
+
+					if(len(aImpAgrp) > 0)
+						nPos 	:= aScan( aImpAgrp , {|Registro| iif(len(aCOFINS[nCont])-1 >= nCampo .and. len(Registro) >= nCampo, Registro[nCampo]+Registro[len(aCOFINS[nCont])] == aCOFINS[nCont,nCampo]+aCOFINS[nCont,len(aCOFINS[nCont])], .F.) } ) //Procura o Produto no Array de Aglutinados
+					else
+						nPos := 0
+					endif
+
+					if(nPos == 0)
+						aadd( aImpAgrp , aCOFINS[nCont] )
+					else
+						aImpAgrp[nPos,02] += aCOFINS[nCont,02]
+						aImpAgrp[nPos,04] += aCOFINS[nCont,04]
+						aImpAgrp[nPos,05] += aCOFINS[nCont,05]
+					endif
+				else
+					aadd( aImpAgrp , {} )
+				endif
+			endif
+		next
+	endif
+
+	if len(aImpAgrp) > 0
+		aCOFINS	:= aClone(aImpAgrp)
+		aImpAgrp:= {}
+	endif
+
+	//--------------------------------------------------------------------
+	//02.02.07 - COFINS ST
+	//--------------------------------------------------------------------
+	if(valtype(aCOFINSST) == "A" .and. len(aCOFINSST) > 0)
+		for nCont := 1 to len(aCOFINSST)
+			if(valtype(aCOFINSST[1]) == "A")
+				if(len(aCOFINSST[nCont]) > 0)
+
+					nCampo   := len(aCOFINSST[nCont])
+					cProduto := aCOFINSST[nCont,nCampo]
+					cItem	 := aInfoItem[nCont,04]
+
+					dbSelectArea("SB1")
+					SB1->(dbSetOrder(1))
+					SB1->(MsSeek(xFilial("SB1")+cProduto))
+
+					dbSelectArea("SD2")
+					SD2->(dbSetOrder(3))
+					SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
+
+					aadd(aCOFINSST[nCont],SD2->D2_CF)
+
+					if(len(aImpAgrp) > 0)
+						nPos := aScan( aImpAgrp , {|Registro| iif(len(aCOFINSST[nCont])-1 >= nCampo .and.;
+							len(Registro) >= nCampo,;
+							Registro[nCampo] + ;
+							Registro[len(aCOFINSST[nCont])] == ;
+							aCOFINSST[nCont,nCampo] + ;
+							aCOFINSST[nCont,len(aCOFINSST[nCont])], .F.)})
+					else
+						nPos := 0
+					endif
+
+					if(nPos == 0)
+						aadd( aImpAgrp , aCOFINSST[nCont] )
+					else
+						aImpAgrp[nPos,02] += aCOFINSST[nCont,02]
+						aImpAgrp[nPos,04] += aCOFINSST[nCont,04]
+						aImpAgrp[nPos,05] += aCOFINSST[nCont,05]
+					endif
+				else
+					aadd( aImpAgrp , {} )
+				endif
+			endif
+		next nCont
+	endif
+
+	if(len(aImpAgrp) > 0)
+		aCOFINSST:= aClone(aImpAgrp)
+		aImpAgrp:= {}
+	endif
+
+	//--------------------------------------------------------------------
+	//02.02.08 - ISSQN
+	//--------------------------------------------------------------------
+	if(valtype(aISSQN) == "A" .and. len(aISSQN) > 0)
+		for nCont:=1 to len(aISSQN)
+			if(valtype(aISSQN[1]) == "A")
+				if(len(aISSQN[nCont]) > 0)
+
+					nCampo   := len(aISSQN[nCont])
+					cProduto := aISSQN[nCont,nCampo]
+					cItem	 := aInfoItem[nCont,04]
+
+					dbSelectArea("SB1")
+					SB1->(dbSetOrder(1))
+					SB1->(MsSeek(xFilial("SB1")+cProduto))
+
+					dbSelectArea("SD2")
+					SD2->(dbSetOrder(3))
+					SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
+
+					aadd(aISSQN[nCont],SD2->D2_CF)
+
+					if(len(aImpAgrp) > 0)
+						nPos := aScan( aImpAgrp , {|Registro| iif(len(aISSQN[nCont]) >= nCampo .and.;
+							len(Registro) >= nCampo, ;
+							Registro[nCampo] + ;
+							Registro[len(aISSQN[nCont])] ==;
+							aISSQN[nCont,nCampo] + ;
+							aISSQN[nCont,len(aISSQN[nCont])], .F.)})
+					else
+						nPos := 0
+					endif
+
+					if(nPos == 0)
+						aadd( aImpAgrp , aISSQN[nCont] )
+					else
+						aImpAgrp[nPos,01] += aISSQN[nCont,01]
+						aImpAgrp[nPos,03] += aISSQN[nCont,03]
+					endif
+				else
+					aadd( aImpAgrp , {} )
+				endif
+			endif
+		next
+	endif
+
+	if(len(aImpAgrp) > 0)
+		aISSQN	:= aClone(aImpAgrp)
+		aImpAgrp:= {}
+	endif
+
+	aICMSZFM := {}
+	for nCont := 1 to len(aICMSZF)
+		aadd(aICMSZFM, {aICMSZF[nCont][2],aICMSZF[nCont][3]})
+	next
+Return
