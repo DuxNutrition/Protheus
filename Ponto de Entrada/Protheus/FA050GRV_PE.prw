@@ -34,7 +34,7 @@ If FwIsInCallStack("FN677TCP")
         Endif					
 
     Else
-        dDataVenc  := Ctod(Alltrim(STR(dDtVenc2))+"/"+Alltrim(STR(Month(dDatAtual)))+"/"+Alltrim(STR(Year(dDatAtual))))						
+        dDataVenc  := Ctod(Alltrim(dDtVenc2)+"/"+Alltrim(STR(Month(dDatAtual)))+"/"+Alltrim(STR(Year(dDatAtual))))						
         dDtProximo := MonthSum(dDataVenc, 1)
 
         If dDatAtual > dDataVenc
