@@ -1,5 +1,7 @@
 #INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOTVS.CH"
 #INCLUDE "RWMAKE.CH"
+#INCLUDE "TBICONN.CH"
 
 /*/{Protheus.doc} 
 O ponto de entrada FA050GRV sera utilizado apos a gravacao de todos os dados (na inclusão do título) e antes da sua contabilização.
@@ -23,8 +25,10 @@ Local dDtVenc1  := SuperGetMV("DUX_FIN004",.F.,"15")
 Local dDtVenc2  := SuperGetMV("DUX_FIN005",.F.,"30")
 Local nDia      := Day(dDatAtual)
 Local dDtProximo := CtoD( "" ) 
+Local nRec       := SE2->(Recno())
 
-If FwIsInCallStack("FN677TCP") .AND. ALLTRIM(SE2->E2_ORIGEM) == "FINA677"
+If FwIsInCallStack("FN677TCP") .AND. Alltrim(SE2->E2_ORIGEM) == "FINA677"
+
     If (nDia >= 26 .OR. nDia <= 10)
         dDataVenc  := Ctod(Alltrim(dDtVenc1)+"/"+Alltrim(STR(Month(dDatAtual)))+"/"+Alltrim(STR(Year(dDatAtual))))
         dDtProximo := MonthSum(dDataVenc, 1)
@@ -47,13 +51,14 @@ If FwIsInCallStack("FN677TCP") .AND. ALLTRIM(SE2->E2_ORIGEM) == "FINA677"
         dDataVenc := DataValida(dDataVenc)
     Endif
 
-    If  DBGoto(SE2->Recno())
-        RecLock("SE2",.F.)
-        SE2->E2_VENCTO  := dDataVenc
-        SE2->E2_VENCREA := dDataVenc
-        SE2->E2_VENCORI := dDataVenc
-        MsUnlock("SE2")
-    Endif
+    DbSelectArea("SE2")
+    DbGoto(nRec)
+    RecLock("SE2",.F.)
+    SE2->E2_VENCTO  := dDataVenc
+    SE2->E2_VENCREA := dDataVenc
+    SE2->E2_VENCORI := dDataVenc
+    MsUnlock("SE2")
+    
 Endif
 
 RestArea(_aArea)
