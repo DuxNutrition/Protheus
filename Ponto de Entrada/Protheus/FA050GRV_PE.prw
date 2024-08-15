@@ -43,8 +43,7 @@ If FwIsInCallStack("FN677TCP")
 
     EndIf
 
-    //Cálculo do dia de vencimento.
-    If nUtiOco == 1 //Util
+    If nUtiOco == 1 //Se for dia Util
         dDataVenc := DataValida(dDataVenc)
     Endif
 
