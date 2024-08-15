@@ -106,7 +106,7 @@ User Function M410STTS()
 				
 				lAtuLib		:= .T.
 				lResiduo	:= .T.
-				MaResDoFat(,.T.,.F.,,.F.,.F.)
+				MaResDoFat(SC6->(RecNo()),.T.,.F.,,.F.,.F.)
 
 				RestArea(aAreaSC5)
 			Else 
