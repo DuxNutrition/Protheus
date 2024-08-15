@@ -8,7 +8,7 @@ O ponto de entrada A103VCTO será utilizado para manipular as informações do Arra
 dos títulos financeiro(tabela SE2) no momento da inclusão do documento de entrada (MATA103).
 
 @author Jedielson Rodrigues
-@since 28/06/2024
+@since 12/08/2024
 @history 
 @version P11,P12
 @database MSSQL
@@ -18,19 +18,17 @@ dos títulos financeiro(tabela SE2) no momento da inclusão do documento de entrad
 
 User Function A103VCTO()
 
-Local _aArea        := GetArea()
-Local aVencto       := {} //Array com os vencimentos e valores para geração dos títulos.
-Local aPELinhas     := PARAMIXB[1]
+Local aVencto       := condicao(PARAMIXB[2],PARAMIXB[3],PARAMIXB[4],PARAMIXB[5],PARAMIXB[6])
+Local nDia          := SuperGetMv("DUX_COM003",.F.,1)
 Local i             := 0
+Local dData         := Date()
+Local dDataVenc     := CTOD(" ")
 
-Public lZCom001     := .T.
+For i:= 1 to Len(aVencto)
+    If aVencto[i][1] <= dData
+        dDataVenc := ( dData + nDia )
+        aVencto[i][1] := dDataVenc
+    Endif
+Next i
 
-If ExistFunc("U_ZCOMF001")
-    For i:= 1 to Len(aPELinhas)
-        lZCom001 := U_ZCOMF001(aPELinhas[i][2])
-    Next i
-Endif
-
-RestArea(_aArea)
-
-Return (aVencto)
+Return aVencto

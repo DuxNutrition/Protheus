@@ -21,9 +21,6 @@ Local lRet 	    := .T.
 Local i         
 Local nVlrIR    := 0
 Local nVlrPCC   := 0 
-Local cMsg 		:= " "
-
-Public lZCom001
 
 // Validações Universais TOTVS IP
 If ExistBlock("TIPAC007",.F.,.T.) .and. !FwIsInCallStack("SCHEDCOMCOL")  .And. U_ADIGNGAT()
@@ -72,14 +69,6 @@ If lRet .and. !cTipo $ 'D/B' .and. FunName() $ 'MATA103' //Somente para forneced
 	EndIf
 		
 EndIf
-
-If ExistBlock("A103VCTO")
-    IF lZCom001 == .F.
-        cMsg := "Altere o vencimento da condição de pagamento na aba Duplicatas." 
-        Help(,,"ZCOMF001",,"Data de vencimento da condicao de pagamento menor que a data atual.",1,0,NIL,NIL,NIL,NIL,NIL,{cMsg})
-		lRet := .F.
-    Endif
-Endif
 
 RestArea(_aArea)
 
