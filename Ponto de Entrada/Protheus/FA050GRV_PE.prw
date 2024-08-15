@@ -24,7 +24,7 @@ Local dDtVenc2  := SuperGetMV("DUX_FIN005",.F.,"30")
 Local nDia      := Day(dDatAtual)
 Local dDtProximo := CtoD( "" ) 
 
-If FwIsInCallStack("FN677TCP")
+If FwIsInCallStack("FN677TCP") .AND. ALLTRIM(SE2->E2_ORIGEM) == "FINA677"
     If (nDia >= 26 .OR. nDia <= 10)
         dDataVenc  := Ctod(Alltrim(dDtVenc1)+"/"+Alltrim(STR(Month(dDatAtual)))+"/"+Alltrim(STR(Year(dDatAtual))))
         dDtProximo := MonthSum(dDataVenc, 1)
@@ -47,9 +47,7 @@ If FwIsInCallStack("FN677TCP")
         dDataVenc := DataValida(dDataVenc)
     Endif
 
-    DbSelectArea( "SE2" )
-    SE2->(dbSetOrder(1))
-    If SE2->(DbSeek(xfilial("SE2")+SE2->E2_PREFIXO+SE2->E2_NUM+SE2->E2_PARCELA+SE2->E2_TIPO))
+    If  DBGoto(SE2->Recno())
         RecLock("SE2",.F.)
         SE2->E2_VENCTO  := dDataVenc
         SE2->E2_VENCREA := dDataVenc
