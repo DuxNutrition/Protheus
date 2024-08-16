@@ -17,7 +17,7 @@ User Function ZFATF003()
 	Local nContI        := 0
     Local cSubject      := "Faturamento rebranding."
     Local cMensagem     := "Esse CLiente/Loja já possui faturamento(s) anterior(es) usando lote rebranding"
-    Local cEmail        := SuperGetMv("DUX_EST004",.F.,"evandro.mariano@duxnutrition.com") 
+    Local cEmail        := SuperGetMv("DUX_EST005",.F.,"evandro.mariano@duxnutrition.com") 
     Local aFiles        := {}
     Local lMensagem     := .T.
     Local cRotina       := "ZFATF003"
