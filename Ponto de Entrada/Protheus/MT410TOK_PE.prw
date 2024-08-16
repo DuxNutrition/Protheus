@@ -36,6 +36,11 @@ User Function MT410TOK()
             lRet:=ExecBlock("DUXFAT02", .F., .F., aParam)
         EndIf
 
+        //Validação se já foi faturado lote rebraind
+        If ExistBlock("ZFATF003")
+            lRet := ExecBlock("ZFATF003",.F.,.F.,aParam)
+        EndIf
+
         //Alimenta váriavel publica para liberação/ eliminação de residuos. 
         // Alterado em 17/04/2023 Daniel Neumann - CI Result
         If lRet 	
