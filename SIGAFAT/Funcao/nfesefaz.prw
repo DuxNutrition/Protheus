@@ -3032,6 +3032,7 @@ If cTipo == "1"
 							EndIf
 						EndIf
 						
+						
 						aadd(aProd,	{Len(aProd)+1,;
 							cCodProd,;
 							IIf(Val(SB1->B1_CODBAR)==0,"",StrZero(Val(SB1->B1_CODBAR),Len(Alltrim(SB1->B1_CODBAR)),0)),;
