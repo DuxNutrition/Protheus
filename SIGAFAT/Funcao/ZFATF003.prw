@@ -16,7 +16,7 @@ User Function ZFATF003()
 	Local cQuery        := ""
 	Local nContI        := 0
     Local cSubject      := "Faturamento rebranding."
-    Local cMensagem     := "Esse CLiente/Loja já possui faturamento(s) anterior(es) usando lote rebranding"
+    Local cMensagem     := ""
     Local cEmail        := SuperGetMv("DUX_EST005",.F.,"evandro.mariano@duxnutrition.com") 
     Local aFiles        := {}
     Local lMensagem     := .T.
@@ -45,8 +45,8 @@ User Function ZFATF003()
 
                 DbSelectArea((cAlias))
                 If !((cAlias)->(Eof()))
-                    If MsgYesNo("[ ZFATF003 ] - Esse CLiente/Loja já possui faturamento(s) anterior(es) usando lote rebranding, deseja prosseguir ?  ", "Confirma?")
-                        cMensagem := cMensagem + " - Produto: "+Alltrim(aCols[nContI][aProd])
+                    If MsgYesNo("[ ZFATF003 ] - O CLiente/Loja: " + AllTrim(SC5->C5_CLIENTE) + "|" + AllTrim(SC5->C5_LOJACLI) + " já possui faturamento(s) anterior(es) usando lote rebranding, deseja prosseguir ?  ", "Confirma?")
+                        cMensagem := "O CLiente/Loja: " +AllTrim(SC5->C5_CLIENTE)+"|"+AllTrim(SC5->C5_LOJACLI)+" já possui faturamento(s) anterior(es) usando lote rebranding | Pedido: " + AllTrim(SC5->C5_NUM) + " - Produto: "+Alltrim(aCols[nContI][aProd])
                         U_ZGENMAIL(cSubject,cMensagem,cEMail,aFiles,lMensagem,cRotina)
                     Else 
                         lRet := .F.
