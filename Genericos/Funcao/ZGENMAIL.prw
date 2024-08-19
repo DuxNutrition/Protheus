@@ -187,8 +187,12 @@ EndIf
 Return( lEnvioOK )
 
 Static Function GetxBody(cMensagem,cRotina,cSubject)
-	Local cRet  	:= " "
-	Local cData 	:= Transform(dDataBase, "@D 99/99/9999")
+	Local cRet  		:= " "
+	Local cData 		:= Transform(dDataBase, "@D 99/99/9999")
+
+	Default cMensagem	:= ""
+	Default cRotina		:= ""
+	Default cSubject	:= ""
 	
 	cRet += '<html> '
 	cRet += '<head> '
@@ -209,7 +213,7 @@ Static Function GetxBody(cMensagem,cRotina,cSubject)
 	cRet += '</head> '
 	cRet += '<header> '
     cRet += '	<center> '
-    cRet += '		<div style="overflow:hidden"><img src="https://guide.duxnutrition.com/hc/theming_assets/01HZPQ6DRTKWFEKNNCNFA21XNK" alt="image" style="height:auto;display:block;width:10%;border:0px" width="111" height="71" data-image-whitelisted="" class="CToWUd" data-bit="iit"></div> '
+    cRet += '		<div style="overflow:hidden"><img src="https://i.postimg.cc/xT050ksV/DUX-COMPANY-LOGO-HORIZONTAL-AZUL.png" alt="image" width="480" height="130" data-image-whitelisted="" class="CToWUd" data-bit="iit"></div> '
     cRet += '	</center> '
 	cRet += '</header> '
 	cRet += '<body> '
@@ -235,9 +239,16 @@ Static Function GetxBody(cMensagem,cRotina,cSubject)
     cRet +=	'</tr> '
     cRet +=	'<tr> '
     cRet +=	'	<td> '
-    cRet +=	'		<p class="DescrMsgDocto"><b><i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">Descrição: <i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:sans-serif"> '+cSubject+'</span></span></i></b> </p> '
+    cRet +=	'		<p class="DescrMsgDocto"><b><i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">Assunto: <i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:sans-serif"> '+cSubject+'</span></span></i></b> </p> '
     cRet +=	'   </td> '
     cRet +=	'</tr> '
+	If !Empty(cMensagem)
+		cRet +=	'<tr> '
+    	cRet +=	'	<td> '
+    	cRet +=	'		<p class="DescrMsgDocto"><b><i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">Mensagem: <i style="color:rgb(83, 83, 83);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:sans-serif"> '+cMensagem+'</span></span></i></b> </p> '
+    	cRet +=	'   </td> '
+    	cRet +=	'</tr> '
+	EndIf
     cRet +=	'</tbody> '
     cRet +=	'</table> '
     cRet +=	'</div> '
@@ -257,7 +268,7 @@ Static Function GetxBody(cMensagem,cRotina,cSubject)
     cRet +=	'    <div><i style="color:rgb(34,34,34);font-family:Arial,Helvetica,sans-serif;font-size:small"><span lang="EN-US" style="font-family:Verdana,sans-serif">Chamados pelo Zendesk para TI, RBO, SAC, facilities e jurídico - ou procure o RBO pelo WhatsApp</span></i><div class="yj6qo"></div><div class="adL"><br></div></div> '
     cRet +=	'    <br> '
     cRet +=	'    <div class="col-xs-12 col-sm-4"> '
-    cRet +=	'        <div style="overflow:hidden"><img src="https://i.postimg.cc/hjC3021N/rodape.jpg" alt="image" style="height:auto;display:block;width:50%;border:0px" width="111" height="71" data-image-whitelisted="" class="CToWUd" data-bit="iit"></div> '
+    cRet +=	'        <div style="overflow:hidden" width="625" height="89" ><img src="https://i.postimg.cc/NM68tYm0/rodape.jpg" alt="image" style="height:auto;display:block;width:50%;border:0px" width="625" height="89" data-image-whitelisted="" class="CToWUd" data-bit="iit"></div>
     cRet +=	'    </div> '
     cRet +=	'    <br> '
     cRet +=	'    <div><hr></div> '
