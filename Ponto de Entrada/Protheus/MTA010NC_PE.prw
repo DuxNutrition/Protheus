@@ -23,12 +23,12 @@ User Function MTA010NC()
 	
 	Local aCpoNot := {}
 	
-	
 	// Integração Protheus x VTEX - Atos Data Consultoria
-	If ExistBlock("ADMTA010NC")
-		If ValType(aCpoNot := ExecBlock("ADMTA010NC", .F., .F.)) <> "A"
-			aCpoNot   := {}
+	if (!IsBlind())
+		If ExistBlock("ADMTA010NC")
+			If ValType(aCpoNot := ExecBlock("ADMTA010NC", .F., .F.)) <> "A"
+				aCpoNot   := {}
+			EndIf
 		EndIf
-	EndIf
-	
+	endif 
 Return (aCpoNot)

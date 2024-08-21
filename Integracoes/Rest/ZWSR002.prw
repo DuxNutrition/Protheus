@@ -192,7 +192,7 @@ WSMETHOD POST WSSERVICE ZWSR002
         _cAuthorization := Self:GetHeader('Authorization')
         _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
 
-        //PREPARE ENVIRONMENT EMPRESA "99" FILIAL "01" MODULO "COM"
+        //PREPARE ENVIRONMENT EMPRESA "01" FILIAL "01" MODULO "COM"
 
 
         _cUserPar 	:= AllTrim( SuperGetMv( "DUX_RES01", , "allan.rabelo"))	    // Usuario para autenticacao no WS
@@ -240,7 +240,7 @@ Static Function ZPRODPOST(_oJson, _cEmpFil)
     Local cProd := ""
     Local cTipo := ""
     Local cArmazem := ""
-    Local cDesc := "TESTE"
+    //Local cDesc := "TESTE"
     Local cUn := ""
     Local aVetor := {}
     Local cRet := ""
@@ -255,7 +255,9 @@ Static Function ZPRODPOST(_oJson, _cEmpFil)
 	Private lAutoErrNoFile := .T.
 	Private lMsHelpAuto :=.T.
    
-    
+    JBody   := JSONObject():New()
+    jBody["Status"]   := {}
+
     if !Empty(oJson["cproduto"]) 
         DbSelectArea('SB1')
         SB1->(dbSetOrder(1))
@@ -395,7 +397,7 @@ Static Function ZPRODPOST(_oJson, _cEmpFil)
         
     endif 
 
-   /* if !Empty(oJson["ctipoalergenico"]) .and. Empty(_cRet) 
+    if !Empty(oJson["ctipoalergenico"]) .and. Empty(_cRet) 
         if (valtype(oJson["ctipoalergenico"]) == (TamSX3("B1_ZZALERG")[3]) )
             DbSelectArea('SX5')
             SX5->(dbSetOrder(1))
@@ -408,7 +410,7 @@ Static Function ZPRODPOST(_oJson, _cEmpFil)
             _cRet := "tipoalergenico preenchido incorretamente ou o tipo do campo está diferente de"+TamSX3("B1_ZZALERG")[3]    
         endif 
     endif 
- */
+ 
     if !Empty(oJson["ccontacontabil"]) .and. Empty(_cRet) 
         if (valtype(oJson["ccontacontabil"]) == (TamSX3("B1_CONTA")[3]) )
             DbSelectArea('CT1')
@@ -584,31 +586,34 @@ Static Function ZPRODPOST(_oJson, _cEmpFil)
     endif 
     
 
-    if !Empty(_cRet) 
-    aadd( aProd ,{"B1_DESC" , alltrim(oJson["cdesc"]) , Nil })
+    if Empty(_cRet) 
+        aadd( aProd ,{"B1_DESC" , alltrim(oJson["cdesc"]) , Nil })
+        aadd( aProd ,{"B1_ZALERGE" , alltrim(oJson["calergenico"]) , Nil })
     endif 
-    Begin Transaction
-		//Chamando o cadastro de produtos de forma automática
-		MSExecAuto({|x,y| Mata010(x,y)},aProd,3)
-        If lMsErroAuto
-			lRet := .F.
-			aErro := GetAutoGRLog()
-			For i := 1 To Len(aErro)
-				xErro += aErro[i]
-			Next
-
-    			cRet  := '{"Error":"Erro: ' + xErro +'"}'
-			SetRestFault(404, EncodeUTF8(cRet))
-			
-		Else
-			cRet := '{"Response":"Produto incluido com sucesso ","Codigo ":"'+SB1->B1_COD+'"}'
-			::SetResponse(EncodeUTF8(cRet))
-        	
-		//Disarmando a transação
-			DisarmTransaction()
-		EndIf
-   
-    end Transaction
+    
+    if Empty(_cRet)
+        Begin Transaction
+            //Chamando o cadastro de produtos de forma automática
+            MSExecAuto({|x,y| Mata010(x,y)},aProd,3)
+            If lMsErroAuto
+                lRet := .F.
+                aErro := GetAutoGRLog()
+                For i := 1 To Len(aErro)
+                    xErro += aErro[i]
+                Next
+                    jBody["Status"] := "400" 
+                    jBody["Message"]  := "Erro: "+ xErro +" "
+                //SetRestFault(404, EncodeUTF8(cRet))
+            Else
+                jBody["Status"] := "200" 
+                jBody["Message"] := "Response Produto incluido com sucesso, Codigo: "+SB1->B1_COD+" "
+                //::SetResponse(EncodeUTF8(cRet))
+            EndIf
+        end Transaction
+    else 
+        jBody["Status"] := "400" 
+        jBody["Message"]  := "Erro de envio: "+_cRet+" "
+    endif 
     RestArea(aArea)
 Return (jBody)
 

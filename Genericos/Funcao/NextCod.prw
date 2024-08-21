@@ -133,20 +133,27 @@ User Function NextCod( cAlias, cContraDom )
 		
 		If M->B1_TIPO == 'PA'
 			IF cContraDom=='B1_XCODPAI'
-
-				M->B1_XCODPAI	:= M->B1_GRUPO + M->B1_ZTAM
-				cRet			:= M->B1_XCODPAI
+				if (!IsBlind())
+					M->B1_XCODPAI	:= M->B1_GRUPO + M->B1_ZTAM
+					cRet			:= M->B1_XCODPAI
+				else
+					cRet			:= M->B1_XCODPAI
+				endif
 
 			ElseIF cContraDom=='B1_XNIVEL'
-
-				M->B1_XNIVEL	:= GetPrdPai(M->B1_XCODPAI)
-				cRet			:= M->B1_XNIVEL
-
+				if (!IsBlind())
+					M->B1_XNIVEL	:= GetPrdPai(M->B1_XCODPAI)
+					cRet			:= M->B1_XNIVEL
+				else 
+					cRet			:= M->B1_XNIVEL
+				endif 
 			Else
-
-				M->B1_COD	:= M->B1_GRUPO + M->B1_ZTAM + M->B1_ZSAB
-				cRet		:= M->B1_COD
-
+				if (!IsBlind())	
+					M->B1_COD	:= M->B1_GRUPO + M->B1_ZTAM + M->B1_ZSAB
+					cRet		:= M->B1_COD
+				else 
+					cRet		:= M->B1_COD
+				endif 
 			EndIF
 
 		Else
@@ -172,9 +179,13 @@ User Function NextCod( cAlias, cContraDom )
 				and (B1_GRUPO <> '8401' or B1_COD < '8401999') //Add por Paulo Rafael em 10-04-2023
 				
 				EndSql
-				M->B1_COD	:= PadR( M->B1_GRUPO + StrZero( Val( SubStr( SB1TMP->B1_COD, 5 ) ) + 1, 4 ), Len( M->B1_COD ) )
-				//M->B1_COD	:= M->B1_GRUPO + StrZero( Val( SubStr( SB1TMP->B1_COD, 5 ) ) + 1, 4 ) //comentado por Paulo Rafael em 10-04-2023
-				cRet		:= M->B1_COD
+				if (!IsBlind())	
+					M->B1_COD	:= PadR( M->B1_GRUPO + StrZero( Val( SubStr( SB1TMP->B1_COD, 5 ) ) + 1, 4 ), Len( M->B1_COD ) )
+					//M->B1_COD	:= M->B1_GRUPO + StrZero( Val( SubStr( SB1TMP->B1_COD, 5 ) ) + 1, 4 ) //comentado por Paulo Rafael em 10-04-2023
+					cRet		:= M->B1_COD
+				else	
+					cRet		:= M->B1_COD
+				endif 
 
 				SB1TMP->( dbCloseArea() )
 			EndIF

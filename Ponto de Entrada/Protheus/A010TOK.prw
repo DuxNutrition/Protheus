@@ -37,9 +37,11 @@ User Function A010TOk()
 	EndIf
 
 	// 17/01/2023 - Validações Universais TOTVS IP
-	If ExistBlock("TIPAC005",.F.,.T.)
-		
-		lRet := ExecBlock("TIPAC005",.F.,.T.,{})
-	Endif
+	if (!IsBlind())
+		If ExistBlock("TIPAC005",.F.,.T.)
+			
+			lRet := ExecBlock("TIPAC005",.F.,.T.,{})
+		Endif
+	endif 
 
 Return lRet 
