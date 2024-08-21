@@ -2,13 +2,13 @@
 #INCLUDE "RWMAKE.CH
 #INCLUDE "TOPCONN.CH"
 
-/*/{Protheus.doc} 
+/*/{Protheus.doc} F150ARQ
 Ponto de Entrada que permite alterar o nome e extensão do arquivo de saída, gerado a partir da rotina Arquivos de Cobranças (FINA150).
-
-@auhor Jedielson Rodrigues
+@type Function
+@version 12.1.23
+@author Jedielson Rodrigues
 @since 19/08/2024
-@history 
-@version P11,P12
+@version 12.1.2310
 @database MSSQL
 @See https://tdn.totvs.com/display/public/mp/F150ARQ+-+Altera+nome+de+arquivo+--+111877
 
