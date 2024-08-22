@@ -22,16 +22,13 @@ Local cDirCnab := SuperGetMV("DUX_FIN006",.F.,"\Cnab_Daycoval\")
 Local cArquivo := ArqRemessa(cDirCnab)
 Local cBanco   := MV_PAR05 
 
-If !EMPTY(cDirCnab) .AND. cBanco == "707"
-
+If !Empty(cDirCnab) .AND. cBanco == "707"
     cTeste := ALLTRIM(cArquivo)
-
 Endif
 
 RestArea(_aArea)
 
 Return cTeste
-
 
 Static Function ArqRemessa(cDirCnab)
     
@@ -40,7 +37,8 @@ Local dData     := Date()
 Local cDia      := StrZero(Day(dData), 2)   
 Local cMes      := StrZero(Month(dData), 2) 
 Local nSeq      := 1                        
-Local cArquivo  := " "
+Local cArquivo  := ""
+Local cSufixo   := ""
 
 cArquivo  := ALLTRIM(cDirCnab + cSigla + cDia + cMes + StrZero(nSeq, 1) + ".TXT")
 
@@ -49,14 +47,28 @@ If !ExistDir(cDirCnab)
     MakeDir(cDirCnab)
 EndIf
 
-While File(cArquivo) .AND. nSeq < 10
+While File(cArquivo) 
     nSeq ++
-    cArquivo  := ALLTRIM(cDirCnab + cSigla + cDia + cMes + StrZero(nSeq, 1) + ".TXT")
+    If nSeq > 9
+        If Empty(cSufixo)
+            cSufixo := "A"
+        Else
+            cSufixo := Chr(Asc(cSufixo) + 1)
+        EndIf
+        nSeq := 0  
+    EndIf
+
+    If nSeq > 0
+        cArquivo := ALLTRIM(cDirCnab + cSigla + cDia + cMes + StrZero(nSeq, 1) + ".TXT")
+    Else
+        cArquivo := ALLTRIM(cDirCnab + cSigla + cDia + cMes + cSufixo + ".TXT")
+    EndIf
+    
+    If !Empty(cSufixo) .AND. cSufixo > "Z"
+        MsgStop("Erro: Sequencial do arquivo excedeu o limite!")
+        Return Nil
+    EndIf
+
 Enddo
 
-If nSeq > 9
-    MsgStop("Erro: Sequencial do arquivo excedeu o limite de 9!")
-    Return Nil
-EndIf
-    
 Return cArquivo
