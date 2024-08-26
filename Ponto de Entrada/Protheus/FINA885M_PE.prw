@@ -21,7 +21,7 @@ Local cLoja         := ""
 Local cStatus       := ""
 Local nAtual        := 0
 Local nOpc          := 0
-Local cFormaPgt     := AllTrim( SuperGetMv( "DUXFIN008"	, , "45"	) )
+Local cFormaPgt     := AllTrim( SuperGetMv( "DUX_FIN008"	, , "45"	) )
 Local aArea         := GetArea()
 Local aAreaSA2      := SA2->(GetArea())
 
