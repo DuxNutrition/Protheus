@@ -4,14 +4,14 @@
 #include "fwbrowse.ch"
 #include 'fwmvcdef.ch'
 
-/*/{Protheus.doc} ZESTF003
+/*/{Protheus.doc} ZESTF004
 Amarração Cliente x Grupo | Shelf Life
 @type function
 @version 12.1.2310
 @author Dux | Evandro Mariano
 @since 20/08/2024
 /*/
-User function ZESTF003()
+User function ZESTF004()
 
     Local oBrowse       := Nil
     Private aRotina     := MenuDef()
@@ -47,10 +47,10 @@ Static Function MenuDef()
     Local aRotina := {}
 
     ADD OPTION aRotina TITLE 'Pesquisar'	        ACTION 'PesqBrw'		  OPERATION 1 ACCESS 0
-    ADD OPTION aRotina TITLE 'Visualizar'	        ACTION 'VIEWDEF.ZESTF003' OPERATION 2 ACCESS 0
-    ADD OPTION aRotina Title 'Incluir'              ACTION 'VIEWDEF.ZESTF003' OPERATION 3 ACCESS 0
-    ADD OPTION aRotina Title 'Alterar'              ACTION 'VIEWDEF.ZESTF003' OPERATION 4 ACCESS 0
-    ADD OPTION aRotina Title 'Excluir'              ACTION 'VIEWDEF.ZESTF003' OPERATION 5 ACCESS 0
+    ADD OPTION aRotina TITLE 'Visualizar'	        ACTION 'VIEWDEF.ZESTF004' OPERATION 2 ACCESS 0
+    ADD OPTION aRotina Title 'Incluir'              ACTION 'VIEWDEF.ZESTF004' OPERATION 3 ACCESS 0
+    ADD OPTION aRotina Title 'Alterar'              ACTION 'VIEWDEF.ZESTF004' OPERATION 4 ACCESS 0
+    ADD OPTION aRotina Title 'Excluir'              ACTION 'VIEWDEF.ZESTF004' OPERATION 5 ACCESS 0
     ADD OPTION aRotina TITLE 'Legenda'    	        ACTION 'U_zBrwLeg()'      OPERATION 6 ACCESS 0
 
 Return( aRotina )
@@ -105,7 +105,7 @@ Obs......:
 Static Function ViewDef()
 
     // Cria um objeto de Modelo de Dados baseado no ModelDef do fonte informado
-    Local oModel   := FWLoadModel( 'ZESTF003' )
+    Local oModel   := FWLoadModel( 'ZESTF004' )
 
     // Cria a estrutura a ser usada na View
     Local oStruXZ1 := FWFormStruct( 2, 'XZ1' )
@@ -188,7 +188,7 @@ Static Function bPosXZ1(oModel)
 
         If !(lExistXZ1)
             If Empty(cCod)
-                Help(NIL, NIL, "[ ZESTF003 ] - Help", NIL, "Motivo do bloqueio não preenchido", 1, 0, NIL, NIL, NIL, NIL, NIL, {"Quando um usuário é bloqueado, é obrigatorio o preenchimento do Motivo do Bloqueio"})
+                Help(NIL, NIL, "[ ZESTF004 ] - Help", NIL, "Motivo do bloqueio não preenchido", 1, 0, NIL, NIL, NIL, NIL, NIL, {"Quando um usuário é bloqueado, é obrigatorio o preenchimento do Motivo do Bloqueio"})
                 lRet := .F.
             EndIf
         Else
