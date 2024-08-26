@@ -34,6 +34,7 @@ If aParam <> NIL
     nOpc := oObj:GetOperation() // PEGA A OPERAÇÃO
 
     oFieldF72   := oObj:GetModel('FORDETAIL')
+    
 
     If cIdPonto == "MODELPOS"
 
@@ -91,9 +92,28 @@ If aParam <> NIL
                     EndIf
 
                 EndIf
-
+            
             EndIf
-       
+            
+        ElseIf "C" $ AllTrim(cStatus) //Pix Inativo e a linha não esta deletada
+
+            SA2->(DbSetOrder(1))
+            If SA2->( DbSeek( FwxFilial("SA2")+cCodigo+cLoja ) )
+
+                If SA2->A2_FORMPAG == "45"
+                    If  RecLock("SA2",.F.)
+                            SA2->A2_FORMPAG := ""
+                        SA2->(MsUnlock())
+
+                        ApMsgInfo( "[ FINA885M_PE ] - Alterado a forma de Pagamento para Vazio" + CRLF +;
+                                "Fornecedor: " + cCodigo + CRLF +;
+                                "Loja: " + cLoja )
+                    EndIf
+
+                EndIf
+
+            EndIf    
+     
         EndIf
 
     EndIf
