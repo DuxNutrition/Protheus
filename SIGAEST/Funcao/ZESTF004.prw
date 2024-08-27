@@ -168,7 +168,6 @@ Obs......:
 Static Function bPosXZ1(oModel)
 
     Local oModelXZ1		:= oModel:getmodel('XZ1MASTER')
-    Local cCod          := oModelXZ1:GetValue('XZ1_COD')
     Local cCliente      := oModelXZ1:GetValue('XZ1_CODCLI')
     Local cLoja		    := oModelXZ1:GetValue('XZ1_LOJA')
     Local cGrupo		:= oModelXZ1:GetValue('XZ1_GRUPO')
@@ -211,20 +210,26 @@ Uso......:              Geral
 Obs......:
 =====================================================================================
 */ 
-Static Function ZSeekXZ1(cRotina,cId,nOperation)
+Static Function ZSeekXZ1(cCliente,cLoja,cGrupo,nOperation)
 
     Local cQryXZ1   	:= ""
     Local cAliXZ1 		:= GetNextAlias()
-    Local cRotSeek      := cRotina
-    Local cIDSeek       := cId
-    Local nOperSeek     := nOperation
     Local lRetorno      := .F.
     Local cMsgErro      := ""
     Local cMsgSolu      := ""
     Local lSeek         := .T.
 
-//É uma alteração e Rotina não mudou e ID não mudou, não precisa realizar uma nova busca.
-    If ( nOperSeek == 4 .And. ( AllTrim(XZ1->ZX_ROTINA) == AllTrim(cRotSeek) .And. AllTrim(XZ1->ZX_ID) == AllTrim(cIDSeek)  ) )
+    Default cCliente    := ""
+    Default cLoja       := ""
+    Default cGrupo      := ""
+    Default nOperation  := 0
+
+    //1 - View
+    //3 - Insert
+    //4 - Update
+    //5 - Delete
+    //Inclusão(3) ou Alteração(4)
+    If ( nOperation == 4 .And. ( AllTrim(XZ1->ZX_ROTINA) == AllTrim(cRotSeek) .And. AllTrim(XZ1->ZX_ID) == AllTrim(cIDSeek)  ) )
         lSeek := .F.
     EndIf
 
