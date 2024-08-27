@@ -14,6 +14,7 @@ Tela para impressão de Etiqueta
 /*/
 User Function ZESTF003()
 
+Local _aArea      := GetArea()
 Local oQtde       := Nil
 Local oCombo      := Nil
 Local cCodPrint   := Space(TamSX3("CB5_CODIGO")[1])
@@ -44,6 +45,8 @@ Private oDlg      := Nil      // Dialog Principal
         
     ACTIVATE MSDIALOG oDlg CENTERED
 
+RestArea(_aArea)
+
 Return()
 
 /*/{Protheus.doc} GetSequencial
@@ -64,14 +67,14 @@ Local cFil      := " "
 Local cSeq      := " "
 Local cChave    := " " 
 
-    If Len(aRetSeq) > 0 
-        cFil    := aRetSeq[1][1]
-        cChave  := ALLTRIM(aRetSeq[1][3])
-        cSeq    := ALLTRIM(aRetSeq[1][4])
-        nSeq    := Val(cSeq) + 1
-        cSeq    := StrZero(nSeq, 5)
-        FwPutSX5( cFil, cTab, cChave, cSeq, cSeq, cSeq, /*cTextoAlt*/)
-    Endif
+If Len(aRetSeq) > 0 
+    cFil    := aRetSeq[1][1]
+    cChave  := ALLTRIM(aRetSeq[1][3])
+    cSeq    := ALLTRIM(aRetSeq[1][4])
+    nSeq    := Val(cSeq) + 1
+    cSeq    := StrZero(nSeq, 5)
+    FwPutSX5( cFil, cTab, cChave, cSeq, cSeq, cSeq, /*cTextoAlt*/)
+Endif
 
 Return cSeq
 

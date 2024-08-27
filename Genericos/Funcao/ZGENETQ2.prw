@@ -8,7 +8,7 @@
 #INCLUDE "FILEIO.CH"
 
 /*/{Protheus.doc} ZGENETQ2
-Impressão generica de etiquetas
+Impressão generica de etiquetas de devolução.
 @type function
 @version 12.1.2310
 @author Dux | Jedielson Rodrigues
