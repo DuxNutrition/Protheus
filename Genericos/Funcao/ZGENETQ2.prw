@@ -1,11 +1,11 @@
-#INCLUDE "rwmake.ch"
-#INCLUDE "topconn.ch"
-#INCLUDE 'COLORS.CH'
-#INCLUDE 'PROTHEUS.CH'
-#INCLUDE 'FWMVCDEF.CH'
-#INCLUDE "RPTDef.ch"
-#INCLUDE "tbiconn.ch"
-#INCLUDE "fileio.ch"
+#INCLUDE "RWMAKE.CH"
+#INCLUDE "TOPCONN.CH"
+#INCLUDE "COLORS.CH"
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "FWMVCDEF.CH"
+#INCLUDE "RPTDEF.CH"
+#INCLUDE "TBICONN.CH"
+#INCLUDE "FILEIO.CH"
 
 /*/{Protheus.doc} ZGENETQ2
 Impressão generica de etiquetas
@@ -26,7 +26,6 @@ Local cSeqEtq       := (cGalpao + cSequencial)
 Default cCodPrint   := ""
 Default cGalpao     := ""
 Default cSequencial := ""
-Default dDtVld      := Date()
 Default nQtd        := 0
 
 If !Empty(cCodPrint)

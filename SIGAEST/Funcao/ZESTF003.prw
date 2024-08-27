@@ -1,5 +1,5 @@
 #INCLUDE "PROTHEUS.CH"
-#INCLUDE "RWMAKE.CH
+#INCLUDE "RWMAKE.CH"
 #INCLUDE "TOPCONN.CH"
 
 /*/{Protheus.doc} ZESTF003
@@ -12,7 +12,6 @@ Tela para impressão de Etiqueta
 @database MSSQL
 @See 
 /*/
-
 User Function ZESTF003()
 
 Local oQtde       := Nil
@@ -56,7 +55,6 @@ Gera sequencial automaticamente e atualiza a SX5.
 @param cAcao, character, Campo
 @param xVar, variant, Variavel
 /*/
-
 Static Function GetSequencial()
 
 Local nSeq      := 0
@@ -90,7 +88,7 @@ Static Function FValidCpo( cAcao, xVar )
     
 Local lRet
 
-lRet    := .T.
+lRet  := .T.
 cAcao := IF(cAcao==NIL,"",Upper(cAcao))
 
 If cAcao == "IMPRESSORA"
