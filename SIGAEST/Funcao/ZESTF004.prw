@@ -5,7 +5,8 @@
 #include 'fwmvcdef.ch'
 
 /*/{Protheus.doc} ZESTF004
-Amarração Cliente x Grupo | Shelf Life
+Amarração Shelf Life | Cliente x Grupo
+
 @type function
 @version 12.1.2310
 @author Dux | Evandro Mariano
@@ -23,7 +24,7 @@ User function ZESTF004()
     oBrowse:SetAlias('XZ1')
     
     //Adiciona uma descrição para o Browse
-    oBrowse:SetDescription('Amarração Cliente x Grupo | Shelf Life')
+    oBrowse:SetDescription('Amarração Shelf Life | Cliente x Grupo')
 
     // Definição da legenda
     oBrowse:AddLegend( "XZ1->XZ1_MSBLQL == '1'"	, "BR_VERMELHO"	    ,"Bloqueado"    )
@@ -36,6 +37,7 @@ Return()
 
 /*/{Protheus.doc} MenuDef
 Monta o Menu de opções
+
 @type function
 @version 12.1.2310
 @author Dux | Evandro Mariano
@@ -55,27 +57,24 @@ Static Function MenuDef()
 
 Return( aRotina )
 
-/*
-=====================================================================================
-Programa.:              ModelDef
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              02/08/19
-Descricao / Objetivo:   Monta botões
-Doc. Origem:
-Solicitante:            Geral
-Uso......:              Geral
-Obs......:
-=====================================================================================
-*/
+/*/{Protheus.doc} ModelDef
+Modelo do mvc
+
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 27/08/2024
+@return object, Modelo do mvc
+/*/
 Static Function ModelDef()
 
     // Cria a estrutura a ser usada no Modelo de Dados
     Local oStruXZ1  := FWFormStruct( 1, 'XZ1', /*bAvalCampo*/,/*lViewUsado*/ )
-    Local bPos      := { ||bPosXZ1(oModel) }
+    Local bPosValid := { ||bValidXZ1(oModel) }
     Local oModel
 
     // Cria o objeto do Modelo de Dados
-    oModel := MPFormModel():New('GENF002MDL',  /*bPreValidacao*/, bPos /*bPosValidacao*/, /*bCommit*/, /*bCancel*/ )
+    oModel := MPFormModel():New('GENF002MDL',  /*bPreValidacao*/, bPosValid /*bPosValidacao*/, /*bCommit*/, /*bCancel*/ )
 
     // Adiciona ao modelo uma estrutura de formulário de edição por campo
     oModel:AddFields( 'XZ1MASTER', /*cOwner*/, oStruXZ1, /*bPreValidacao*/, /*bPosValidacao*/, /*bCarga*/ )
@@ -83,25 +82,22 @@ Static Function ModelDef()
     oModel:SetPrimaryKey({ 'XZ1_FILIAL', 'XZ1_CODCLI', 'XZ1_LOJA', 'XZ1_GRUPO' })
 
     // Adiciona a descricao do Modelo de Dados
-    oModel:SetDescription( 'Amarração Cliente x Grupo | Shelf Life | MODEL' )
+    oModel:SetDescription( 'Amarração Shelf Life | Cliente x Grupo' )
 
     // Adiciona a descricao do Componente do Modelo de Dados
-    oModel:GetModel( 'XZ1MASTER' ):SetDescription( 'Amarração Cliente x Grupo | Shelf Life | MODEL' )
+    oModel:GetModel( 'XZ1MASTER' ):SetDescription( 'Amarração Shelf Life | Cliente x Grupo' )
 
 Return( oModel )
 
-/*
-=====================================================================================
-Programa.:              ViewDef
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              02/08/19
-Descricao / Objetivo:   Monta botões
-Doc. Origem:
-Solicitante:            Geral
-Uso......:              Geral
-Obs......:
-=====================================================================================
-*/
+/*/{Protheus.doc} ViewDef
+View do MVC
+
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 27/08/2024
+@return object, View do mvc
+/*/
 Static Function ViewDef()
 
     // Cria um objeto de Modelo de Dados baseado no ModelDef do fonte informado
@@ -128,19 +124,15 @@ Static Function ViewDef()
     oView:SetOwnerView( 'VIEW_XZ1', 'TELA' )
 
 Return( oView )
-/*
-=====================================================================================
-Programa.:              zBrwLeg
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              02/08/19
-Descricao / Objetivo:   Monta botões
-Doc. Origem:
-Solicitante:            Geral
-Uso......:              Geral
-Obs......:
-=====================================================================================
-*/  
 
+/*/{Protheus.doc} zBrwLeg
+Browse da legenda
+
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 27/08/2024
+/*/
 User Function zBrwLeg()
 
     Local aLegenda := {}
@@ -153,21 +145,19 @@ User Function zBrwLeg()
 
 Return()
 
-/*
-=====================================================================================
-Programa.:              bPosXZ1
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              05/08/19
-Descricao / Objetivo:   Monta botões
-Doc. Origem:
-Solicitante:            Geral
-Uso......:              Geral
-Obs......:
-=====================================================================================
-*/  
-Static Function bPosXZ1(oModel)
+/*/{Protheus.doc} bValidXZ1
+Validação do MVC
 
-    Local oModelXZ1		:= oModel:getmodel('XZ1MASTER')
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 27/08/2024
+@param oModel, object, Modelo do MVC
+@return logical, .T. OU .F.
+/*/  
+Static Function bValidXZ1(oModel)
+
+    Local oModelXZ1		:= oModel:GetModel('XZ1MASTER')
     Local cCliente      := oModelXZ1:GetValue('XZ1_CODCLI')
     Local cLoja		    := oModelXZ1:GetValue('XZ1_LOJA')
     Local cGrupo		:= oModelXZ1:GetValue('XZ1_GRUPO')
@@ -185,31 +175,26 @@ Static Function bPosXZ1(oModel)
         //Verifica se já existe esse acesso para esse usuário e rotina.
         lExistXZ1	:= ZSeekXZ1(cCliente,cLoja,cGrupo,nOperation)
 
-        If !(lExistXZ1)
-            If Empty(cCod)
-                Help(NIL, NIL, "[ ZESTF004 ] - Help", NIL, "Motivo do bloqueio não preenchido", 1, 0, NIL, NIL, NIL, NIL, NIL, {"Quando um usuário é bloqueado, é obrigatorio o preenchimento do Motivo do Bloqueio"})
-                lRet := .F.
-            EndIf
-        Else
-            lRet := .F.
+        If lExistXZ1
+           lRet := .F.
         EndIf
     Endif
 
 Return( lRet )
 
-/*
-=====================================================================================
-Programa.:              ZSeekXZ1
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              05/08/19
-Descricao / Objetivo:   Verifica se existe algum cadastro igual o que está 
-                        sendo realizado.
-Doc. Origem:
-Solicitante:            Geral
-Uso......:              Geral
-Obs......:
-=====================================================================================
-*/ 
+/*/{Protheus.doc} ZSeekXZ1
+Procura se já existe um cadasto para aquele cliente/loja e grupo
+
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 27/08/2024
+@param cCliente, character, cliente
+@param cLoja, character, loja
+@param cGrupo, character, grupo
+@param nOperation, numeric, tipo de operacao
+@return logical, .T. ou .F.
+/*/
 Static Function ZSeekXZ1(cCliente,cLoja,cGrupo,nOperation)
 
     Local cQryXZ1   	:= ""
@@ -224,12 +209,19 @@ Static Function ZSeekXZ1(cCliente,cLoja,cGrupo,nOperation)
     Default cGrupo      := ""
     Default nOperation  := 0
 
-    //1 - View
-    //3 - Insert
-    //4 - Update
-    //5 - Delete
+    //1 - View | 3 - Insert | 4 - Update | 5 - Delete
     //Inclusão(3) ou Alteração(4)
-    If ( nOperation == 4 .And. ( AllTrim(XZ1->ZX_ROTINA) == AllTrim(cRotSeek) .And. AllTrim(XZ1->ZX_ID) == AllTrim(cIDSeek)  ) )
+    If ( nOperation == 4 .And. ( AllTrim(XZ1->XZ1_CODCLI) == AllTrim(cCliente) .And. AllTrim(XZ1->XZ1_LOJA) == AllTrim(cLoja) .And. AllTrim(XZ1->XZ1_GRUPO) == AllTrim(cGrupo)  ) )
+        lSeek := .F.
+    EndIf
+
+    SA1->(dbSetOrder(1))
+	If !(SA1->(dbSeek(xFilial("SA1")+cCliente+cLoja)))
+        cMsgErro      := "Cliente/Loja não encontrado"
+        cMsgSolu      := "Verifique o preenchimento dos campos de Cliente/Loja"
+                    
+        Help(NIL, NIL, "[ ZESTF004 ] - Help", NIL, cMsgErro, 1, 0, NIL, NIL, NIL, NIL, NIL, {cMsgSolu})
+        lRetorno := .T.
         lSeek := .F.
     EndIf
 
@@ -240,252 +232,42 @@ Static Function ZSeekXZ1(cCliente,cLoja,cGrupo,nOperation)
         EndIf
 
         cQryXZ1 := ""
-        cQryXZ1 += " SELECT ZX_ROTINA, ZX_ID, ZX_LOGIN, ZX_ACESSO "                             + CRLF
-        cQryXZ1 += " FROM "+RetSQLName('XZ1')+" XZ1 "                                           + CRLF
-        cQryXZ1 += " WHERE XZ1.ZX_FILIAL = '"+FWxFilial('XZ1')+"' "                             + CRLF
-        cQryXZ1 += " AND XZ1.ZX_ID = '" + cIDSeek + "' "                       					+ CRLF
-        cQryXZ1 += " AND (XZ1.ZX_ROTINA = '" + cRotSeek + "' OR XZ1.ZX_ROTINA = '**********') " + CRLF
-        cQryXZ1 += " AND XZ1.D_E_L_E_T_ = ' ' "                                					+ CRLF
-        cQryXZ1 += " ORDER BY XZ1.ZX_FILIAL, XZ1.ZX_ID, XZ1.ZX_ROTINA "       					+ CRLF
-
-        cQryXZ1 := ChangeQuery(cQryXZ1)
+        cQryXZ1 += " SELECT XZ1_FILIAL, XZ1_CODCLI, XZ1_LOJA, XZ1_GRUPO, XZ1_MSBLQL "       + CRLF
+        cQryXZ1 += " FROM "+RetSQLName('XZ1')+" XZ1 "                                       + CRLF
+        cQryXZ1 += " WHERE XZ1.XZ1_FILIAL = '"+FWxFilial('XZ1')+"' "                        + CRLF
+        cQryXZ1 += " AND XZ1.XZ1_CODCLI = '" + cCliente + "' "                              + CRLF
+        cQryXZ1 += " AND XZ1.XZ1_LOJA = '" + cLoja + "' "                                   + CRLF
+        cQryXZ1 += " AND XZ1.XZ1_GRUPO = '" + cGrupo + "' "                                 + CRLF
+        cQryXZ1 += " AND XZ1.D_E_L_E_T_ = '' "                                              + CRLF
+        cQryXZ1 += " ORDER BY XZ1_FILIAL, XZ1_CODCLI, XZ1_LOJA, XZ1_GRUPO "                 + CRLF
 
         //Executa a consulta
         DbUseArea( .T., "TOPCONN", TcGenQry(,,cQryXZ1), cAliXZ1, .T., .T. )
 
         DbSelectArea((cAliXZ1))
-        (cAliXZ1)->(dbGoTop())
+        (cAliXZ1)->(DbGoTop())
         If (cAliXZ1)->(!Eof())
-            If (cAliXZ1)->ZX_ROTINA == "**********"
-                If (cAliXZ1)->ZX_ACESSO $ "S|T"
-                    cMsgErro      := "Usuário com perfil de acesso Completo (FULL)"
-                    cMsgSolu      := "Não existe a necessidade de cadastrar o seu usuário para essa rotina, seu usuário possui acesso Completo!"
-                ElseIf !((cAliXZ1)->ZX_ACESSO) $ "S|T"
-                    cMsgErro      := "Usuário com perfil de acesso Completo (FULL) - Com Problema"
-                    cMsgSolu      := "Usuário possui cadastro Completo (FULL), porém existe divergência no acesso cadastrado, verifique o cadastro existente e os acessos para esse usuário!"
-                EndIf
+
+            If (cAliXZ1)->XZ1_MSBLQL == "2"
+
+                cMsgErro      := "Já existe uma amarração para esse cliente e grupo Ativa"
+                cMsgSolu      := "Verifique o preenchimento dos campos de Cliente/Loja e Grupo"
+                    
+                Help(NIL, NIL, "[ ZESTF004 ] - Help", NIL, cMsgErro, 1, 0, NIL, NIL, NIL, NIL, NIL, {cMsgSolu})
+                lRetorno := .T.
+
             Else
-                If (cAliXZ1)->ZX_ACESSO $ "S|T"
-                    cMsgErro      := "Usuário já possui cadastro para essa rotina."
-                    cMsgSolu      := "Não existe a necessidade de cadastrar o seu usuário para essa rotina, seu usuário possui acesso!"
-                ElseIf !((cAliXZ1)->ZX_ACESSO) $ "S|T"
-                    cMsgErro      := "Usuário já possui cadastro para essa rotina - Com Problema"
-                    cMsgSolu      := "Usuário possui cadastro, porém existe divergência no acesso cadastrado, verifique o cadastro existente e os acessos para esse usuário!"
-                EndIf
+
+                cMsgErro      := "Já existe uma amarração para esse cliente e grupo bloqueada"
+                cMsgSolu      := "Identifique o cadastro e realize o desbloqueio"
+                    
+                Help(NIL, NIL, "[ ZESTF004 ] - Help", NIL, cMsgErro, 1, 0, NIL, NIL, NIL, NIL, NIL, {cMsgSolu})
+                lRetorno := .T.
+
             EndIf
-            Help(NIL, NIL, "[ ZCFGF003 ] - Help", NIL, cMsgErro, 1, 0, NIL, NIL, NIL, NIL, NIL, {cMsgSolu})
-            lRetorno := .T.
+
         EndIf
         (cAliXZ1)->(DbCloseArea())
     EndIf
 
 Return( lRetorno )
-
-/*
-=====================================================================================
-Programa.:              ZCopyXZ1
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              05/08/19
-Descricao / Objetivo:   Copia os direitos de um Usuário para Outro
-Doc. Origem:
-Solicitante:            Geral
-Uso......:              Geral
-Obs......:
-=====================================================================================
-*/ 
-User Function ZCopyXZ1()
-
-Local cQryUpd   	:= ""
-// Local cError        := ""
-Local cQryCopy   	:= ""
-Local cAliCopy 		:= GetNextAlias()
-Local cPerg         := "ZCFGF003P1"
-Local lMaster       := .F.
-Local lContinua     := .T.
-Local lUpdXZ1       := .F.
-
-DbSelectArea("XZ1")
-XZ1->(DbSetOrder(1)) //ZX_FILIAL + ZX_ID + ZX_ROTINA
-
-Pergunte(cPerg,.T.)
-
-If !( Empty(MV_PAR01) .Or. Empty(MV_PAR02) )
-    If !( MV_PAR01 == MV_PAR02 )
-        If MsgYesNo("Deseja prosseguir com a seguinte cópia ?" + CRLF + CRLF + "Copiar Acessos" + CRLF + CRLF + "De:   " + MV_PAR01 + " - " + AllTrim( UsrRetName( MV_PAR01 ) ) + CRLF + "Para: " + MV_PAR02 + " - " + AllTrim( UsrRetName( MV_PAR02 ) ) + CRLF + CRLF + "Deseja realmente continuar ??? ","ZCFGF003")
-
-            //Verifica se o DE: possui acesso Completo(FULL), caso possua, não realiza a copia.
-            XZ1->(DbSetOrder(1)) //ZX_FILIAL + ZX_ID + ZX_ROTINA
-            If XZ1->( dbSeek( xFilial("XZ1") + MV_PAR01 + "**********" ))
-                lMaster := .T.
-            EndIf
-
-            If !( lMaster )
-
-                //Verifica se o DE: possui cadastro de acesso, caso não possua, cancela a operação
-                XZ1->(DbSetOrder(1)) //ZX_FILIAL + ZX_ID + ZX_ROTINA
-                If XZ1->( dbSeek( xFilial("XZ1") + MV_PAR01 ))
-                
-                    //Verifica se o PARA: possui cadastro de acesso, caso possua, pergunta se realmente deseja substituir.
-                    XZ1->(DbSetOrder(1)) //ZX_FILIAL + ZX_ID + ZX_ROTINA
-                    If XZ1->( dbSeek( xFilial("XZ1") + MV_PAR02 ))
-                        If MsgYesNo("O usuário: " + MV_PAR02 + " - " + AllTrim( UsrRetName( MV_PAR02 ) ) + " possui um cadastro de acesso."    + CRLF + CRLF + "Deseja realmente substituir os acessos ??? ","ZCFGF003")
-                            
-                            //Confirmando a substituição, apaga os registros do PARA:
-                            lContinua := .T.
-                            cQryUpd := ""
-                            cQryUpd += " UPDATE " + RetSqlName("XZ1")       + CRLF
-                            cQryUpd += " SET D_E_L_E_T_ = '*' "             + CRLF
-                            cQryUpd += " WHERE D_E_L_E_T_ = ' ' "           + CRLF
-                            cQryUpd += " AND ZX_ID = '" + MV_PAR02 + "' "   + CRLF
-                            
-                            lUpdXZ1 :=  TcSqlExec(cQryUpd)
-        
-                            If lUpdXZ1 <> 0
-                                ApMsgStop("Problema para substituir os registros! Tente novamente." + CRLF + CRLF + "SQL Error: " +TcSqlError() ,"ZCFGF003")    
-                                lContinua := .F.
-                            Else
-                                lContinua := .T.
-                            Endif   
-                        Else
-                            lContinua := .F.
-                        EndIf
-                    EndIf
-                
-                    If lContinua
-                        If Select((cAliCopy)) > 0
-                            (cAliCopy)->(DbCloseArea())
-                        EndIf
-
-                        cQryCopy := ""
-                        cQryCopy += " SELECT * "                                            + CRLF
-                        cQryCopy += " FROM "+RetSQLName('XZ1')+" XZ1 "                      + CRLF
-                        cQryCopy += " WHERE XZ1.ZX_FILIAL = '"+FWxFilial('XZ1')+"' "        + CRLF
-                        cQryCopy += " AND XZ1.ZX_ID = '" + MV_PAR01 + "' "                  + CRLF
-                        cQryCopy += " AND XZ1.D_E_L_E_T_ = ' ' "                            + CRLF
-                        cQryCopy += " ORDER BY XZ1.ZX_FILIAL, XZ1.ZX_ID, XZ1.ZX_ROTINA "    + CRLF
-
-                        cQryCopy := ChangeQuery(cQryCopy)
-
-                        //Executa a consulta
-                        DbUseArea( .T., "TOPCONN", TcGenQry(,,cQryCopy), cAliCopy, .T., .T. )
-
-                        DbSelectArea((cAliCopy))
-                        (cAliCopy)->(dbGoTop())
-                        While (cAliCopy)->(!Eof())
-
-                            Reclock( "XZ1" , .T. )
-                                XZ1->ZX_FILIAL      := xFilial("XZ1")
-                                XZ1->ZX_ROTINA      := (cAliCopy)->ZX_ROTINA
-                                XZ1->ZX_ID          := MV_PAR02
-                                XZ1->ZX_LOGIN       := UsrRetName( MV_PAR02 )
-                                XZ1->ZX_NOME        := UsrFullName( MV_PAR02 )
-                                XZ1->ZX_DEPART      := AllTrim( MV_PAR03 )
-                                XZ1->ZX_ACESSO      := (cAliCopy)->ZX_ACESSO
-                                XZ1->ZX_DESCROT     := (cAliCopy)->ZX_DESCROT
-                                XZ1->ZX_DTAUTDE     := SToD( (cAliCopy)->ZX_DTAUTDE )
-                                XZ1->ZX_DTAUTAT     := SToD( (cAliCopy)->ZX_DTAUTAT )
-                                XZ1->ZX_MOTBLOQ     := If( (cAliCopy)->ZX_ACESSO == "B" , "BLOQUEIO HERDADO DEVIDO A CÓPIA DO USUÁRIO: "+MV_PAR01 , "" )
-                            XZ1->(MsUnlock())   
-
-                            (cAliCopy)->(DbSkip())
-                        EndDo
-                        ApMsgInfo("Usuário copiado com Sucesso!!","[ ZCFGF003 ] - Concluído")
-                        (cAliCopy)->(DbCloseArea())
-                    Else
-                        ApMsgStop("Processo abortado com sucesso.","ZCFGF003")  
-                    EndIf
-                Else
-                    ApMsgStop("O usuário: " + MV_PAR01 +" - " + AllTrim( UsrRetName( MV_PAR01 ) ) + CRLF + CRLF + "Não possui nenhum registro de acesso cadastrado, revise os parâmetros e tente novamente!!","ZCFGF003")
-                EndIf
-            Else
-                ApMsgStop("O Usuário que está sendo copiado, possui o perfil de acesso Completo (FULL)"+ CRLF + CRLF + "Não é permitido a cópia desse tipo de perfil, realize um novo cadastro.","ZCFGF003")
-            EndIf
-        Else
-            ApMsgStop("Processo cancelado com sucesso.","ZCFGF003")
-        EndIf
-    Else
-        ApMsgStop("Não é permitida a cópia para o mesmo usuário de origem!","ZCFGF003")
-    EndIf
-Else
-    ApMsgStop("É necessário o preenchimento de ambos os usuários para cópia!","ZCFGF003")
-EndIf
-
-Return()
-
-/*
-=====================================================================================
-Programa.:              ZBlqXZ1
-Autor....:              CAOA - Evandro A Mariano dos Santos 
-Data.....:              05/08/19
-Descricao / Objetivo:   Bloqueia direitos de um Usuário
-Doc. Origem:
-Solicitante:            Geral
-Uso......:              Geral
-Obs......:
-=====================================================================================
-*/ 
-User Function ZBlqXZ1()
-
-Local cQryBlq   	:= ""
-Local cAliBlq 		:= GetNextAlias()
-Local cPerg         := "ZCFGF003P2"
-// Local lMaster       := .F.
-// Local lContinua     := .T.
-// Local lUpdXZ1       := .F.
-
-DbSelectArea("XZ1")
-XZ1->(DbSetOrder(1)) //ZX_FILIAL + ZX_ID + ZX_ROTINA
-
-Pergunte(cPerg,.T.)
-
-If !( Empty(MV_PAR01) )
-    If MsgYesNo("Deseja prosseguir com o bloqueio seguinte ?" + CRLF + CRLF + "Bloquear Usuário: " + MV_PAR01 + " - " + AllTrim( UsrRetName( MV_PAR01 ) ) + CRLF + CRLF + "Deseja realmente realizar o bloqueio ??? ","ZCFGF003")
-
-        //Verifica se o usuário de bloqueio possui cadastro de acesso, caso não possua, cancela a operação
-        XZ1->(DbSetOrder(1)) //ZX_FILIAL + ZX_ID + ZX_ROTINA
-        If XZ1->( dbSeek( xFilial("XZ1") + MV_PAR01 ))
-
-            If Select( (cAliBlq) ) > 0
-                (cAliBlq)->(DbCloseArea())
-            EndIf
-
-            cQryBlq := ""
-            cQryBlq += " SELECT ZX_FILIAL, ZX_ID, ZX_ROTINA  "                 + CRLF
-            cQryBlq += " FROM "+RetSQLName('XZ1')+" XZ1 "                      + CRLF
-            cQryBlq += " WHERE XZ1.ZX_FILIAL = '"+FWxFilial('XZ1')+"' "        + CRLF
-            cQryBlq += " AND XZ1.ZX_ID = '" + MV_PAR01 + "' "                  + CRLF
-            cQryBlq += " AND XZ1.D_E_L_E_T_ = ' ' "                            + CRLF
-            cQryBlq += " ORDER BY XZ1.ZX_FILIAL, XZ1.ZX_ID, XZ1.ZX_ROTINA "    + CRLF
-
-            cQryBlq := ChangeQuery(cQryBlq)
-
-            //Executa a consulta
-            DbUseArea( .T., "TOPCONN", TcGenQry(,,cQryBlq), cAliBlq, .T., .T. )
-
-            DbSelectArea((cAliBlq))
-            (cAliBlq)->(dbGoTop())
-            While (cAliBlq)->(!Eof())
-                
-                XZ1->(DbSetOrder(1)) //ZX_FILIAL + ZX_ID + ZX_ROTINA
-                If XZ1->( DbSeek( (cAliBlq)->ZX_FILIAL  + (cAliBlq)->ZX_ID + (cAliBlq)->ZX_ROTINA  ))
-                    Reclock( "XZ1" , .F. )
-                        XZ1->ZX_ACESSO      := "B"
-                        XZ1->ZX_MOTBLOQ     := AllTrim( MV_PAR02 )
-                    XZ1->(MsUnlock())   
-                EndIf
-
-                (cAliBlq)->(DbSkip())
-            EndDo
-            ApMsgInfo("Usuário bloqueado com Sucesso!!","[ ZCFGF003 ] - Concluído")
-            (cAliBlq)->(DbCloseArea())
-        Else
-            ApMsgStop("O usuário: " + MV_PAR01 +" - " + AllTrim( UsrRetName( MV_PAR01 ) ) + CRLF + CRLF + "Não possui nenhum registro de acesso cadastrado, revise os parâmetros e tente novamente!!","ZCFGF003")
-        EndIf
-    Else
-        ApMsgStop("Processo cancelado com sucesso.","ZCFGF003")
-    EndIf
-Else
-    ApMsgStop("É necessário o preenchimento do usuário que será bloqueado!","ZCFGF003")
-EndIf
-
-Return()
