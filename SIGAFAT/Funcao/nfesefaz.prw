@@ -230,6 +230,7 @@ Local cCodCST		:= Alltrim(Upper(GetNewPar("MV_CODCST", "DF;PR=90;RJ;RS=10,90")))
 Local cCsosn2		:= ""
 Local cBarra 	    := ""
 Local cBarTrib 	    := ""
+Local cFCI          := "" // DUX PERSONALIZA«√O FCI 
 //DeclaraÁ„o de numÈricos
 Local nA			:= 0
 Local nX         	:= 0
@@ -2862,18 +2863,19 @@ If cTipo == "1"
 						cCsosn2:= alltrim((cAliasSD2)->D2_CSOSN)
 						If (cOrigem $"1-2-3-4-5-6-8" .And. (cCSTrib $ "00-10-20-30-40-41-50-51-60-70-90" .or. cCsosn2 $ "101-102-103-201-202-201-300-400-500-900"))
 							If (cAliasSD2)->(FieldPos("D2_FCICOD")) > 0 .And. !Empty((cAliasSD2)->D2_FCICOD)
-								aadd(aFCI,{(cAliasSD2)->D2_FCICOD}) 
+								aadd(aFCI,{(cAliasSD2)->D2_FCICOD,(cAliasSD2)->D2_COD}) 
 								
 								If lFCI
 									cMsgFci	:= "Resolucao do Senado Federal n˙m. 13/12"
 									cInfAdic  += cMsgFci + ", Numero da FCI " + Alltrim((cAliasSD2)->D2_FCICOD) + "."
+									cFCI := Alltrim((cAliasSD2)->D2_FCICOD) // DUX PERSONALIZA«√O FCI 
 								EndIf
 								
 							Else
-								aadd(aFCI,{})
+								aadd(aFCI,{"",(cAliasSD2)->D2_COD})
 							EndIf
 						Else 
-							aadd(aFCI,{})
+							aadd(aFCI,{"",(cAliasSD2)->D2_COD})
 						EndIf
 						// Retirada a validaÁ„o devido a criaÁ„o da tag nFCI (NT 2013/006)
 						//--------------------------------------------------------------------------------
@@ -3088,7 +3090,8 @@ If cTipo == "1"
 							aObsItem,; 					//aprod[53]
 							(cAliasSD2)->D2_VALICM,;	//aprod[54]
 							(cAliasSD2)->D2_ITEM,;		//aprod[55]							
-							"S";						//aprod[56]
+							"S",;						//aprod[56]
+							cFCI;                       //aprod[57] -- DUX PERSONALIZA«√O FCI
 							})
 							
 												
@@ -5650,6 +5653,7 @@ Else
 						If lFCI
 							cMsgFci	:= "Resolucao do Senado Federal n˙m. 13/12"
 							cInfAdic  += cMsgFci + ", Numero da FCI " + Alltrim((cAliasSD1)->D1_FCICOD) + "."
+							cFCI := Alltrim((cAliasSD1)->D1_FCICOD)  // DUX PERSONALIZA«√O - FCI 
 						EndIf					
 					Else
 						aadd(aFCI,{})
@@ -5797,7 +5801,8 @@ Else
 					aObsItem,; 	//aProd[53]
 					(cAliasSD1)->D1_VALICM,;	//aProd[54]
 					(cAliasSD1)->D1_ITEM,;		//aProd[55]
-					"E";						//aProd[56]
+					"E",;                       //aProd[56]
+					cFCI;						//aProd[57] --- DUX PERSONALIZA«√O 
 					})
 					
 					        
@@ -6772,9 +6777,10 @@ IF lPe01Nfe
 	aICMSZFM,;		//30 | DUX | PersonalizaÁ„o
 	aICMUFDest;		//31 | DUX | Personalizaùùo
 	aCST }          // 32 | DUX | Personalizaùùo - Allan
+	aFCI           // 33 | DUX | Personalizaùùo - Allan
 */	
 	
-	aParam := {aProd,cMensCli,cMensFis,aDest,aNota,aInfoItem,aDupl,aTransp,aEntrega,aRetirada,aVeiculo,aReboque,aNfVincRur,aEspVol,aNfVinc,aDetPag,aObsCont,aProcRef,aMed,aLote,aICMS,aIPI,aICMSST,aPIS,aPISST,aCOFINS,aCOFINSST,aISSQN,aTotal,aICMSZFM,aICMUFDest,aCST}     
+	aParam := {aProd,cMensCli,cMensFis,aDest,aNota,aInfoItem,aDupl,aTransp,aEntrega,aRetirada,aVeiculo,aReboque,aNfVincRur,aEspVol,aNfVinc,aDetPag,aObsCont,aProcRef,aMed,aLote,aICMS,aIPI,aICMSST,aPIS,aPISST,aCOFINS,aCOFINSST,aISSQN,aTotal,aICMSZFM,aICMUFDest,aCST,aFCI}     
 
 	aParam := ExecBlock("PE01NFESEFAZ",.F.,.F.,aParam)
 	
@@ -6826,6 +6832,7 @@ IF lPe01Nfe
 		//--AglutinaÁ„o CST -- Allan 
 		aCst := {} 
 		aCST 		:= aParam[32]
+		aFCI := aParam[33]
 		//--TÈrmino	
 	EndIf
 Endif 

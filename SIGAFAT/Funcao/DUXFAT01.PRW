@@ -46,6 +46,7 @@ User Function DUXFAT01()
 	local aICMSZFM		:= PARAMIXB[30]
 	local aICMUFDest	:= PARAMIXB[31]
 	local aCST 			:= PARAMIXB[32]
+	local aFCI 			:= PARAMIXB[33]
 	Local aNfe      	:= PARAMIXB
 	Local aRetorno		:= {}
 	Local aArea			:= GetArea()
@@ -54,11 +55,11 @@ User Function DUXFAT01()
 	local cNota			:= aNota[2]
 	local cSerie		:= aNota[1]
 	Local cTPNf			:= aNota[4]
-	Local cClifor		:= PARAMIXB[33]
-	Local cLoja			:= PARAMIXB[34]
+	Local cClifor		:= PARAMIXB[34]
+	Local cLoja			:= PARAMIXB[35]
 	Local lAglutProd    := iif(posicione("SA1",1,xFilial("SA1") +;
-		padr(PARAMIXB[33],tamsx3("A1_COD")[1]) +;
-		padr(PARAMIXB[34],tamsx3("A1_LOJA")[1]),;
+		padr(PARAMIXB[34],tamsx3("A1_COD")[1]) +;
+		padr(PARAMIXB[35],tamsx3("A1_LOJA")[1]),;
 		"A1_XAGPRNF") == "S",.t.,.f.)
 	Private cLote   := ""
 	Private cValid	:= ""
@@ -95,7 +96,8 @@ User Function DUXFAT01()
 			@aICMSZFM,;
 			@aICMUFDest,;
 			aInfoItem,;
-			@aCST)
+			@aCST,;
+			@aFCI)
 	endif
 
 	aadd(aRetorno,aProd)
@@ -131,6 +133,7 @@ User Function DUXFAT01()
 	aadd(aRetorno , aICMSZFM)
 	aadd(aRetorno , aICMUFDest)
 	aadd(aRetorno , aCST)
+	aadd(aRetorno , aFCI)
 
 	RestArea(aArea)
 
@@ -201,7 +204,7 @@ Aglutina os produtos.
 /*/
 Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 		aProd,aICMS,aIPI,aICMSST,aPIS,aPISST,aCOFINS,;
-		aCOFINSST,aISSQN,aICMSZFM,aICMUFDest,aInfoItem,aCst)
+		aCOFINSST,aISSQN,aICMSZFM,aICMUFDest,aInfoItem,aCst,aFCI)
 	local cProduto	    := "" as character
 	local cItem		    := "" as character
 	local cNumPV 	    := "" as character
@@ -252,6 +255,8 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			aProdAgrp[nPos,31]  += aProd[nCont,31]
 			aProdAgrp[nPos,32]	+= aProd[nCont,32]
 			aProdAgrp[nPos,15]	+= aProd[nCont,15]
+			aProdAgrp[nPos,25]	:= aProd[nCont,25] //allan
+			aProdAgrp[nPos,57]	:= aProd[nCont,57]
 
 			nPos := aScan(aLoteProd , {|Registro| Registro[1] == SD2->D2_COD })
 			if(nPos > 0)
@@ -338,6 +343,66 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	endif
 	aCst 	:= aClone(atmp)
 	atmp:= {}
+
+	//02.02 aFCI - Aglutina
+	//--------------------------------------------------------------------
+	//02.02.01.02 - FCI
+	//--------------------------------------------------------------------
+	/*
+	if(valtype(aFCI) == "A" .and. len(aFCI) > 0)
+		atmp := {}
+		for nCont := 1 to Len(aFCI)
+			if Len(aFCI[nCont])>1
+				nPos := aScan(atmp,{|x| x[2] == aFCI[nCont][2]})
+				if nPos == 0
+					aadd(atmp,aFCI[nCont])
+				else
+					atmp[nPos][1]	:= aFCI[nCont][1]
+				endif
+			else
+				aadd(atmp,{"",""})
+			endif
+		next
+		for nCont := 1 to Len(atmp)
+			if atmp[nCont][1] == ""
+				atmp[nCont] := {}
+			endif
+		next
+		aFCI := aClone(atmp)
+		for nCont := 1 to len(aFCI)
+			if(valtype(aFCI[1]) == "A")
+
+			endif
+		next nCont
+	endif
+	aFCI 	:= aClone(atmp)
+	atmp:= {}*/
+
+	if(valtype(aFCI) == "A" .and. len(aFCI) > 0)
+		atmp := {}
+		for nCont := 1 to Len(aProd)
+			//if Len(aProd[nCont][57])
+			if !Empty(aProd[nCont][57])
+				aadd(atmp,aProd[nCont][57])
+			else
+				aadd(atmp,{""})
+			endif
+		next
+		for nCont := 1 to Len(atmp)
+			if atmp[nCont][1] == ""
+				atmp[nCont] := {}
+			endif
+		next
+		aFCI := aClone(atmp)
+		for nCont := 1 to len(aFCI)
+			if(valtype(aFCI[1]) == "A")
+
+			endif
+		next nCont
+	endif
+	aFCI 	:= aClone(atmp)
+	atmp:= {}
+
 
 	//02.02-Aglutina os Impostos
 	//--------------------------------------------------------------------
@@ -505,16 +570,16 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 						atmp[nPos][7]	+= aICMSST[nCont][7]
 					endif
 				endif
-			else 
-				//aICMSST[nCont] := 0 
+			else
+				//aICMSST[nCont] := 0
 				aadd(atmp,nCont)
 			endif
 		next
 		for nCont := 1 to Len(atmp)
-			if atmp[nCont][18] <> "" .and. atmp[nCont][7] == NIL 
-				atmp[nCont] := {} 
-			endif  
-		next 
+			if atmp[nCont][18] <> "" .and. atmp[nCont][7] == NIL
+				atmp[nCont] := {}
+			endif
+		next
 		aICMSST := aClone(atmp)
 		for nCont:=1 to len(aICMSST)
 			if(valtype(aICMSST[1]) == "A")
