@@ -255,8 +255,8 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			aProdAgrp[nPos,31]  += aProd[nCont,31]
 			aProdAgrp[nPos,32]	+= aProd[nCont,32]
 			aProdAgrp[nPos,15]	+= aProd[nCont,15]
-			aProdAgrp[nPos,25]	:= aProd[nCont,25] //allan
-			aProdAgrp[nPos,57]	:= aProd[nCont,57]
+			aProdAgrp[nPos,25]	:= aProd[nCont,25] //Dux personalização
+			aProdAgrp[nPos,57]	:= aProd[nCont,57] //Dux personalização
 
 			nPos := aScan(aLoteProd , {|Registro| Registro[1] == SD2->D2_COD })
 			if(nPos > 0)
@@ -383,7 +383,7 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 		for nCont := 1 to Len(aProd)
 			//if Len(aProd[nCont][57])
 			if !Empty(aProd[nCont][57])
-				aadd(atmp,aProd[nCont][57])
+				aadd(atmp,{aProd[nCont][57]})
 			else
 				aadd(atmp,{""})
 			endif
@@ -393,12 +393,6 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 				atmp[nCont] := {}
 			endif
 		next
-		aFCI := aClone(atmp)
-		for nCont := 1 to len(aFCI)
-			if(valtype(aFCI[1]) == "A")
-
-			endif
-		next nCont
 	endif
 	aFCI 	:= aClone(atmp)
 	atmp:= {}
@@ -531,33 +525,6 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	//--------------------------------------------------------------------
 	if(valtype(aICMSST) == "A" .and. len(aICMSST) > 0)
 		atmp := {}
-		/*
-		for nCont := 1 to Len(aICMSST)
-			if Len(aICMSST[nCont]) == 0
-				aICMSST[nCont] := array(18)
-				aICMSST[nCont][18] := ""
-				aICMSST[nCont][17] := ""
-				aICMSST[nCont][16] := 0
-				aICMSST[nCont][15] := 0
-				aICMSST[nCont][14] := 0
-				aICMSST[nCont][13] := 0
-				aICMSST[nCont][12] := 0
-				aICMSST[nCont][11] := ""
-				aICMSST[nCont][10] := 0
-				aICMSST[nCont][9] := 0
-				aICMSST[nCont][8] := 0
-				aICMSST[nCont][7] := 0
-				aICMSST[nCont][6] := 0
-				aICMSST[nCont][5] := 0
-				aICMSST[nCont][4] := 0
-				aICMSST[nCont][3] := ""
-				aICMSST[nCont][2] := ""
-				aICMSST[nCont][1] := ""
-
-			endif
-		next
-		*/
-
 		for nCont := 1 to Len(aICMSST)
 			if Len(aICMSST[nCont])>17
 				nPos := aScan(atmp,{|x| x[18] == aICMSST[nCont][18]})
