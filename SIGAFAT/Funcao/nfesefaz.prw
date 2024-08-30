@@ -2860,6 +2860,7 @@ If cTipo == "1"
 						// - Informar o valor da parcela importada do exterior, o número da FCI e o Conteúdo de
 						//   Importação expresso percentualmente (Industrialização)
 						//----------------------------------------------------------------------------------------- 
+						cFCI := ""
 						cCsosn2:= alltrim((cAliasSD2)->D2_CSOSN)
 						If (cOrigem $"1-2-3-4-5-6-8" .And. (cCSTrib $ "00-10-20-30-40-41-50-51-60-70-90" .or. cCsosn2 $ "101-102-103-201-202-201-300-400-500-900"))
 							If (cAliasSD2)->(FieldPos("D2_FCICOD")) > 0 .And. !Empty((cAliasSD2)->D2_FCICOD)

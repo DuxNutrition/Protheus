@@ -217,6 +217,9 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	local aProdAgrp     := {} as array
 	local aImpAgrp      := {} as array
 	local aICMSZF		:= {} as array
+	local aSTGrp        := {} as array 
+	local aCSTGrp       := {} as array
+	local aICMSgrp      := {} as array
 	default aInfoItem   := {}
 
 	for nCont := 1 to len(aProd)
@@ -225,8 +228,6 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 		cItem		:= aInfoItem[nCont,04]
 		cNumPV 		:= aInfoItem[nCont,01]
 		cItemPV		:= aInfoItem[nCont,02]
-		///// TRATAMENTO ICMSST 
-		aadd(aProd,{aICMSST[nCont]})
 
 		dbSelectArea("SD2")
 		SD2->(dbSetOrder(3))
@@ -240,7 +241,25 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 		if(nPos == 0)
 			aadd( aProdAgrp , aProd[nCont] )
 			aadd( aICMSZF	, {aProd[nCont,02], iif(Empty(aICMSZFM[nCont]), 0, aICMSZFM[nCont][1]), iif(Empty(aICMSZFM[nCont]), "", aICMSZFM[nCont][2] )})
-
+			/////////////// ICMSST /////////////////
+			if Len(aICMSST[nCont])>0 
+				aadd( aSTGrp,aICMSST[nCont])
+			else 
+				aadd( aSTGrp,{"","","",0,0,0,0,0,0,0,"",0,0,0,0,0,"",""})
+			endif 
+			/////////////// CST ////////////////////
+			if !Empty(aCst[nCont])
+				aadd(aCSTGrp,aCST[nCont])
+			else 
+				aadd(aCSTGrp,{"","",""})
+			endif 
+			//////////// ICMS
+			if !Empty(aICMS[nCont])
+				aadd(aICMSgrp,aICMS[nCont])
+			else 
+				aadd(aICMSgrp[nCont],{"","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+			endif 
+			/////////////
 			if(!empty(SD2->D2_LOTECTL))
 				aadd( aLoteProd , { SD2->D2_COD,;
 					alltrim(SD2->D2_LOTECTL)})
@@ -257,32 +276,37 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			aProdAgrp[nPos,31]  += aProd[nCont,31]
 			aProdAgrp[nPos,32]	+= aProd[nCont,32]
 			aProdAgrp[nPos,15]	+= aProd[nCont,15]
-			aProdAgrp[nPos,25]	:= aProd[nCont,25] //Dux personalização
-			aProdAgrp[nPos,57]	:= aProd[nCont,57] //Dux personalização
+			aProdAgrp[nPos,25]	:= aProd[nCont,25] //allan
+			aProdAgrp[nPos,57]	:= aProd[nCont,57]
+			///////////////////// ICMS ST ///////////////////////////////////////////////////////////////
+			aSTGrp[nPos][1]		:= iif(Empty(aICMSST[nCont]),"",aICMSST[nCont][1]) //Dux personalização
+			aSTGrp[nPos][2]		:= iif(Empty(aICMSST[nCont]),"",aICMSST[nCont][2]) //Dux personalização
+			aSTGrp[nPos][3]		:= iif(Empty(aICMSST[nCont]),"",aICMSST[nCont][3]) //Dux personalização
+			aSTGrp[nPos][4]		:= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][4])//Dux personalização
+			aSTGrp[nPos][5]		:= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][5]) //Dux personalização
+			aSTGrp[nPos][6]		:= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][6])
+			aSTGrp[nPos][7]		+= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][7])
+			aSTGrp[nPos][8]		:= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][8])
+			aSTGrp[nPos][9]		:= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][9])
+			aSTGrp[nPos][10]	:= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][10])
+			aSTGrp[nPos][11]	:= iif(Empty(aICMSST[nCont]),"",aICMSST[nCont][11]) //Dux personalização
+			aSTGrp[nPos][12]	+= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][12]) //Dux personalização
+			aSTGrp[nPos][13]	:= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][13]) //Dux personalização
+			aSTGrp[nPos][14]	:= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][14]) //Dux personalização
+			aSTGrp[nPos][15]	+= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][15]) //Dux personalização
+			aSTGrp[nPos][16]	:= iif(Empty(aICMSST[nCont]),0,aICMSST[nCont][16])//Dux personalização
+			aSTGrp[nPos][17]	:= iif(Empty(aICMSST[nCont]),"",aICMSST[nCont][17]) //Dux personalização
+			aSTGrp[nPos][18]	:= iif(Empty(aICMSST[nCont]),"",aICMSST[nCont][18]) //Dux personalização
+			////////////////////////// CST ////////////////////////////////////////////////////////////
+			aCSTGrp[nPos][1]   := iif(Empty(aCST[nCont]),"",aCST[nCont][1])
+			aCSTGrp[nPos][2]   := iif(Empty(aCST[nCont]),"",aCST[nCont][2])
+			aCSTGrp[nPos][3]   := iif(Empty(aCST[nCont]),"",aCST[nCont][3])
+			/////////////////////////// ICMS ///////////////////////////////////////////////////////////
+			aICMSgrp[nPos,05] += aICMS[nCont,05]
+			aICMSgrp[nPos,07] += aICMS[nCont,07]
+			aICMSgrp[nPos,09] += aICMS[nCont,09]
+			aICMSgrp[nPos,15] += aICMS[nCont,15]
 
-			////////// personalização ICMSST AGRUPAR ///////////
-			aProdAgrp[nPos,58]	:= aProd[nCont,58] //Dux personalização
-			//////////////////////////////////////////////////////////
-			if Len(aProd[nCont,58])>0
-				aProdAgrp[nPos,58][1]	+= aProd[nCont,58][1] //Dux personalização
-				aProdAgrp[nPos,58][2]	+= aProd[nCont,58][2] //Dux personalização
-				aProdAgrp[nPos,58][3]	+= aProd[nCont,58][3] //Dux personalização
-				aProdAgrp[nPos,58][4]	+= aProd[nCont,58][4] //Dux personalização
-				aProdAgrp[nPos,58][5]	+= aProd[nCont,58][5] //Dux personalização
-				aProdAgrp[nPos,58][6]	+= aProd[nCont,58][6] //Dux personalização
-				aProdAgrp[nPos,58][7]	+= aProd[nCont,58][7] //Dux personalização
-				aProdAgrp[nPos,58][8]	+= aProd[nCont,58][8] //Dux personalização
-				aProdAgrp[nPos,58][9]	+= aProd[nCont,58][9] //Dux personalização
-				aProdAgrp[nPos,58][10]	+= aProd[nCont,58][10] //Dux personalização
-				aProdAgrp[nPos,58][11]	+= aProd[nCont,58][11] //Dux personalização
-				aProdAgrp[nPos,58][12]	+= aProd[nCont,58][12] //Dux personalização
-				aProdAgrp[nPos,58][13]	+= aProd[nCont,58][13] //Dux personalização
-				aProdAgrp[nPos,58][14]	+= aProd[nCont,58][14] //Dux personalização
-				aProdAgrp[nPos,58][15]	+= aProd[nCont,58][15] //Dux personalização
-				aProdAgrp[nPos,58][16]	+= aProd[nCont,58][16] //Dux personalização
-				aProdAgrp[nPos,58][17]	+= aProd[nCont,58][17] //Dux personalização
-				//aProdAgrp[nPos,58][18]	+= aProd[nCont,58][18] //Dux personalização
-			endif 
 
 			nPos := aScan(aLoteProd , {|Registro| Registro[1] == SD2->D2_COD })
 			if(nPos > 0)
@@ -313,16 +337,20 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	//02.02.01.01 - CST
 	//--------------------------------------------------------------------
 	if(valtype(aCst) == "A" .and. len(aCst) > 0)
-		atmp := {}
-		for nCont := 1 to Len(aCst)
+		/*for nCont := 1 to Len(aCst)
 			nPos := aScan(atmp,{|x| x[3] == aCst[nCont][3]})
 			if nPos == 0
 				aadd(atmp,aCst[nCont])
 			else
 				atmp[nPos][1]	:= aCst[nCont][1]
 			endif
+		next*/
+		for nCont := 1 to Len(aCSTGrp)
+			if aCSTGrp[nCont][1] == "" .or. aCSTGrp[nCont][2] == ""
+				aCSTGrp[nCont] := {}
+			endif
 		next
-		aCst := aClone(atmp)
+		aCst := aClone(aCSTGrp)
 		for nCont := 1 to len(aCst)
 			if(valtype(aCst[1]) == "A")
 				/*if(len(aCst[nCont]) > 0)
@@ -367,8 +395,8 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			endif
 		next nCont
 	endif
-	aCst 	:= aClone(atmp)
-	atmp:= {}
+	/*aCst 	:= aClone(atmp)
+	atmp:= {}*/
 
 	//02.02 aFCI - Aglutina
 	//--------------------------------------------------------------------
@@ -419,6 +447,12 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 				atmp[nCont] := {}
 			endif
 		next
+		aFCI := aClone(atmp)
+		for nCont := 1 to len(aFCI)
+			if(valtype(aFCI[1]) == "A")
+
+			endif
+		next nCont
 	endif
 	aFCI 	:= aClone(atmp)
 	atmp:= {}
@@ -428,16 +462,17 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	//--------------------------------------------------------------------
 	//02.02.01 - ICMS
 	//--------------------------------------------------------------------
-	for nCont := 1 to Len(aICMS)
+	/*for nCont := 1 to Len(aICMS)
 		if Len(aICMS[nCont]) == 0
 			cAux := 0
 		else
 			cAux := 1
 		endif
 	next
-	if(valtype(aICMS) == "A" .and. len(aICMS) > 0)	.and. cAux == 1
+	*/
+	if(valtype(aICMS) == "A" .and. len(aICMS) > 0)	
 		atmp := {}
-		for nCont := 1 to Len(aICMS)
+		/*for nCont := 1 to Len(aICMS)
 			nPos := aScan(atmp,{|x| x[31] == aICMS[nCont][31]})
 			if nPos == 0
 				aadd(atmp,aICMS[nCont])
@@ -488,10 +523,15 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 				endif
 			endif
 		next nCont
-	endif
-
-	if len(aImpAgrp) > 0
-		aICMS 	:= aClone(aImpAgrp)
+	endif*/
+	/*for nCont := 1 to Len(aICMSgrp)
+		if aICMSgrp[nCont][05] == 0 .and. aICMSgrp[nCont][7] == 0
+			aICMSgrp[nCont] := {}
+		endif
+	next*/
+	endif 
+	if len(aICMSgrp) > 0
+		aICMS 	:= aClone(aICMSgrp)
 		aImpAgrp:= {}
 	endif
 
@@ -551,31 +591,31 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	//--------------------------------------------------------------------
 	if(valtype(aICMSST) == "A" .and. len(aICMSST) > 0)
 		atmp := {}
-		for nCont := 1 to Len(aProd)
-			if Len(aProd[nCont,58])>0
-				//nPos := aScan(atmp,{|x| x[18] == aICMSST[nCont][18]})
-				//if nPos == 0
-				//	if len(aICMSST[nCont]) > 0
-						aadd(atmp,aProd[nCont,58])
-					//endif
-				//else
-					//if aICMSST[nCont][7] <> NIL
-					//	atmp[nPos][7]	+= aICMSST[nCont][7]
-					//endif
-				//		aadd(atmp,aProd[nCont,58])
-				//endif
+		/*
+		for nCont := 1 to Len(aICMSST)
+			if Len(aICMSST[nCont])>17
+				nPos := aScan(atmp,{|x| x[18] == aICMSST[nCont][18]})
+				if nPos == 0
+					if len(aICMSST[nCont]) > 0
+						aadd(atmp,aICMSST[nCont])
+					endif
+				else
+					if aICMSST[nCont][7] <> NIL
+						atmp[nPos][7]	+= aICMSST[nCont][7]
+					endif
+				endif
 			else
 				//aICMSST[nCont] := 0
-				aadd(atmp,aProd[nCont,58])
-			endif
-		next
-		/*for nCont := 1 to Len(atmp)
-			if atmp[nCont][18] <> "" .and. atmp[nCont][7] == NIL
-				atmp[nCont] := {}
+				aadd(atmp,nCont)
 			endif
 		next*/
-		aICMSST := aClone(atmp)
-		for nCont:=1 to len(aICMSST)
+		for nCont := 1 to Len(aSTGrp)
+			if aSTGrp[nCont][18] == "" .and. aSTGrp[nCont][7] == 0
+				aSTGrp[nCont] := {}
+			endif
+		next
+		aICMSST := aClone(aSTGrp)
+		/* for nCont:=1 to len(aICMSST)
 			if(valtype(aICMSST[1]) == "A")
 				if(len(aICMSST[nCont]) > 0 )
 
@@ -618,14 +658,14 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 					aadd( aImpAgrp , {} )
 				endif
 			endif
-		next nCont
+		next nCont*/
 	endif
 
-
+	/*
 	if(len(aImpAgrp) > 0)
 		aICMSST := aClone(aImpAgrp)
 		aImpAgrp:= {}
-	endif
+	endif*/
 
 	//--------------------------------------------------------------------
 	//02.02.03 - IPI
