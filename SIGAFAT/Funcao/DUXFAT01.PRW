@@ -225,6 +225,8 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 		cItem		:= aInfoItem[nCont,04]
 		cNumPV 		:= aInfoItem[nCont,01]
 		cItemPV		:= aInfoItem[nCont,02]
+		///// TRATAMENTO ICMSST 
+		aadd(aProd,{aICMSST[nCont]})
 
 		dbSelectArea("SD2")
 		SD2->(dbSetOrder(3))
@@ -257,6 +259,30 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			aProdAgrp[nPos,15]	+= aProd[nCont,15]
 			aProdAgrp[nPos,25]	:= aProd[nCont,25] //Dux personalização
 			aProdAgrp[nPos,57]	:= aProd[nCont,57] //Dux personalização
+
+			////////// personalização ICMSST AGRUPAR ///////////
+			aProdAgrp[nPos,58]	:= aProd[nCont,58] //Dux personalização
+			//////////////////////////////////////////////////////////
+			if Len(aProd[nCont,58])>0
+				aProdAgrp[nPos,58][1]	+= aProd[nCont,58][1] //Dux personalização
+				aProdAgrp[nPos,58][2]	+= aProd[nCont,58][2] //Dux personalização
+				aProdAgrp[nPos,58][3]	+= aProd[nCont,58][3] //Dux personalização
+				aProdAgrp[nPos,58][4]	+= aProd[nCont,58][4] //Dux personalização
+				aProdAgrp[nPos,58][5]	+= aProd[nCont,58][5] //Dux personalização
+				aProdAgrp[nPos,58][6]	+= aProd[nCont,58][6] //Dux personalização
+				aProdAgrp[nPos,58][7]	+= aProd[nCont,58][7] //Dux personalização
+				aProdAgrp[nPos,58][8]	+= aProd[nCont,58][8] //Dux personalização
+				aProdAgrp[nPos,58][9]	+= aProd[nCont,58][9] //Dux personalização
+				aProdAgrp[nPos,58][10]	+= aProd[nCont,58][10] //Dux personalização
+				aProdAgrp[nPos,58][11]	+= aProd[nCont,58][11] //Dux personalização
+				aProdAgrp[nPos,58][12]	+= aProd[nCont,58][12] //Dux personalização
+				aProdAgrp[nPos,58][13]	+= aProd[nCont,58][13] //Dux personalização
+				aProdAgrp[nPos,58][14]	+= aProd[nCont,58][14] //Dux personalização
+				aProdAgrp[nPos,58][15]	+= aProd[nCont,58][15] //Dux personalização
+				aProdAgrp[nPos,58][16]	+= aProd[nCont,58][16] //Dux personalização
+				aProdAgrp[nPos,58][17]	+= aProd[nCont,58][17] //Dux personalização
+				//aProdAgrp[nPos,58][18]	+= aProd[nCont,58][18] //Dux personalização
+			endif 
 
 			nPos := aScan(aLoteProd , {|Registro| Registro[1] == SD2->D2_COD })
 			if(nPos > 0)
@@ -525,28 +551,29 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	//--------------------------------------------------------------------
 	if(valtype(aICMSST) == "A" .and. len(aICMSST) > 0)
 		atmp := {}
-		for nCont := 1 to Len(aICMSST)
-			if Len(aICMSST[nCont])>17
-				nPos := aScan(atmp,{|x| x[18] == aICMSST[nCont][18]})
-				if nPos == 0
-					if len(aICMSST[nCont]) > 0
-						aadd(atmp,aICMSST[nCont])
-					endif
-				else
-					if aICMSST[nCont][7] <> NIL
-						atmp[nPos][7]	+= aICMSST[nCont][7]
-					endif
-				endif
+		for nCont := 1 to Len(aProd)
+			if Len(aProd[nCont,58])>0
+				//nPos := aScan(atmp,{|x| x[18] == aICMSST[nCont][18]})
+				//if nPos == 0
+				//	if len(aICMSST[nCont]) > 0
+						aadd(atmp,aProd[nCont,58])
+					//endif
+				//else
+					//if aICMSST[nCont][7] <> NIL
+					//	atmp[nPos][7]	+= aICMSST[nCont][7]
+					//endif
+				//		aadd(atmp,aProd[nCont,58])
+				//endif
 			else
 				//aICMSST[nCont] := 0
-				aadd(atmp,nCont)
+				aadd(atmp,aProd[nCont,58])
 			endif
 		next
-		for nCont := 1 to Len(atmp)
+		/*for nCont := 1 to Len(atmp)
 			if atmp[nCont][18] <> "" .and. atmp[nCont][7] == NIL
 				atmp[nCont] := {}
 			endif
-		next
+		next*/
 		aICMSST := aClone(atmp)
 		for nCont:=1 to len(aICMSST)
 			if(valtype(aICMSST[1]) == "A")
