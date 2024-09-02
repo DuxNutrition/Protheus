@@ -4,12 +4,12 @@
 
 #define CRLF chr(13) + chr(10)  
 
-/*{Protheus.doc} 
+/*{Protheus.doc} ZESTR001
 Relatório Conferencia de Inventario 
+@type function
 @author Jedielson Rodrigues
 @since 29/07/2024
-@history 
-@version P11,P12
+@version 12.1.2310
 @database MSSQL
 */
 
@@ -18,7 +18,7 @@ User Function ZESTR001()
 Local	aArea 		:= FwGetArea()
 Local	oReport
 Local	aPergs		:= {}
-Local	dDtInv		:= Ctod(Space(8)) //Data de emissao de NF
+Local	dDtInv		:= DataUltInvent() //Ctod(Space(8)) //Data de emissao de NF
 Local   cCod        := Space(TamSX3('B1_COD')[1])
 Local   cEnder		:= Space(TamSX3('B7_LOCALIZ')[1])
 Local   cLocal      := Space(TamSX3('B7_LOCAL')[1])
@@ -35,15 +35,15 @@ Local 	nListPrd	:= 3
 
 Private cTabela 	:= GetNextAlias()
 
-aAdd(aPergs, {1,"De Produto"			  ,cCod		,/*Pict*/,/*Valid*/,"SB1",/*When*/,60,.F.})            //MV_PAR01
-aAdd(aPergs, {1,"Ate Produto"		      ,cCod	    ,/*Pict*/,MV_PAR02 > MV_PAR01,"SB1",/*When*/,60,.F.})  //MV_PAR02
-aAdd(aPergs, {1,"De Endereco"  			  ,cEnder	,/*Pict*/,/*Valid*/	,"SBE",/*When*/,60,.F.})           //MV_PAR03
-aAdd(aPergs, {1,"Ate Endereco"            ,cEnder	,/*Pict*/,MV_PAR03 > MV_PAR04,"SBE",/*When*/,60,.F.})  //MV_PAR04
-aAdd(aPergs, {1,"Data de Selecao"   	  ,dDtInv	,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.T.})           //MV_PAR05
+aAdd(aPergs, {1,"De Produto"			  ,cCod		,/*Pict*/,/*Valid*/,"SB1",/*When*/,60,.F.})             //MV_PAR01
+aAdd(aPergs, {1,"Ate Produto"		      ,cCod	    ,/*Pict*/,MV_PAR02 > MV_PAR01,"SB1",/*When*/,60,.F.})   //MV_PAR02
+aAdd(aPergs, {1,"De Endereco"  			  ,cEnder	,/*Pict*/,/*Valid*/	,"SBE",/*When*/,60,.F.})            //MV_PAR03
+aAdd(aPergs, {1,"Ate Endereco"            ,cEnder	,/*Pict*/,MV_PAR03 > MV_PAR04,"SBE",/*When*/,60,.F.})   //MV_PAR04
+aAdd(aPergs, {1,"Data de Invetario"   	  ,dDtInv	,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.T.})           //MV_PAR05
 aAdd(aPergs, {1,"De Local"  			  ,cLocal	,/*Pict*/,/*Valid*/	,"NNR",/*When*/,50,.F.})            //MV_PAR06
 aAdd(aPergs, {1,"Ate Local" 			  ,cLocal	,/*Pict*/,MV_PAR07 > MV_PAR06,"NNR",/*When*/,50,.F.})   //MV_PAR07
-aAdd(aPergs, {1,"De Tipo"  			  	  ,cTipo	,/*Pict*/,/*Valid*/	,"02",/*When*/,50,.F.})       		//MV_PAR08
-aAdd(aPergs, {1,"Ate Tipo" 			  	  ,cTipo	,/*Pict*/,MV_PAR09 > MV_PAR08,"02",/*When*/,50,.F.})    //MV_PAR09
+aAdd(aPergs, {1,"De Tipo Prod"  		  ,cTipo	,/*Pict*/,/*Valid*/	,"02",/*When*/,50,.F.})       		//MV_PAR08
+aAdd(aPergs, {1,"Ate Tipo Prod" 		  ,cTipo	,/*Pict*/,MV_PAR09 > MV_PAR08,"02",/*When*/,50,.F.})    //MV_PAR09
 aAdd(aPergs, {1,"De Grupo"  			  ,cGrupo	,/*Pict*/,/*Valid*/	,"SBM",/*When*/,50,.F.})       	    //MV_PAR10
 aAdd(aPergs, {1,"Ate Grupo" 			  ,cGrupo	,/*Pict*/,MV_PAR11 > MV_PAR10,"SBM",/*When*/,50,.F.})   //MV_PAR11
 aAdd(aPergs, {1,"De Docto"				  ,cDoc		,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.F.})           //MV_PAR12
@@ -359,6 +359,7 @@ Return
 /*{Protheus.doc} A285Tot
 Função responsável por calcular a quantidade inventariada, identificando
 lançamentos processados e não processados
+@type function
 @author Jedielson Rodrigues
 @param cTabela - Alias temporário com registros da tabela SB7.
 @param lContagem - Informa se o inventário por contagem está habilitado 
@@ -366,7 +367,7 @@ lançamentos processados e não processados
 				  de inventário em aberto para o produto.
 @param lSB7Cnt -Informa se a linha do produto deve ou não ser impressa.
 @since 02/09/2024
-@version P12
+@version 12.1.2310
 */
 
 Static Function A285Tot(cTabela,lContagem,lEmAberto,lSB7Cnt)
@@ -388,3 +389,41 @@ Else
 EndIf
 
 Return nTotal
+
+/*/{Protheus.doc} DataUltInvent
+Função que retorna a ultima data do invetário na filial.
+@type function
+@version 12.1.2310
+@author Dux | Jedielson Rodrigues
+@since 02/09/2024
+/*/
+
+Static Function DataUltInvent()
+
+Local _aAreaSB7 := SB7->(GetArea())
+Local cQuery  	:= " "
+Local dDataInv 	:= CtoD( "" )
+Local cTab 		:= GetNextAlias()
+
+	If Select( cQuery ) > 0
+		(cTab)->(DbCloseArea())
+	EndIf
+
+	cQuery := " SELECT MAX(B7_DATA) AS B7_DATA "+ CRLF 
+	cQuery += " FROM " + RetSqlName("SB7") + " AS SB7 WITH(NOLOCK) "+ CRLF
+	cQuery += " WHERE SB7.B7_FILIAL = '" + FWxFilial("SB7") + "' "+ CRLF
+	cQuery += " AND D_E_L_E_T_ = ' ' "+ CRLF
+
+	//Executando a consulta.
+	DbUseArea( .T., "TOPCONN", TcGenQry(,,cQuery), cTab, .T., .T. )
+
+	dDataInv := StoD((cTab)->B7_DATA)
+
+	(cTab)->(DbCloseArea())
+
+RestArea(_aAreaSB7)
+
+Return (dDataInv)
+ 
+
+
