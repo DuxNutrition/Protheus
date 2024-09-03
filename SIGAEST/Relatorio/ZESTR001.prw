@@ -18,7 +18,7 @@ User Function ZESTR001()
 Local	aArea 		:= FwGetArea()
 Local	oReport
 Local	aPergs		:= {}
-Local	dDtInv		:= DataUltInvent() //Ctod(Space(8)) //Data de emissao de NF
+Local	dDtInv		:= Ctod(Space(8)) //Data de emissao de NF
 Local   cCod        := Space(TamSX3('B1_COD')[1])
 Local   cEnder		:= Space(TamSX3('B7_LOCALIZ')[1])
 Local   cLocal      := Space(TamSX3('B7_LOCAL')[1])
@@ -389,41 +389,6 @@ Else
 EndIf
 
 Return nTotal
-
-/*/{Protheus.doc} DataUltInvent
-Função que retorna a ultima data do invetário na filial.
-@type function
-@version 12.1.2310
-@author Dux | Jedielson Rodrigues
-@since 02/09/2024
-/*/
-
-Static Function DataUltInvent()
-
-Local _aAreaSB7 := SB7->(GetArea())
-Local cQuery  	:= " "
-Local dDataInv 	:= CtoD( "" )
-Local cTab 		:= GetNextAlias()
-
-	If Select( cQuery ) > 0
-		(cTab)->(DbCloseArea())
-	EndIf
-
-	cQuery := " SELECT MAX(B7_DATA) AS B7_DATA "+ CRLF 
-	cQuery += " FROM " + RetSqlName("SB7") + " AS SB7 WITH(NOLOCK) "+ CRLF
-	cQuery += " WHERE SB7.B7_FILIAL = '" + FWxFilial("SB7") + "' "+ CRLF
-	cQuery += " AND D_E_L_E_T_ = ' ' "+ CRLF
-
-	//Executando a consulta.
-	DbUseArea( .T., "TOPCONN", TcGenQry(,,cQuery), cTab, .T., .T. )
-
-	dDataInv := StoD((cTab)->B7_DATA)
-
-	(cTab)->(DbCloseArea())
-
-RestArea(_aAreaSB7)
-
-Return (dDataInv)
  
 
 
