@@ -29,6 +29,7 @@ Default cSequencial := ""
 Default nQtd        := 0
 
 If !Empty(cCodPrint)
+
     cPrint += "^XA"+ CRLF
     cPrint += "^FO20,17^GB770,1060,12^FS"+ CRLF
     cPrint += "^FT150,490^A0N,200,200^FH\^CI28^FDDEV"+ ALLTRIM(cGalpao) +"^FS^CI27"+ CRLF
