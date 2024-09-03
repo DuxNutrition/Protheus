@@ -29,23 +29,21 @@ Default cSequencial := ""
 Default nQtd        := 0
 
 If !Empty(cCodPrint)
-
     cPrint += "^XA"+ CRLF
     cPrint += "^FO8,17^GB800,1080,12^FS"+ CRLF
-    cPrint += "^FT380,810^A0B,200,200^FH\^CI28^FDDEV"+ ALLTRIM(cGalpao) +"^FS^CI27"+ CRLF
-    cPrint += "^FWB"+ CRLF 
+    cPrint += "^FT150,490^A0N,200,200^FH\^CI28^FDDEV"+ ALLTRIM(cGalpao) +"^FS^CI27"+ CRLF
     cPrint += "^BY4,2,140"+ CRLF
-    cPrint += "^FO400,305^BC^FDD"+ ALLTRIM(cSeqEtq) +"^FS"+ CRLF
-    cPrint += "^FO575,090^GFA,3300,3300,20,,:::W01,,:W018,W01E,X07,X038,Y0E,Y07E,:Y0C,X038,X07,W01C,W018,,"+ CRLF  
-    cPrint += "::W01FFE,W01IF,g06,g0C,Y038,Y06,X01C,X03,X0E,W018,W01BFE,W01FFE,,"+ CRLF
-    cPrint += "::g06,Y03E,Y0F8,X039,X0F1,W01C1,W0101,W0181,X0E1,X039,X01F,Y07C,Y01E,g02,X06,W01FC,W019E,W0103,W0101,"+ CRLF
-    cPrint += "::::::W01FFE,:,:::W01IF,W01C02,X0E,X038,Y0E,Y038,Y018,Y038,Y0E,X038,X0E,W01C,W01FFE,,"+ CRLF
-    cPrint += ":::X07FC,X0C0E,W01806,W01802,W01002,:::W01802,W01806,X0FFC,X07F8,,"+ CRLF
-    cPrint += "::X0618,X0E1C,W01806,:W01802,W01002,::W01802,W01806,W01C06,X0FFC,X03F,,"+ CRLF
-    cPrint += ":::W01002,W01C0E,W01F1E,X0FFC,X03F8,X01E,Y0C,,Y0C,X01E,X03F8,X0FFE,W01F1E,W01C0E,W01002,,W01FF,W01FF8,W01FFC,Y01E,g0E,:g06,"+ CRLF
-    cPrint += "::g0E,:W01FFE,W01FFC,W01FF8,,:X07E,X0FF8,W01FFC,W01C1E,W01C0E,W01C06,"+ CRLF
-    cPrint += ":::::W01C0E,W01FFE,:X0EF6,,^FS"+ CRLF //Imagem Png
+    cPrint += "^FO160,520^BC^FDD"+ ALLTRIM(cSeqEtq) +"^FS"+ CRLF
+    cPrint += "^FO330,810^GFA,3360,3360,21,,::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"+ CRLF
+    cPrint += "3FFC3807700703FE03FC0C0187FF80E01C06300C8,7FFE3807380E078F070E0E03860181B01E06300C,"+ CRLF
+    cPrint += "7IF3807380E06018C030E038600C13012061818,700738071C1C0C018C010B068600C3181B060C38,"+ CRLF
+    cPrint += "300738071E3C0CI0C0109048601861819860C3,700738070F780CI0C01098C8601860C1886066,"+ CRLF
+    cPrint += "700738070F780CI0C010J86018C0418C603C,700738070E380CI0C0108D886030C06186601C,"+ CRLF
+    cPrint += "700E380F1C1C0C018C01087087FE1FFE1826018,381E3E3E3C1E04018C030870860018061836018,"+ CRLF
+    cPrint += "7FFC1FFC380E07070607080086001803181E018,7FF80FF8780703FE03FE080186003003180E018,"+ CRLF
+    cPrint += "gJ08P04,,:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::^FS"+ CRLF //Imagem Png
     cPrint += "^XZ"+ CRLF
+    cPrint += "^XA^ID*.*^XZ"+ CRLF
 
     If !ExistDir( "c:\temp" )
         MakeDir( "c:\temp" )
@@ -75,7 +73,7 @@ If !Empty(cCodPrint)
     _cCaminho := _cCamLoc + "\" + AllTrim(cCodPrint) + ".bat"
 
     If CB5SetImp(cCodPrint)
-        Sleep(200) // Como esta em rede, esperar 2 seg para impressao (Atualizacao necessÃ¡ria)
+        Sleep(200) // Como esta em rede, esperar 2 seg para impressao (Atualizacao necessaria)
         WinExec(_cCaminho)
     Else
         FWAlertWarning("Nao foi possivel comunicar com a Impressora", "Atenção [ ZGENETQ2 ]")
