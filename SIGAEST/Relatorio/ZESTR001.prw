@@ -31,7 +31,7 @@ Local 	aCusmed		:= {"Atual","Ult.Fechamento"}
 Local 	aListPrd	:= {"Com Diferenças","Sem Diferenças","Todos"}
 Local 	nMoeda		:= 1
 Local 	nCusmed		:= 1
-Local 	nListPrd	:= 3
+Local 	nListPrd	:= 1
 
 Private cTabela 	:= GetNextAlias()
 
@@ -108,21 +108,21 @@ Local  cTamVFim  	:= 20
 		
 	TRCell():New( oSection  ,"B1_COD"       ,cTabela ,"Produto"						,PesqPict("SB1","B1_COD")		,TamSx3("B1_COD")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"DESCRI"     	,cTabela ,"Descricao"	    			,								,TamSx3("B1_DESC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"B7_LOTECTL"   ,cTabela ,"Lote"						,PesqPict("SB7","B7_LOTECTL")   ,TamSx3("B7_LOTECTL")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"B7_NUMLOTE"   ,cTabela ,"Sub Lote"					,PesqPict("SB7","B7_NUMLOTE")   ,TamSx3("B7_NUMLOTE")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"B7_LOTECTL"   ,cTabela ,"Lote"						,PesqPict("SB7","B7_LOTECTL")   ,TamSx3("B7_LOTECTL")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"B7_NUMLOTE"   ,cTabela ,"Sub Lote"					,PesqPict("SB7","B7_NUMLOTE")   ,TamSx3("B7_NUMLOTE")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"B7_DTVALID"   ,cTabela ,"Validade" 					,PesqPict("SB7","B7_DTVALID")   ,TamSx3("B7_DTVALID")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"B7_LOCALIZ"   ,cTabela ,"Localizacao"					,PesqPict("SB7","B7_LOCALIZ")   ,TamSx3("B7_LOCALIZ")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"B7_NUMSERI"   ,cTabela ,"Num Serie"					,PesqPict("SB7","B7_NUMSERI")   ,TamSx3("B7_NUMSERI")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"B1_TIPO"   	,cTabela ,"TP"							,PesqPict("SB7","B1_TIPO")   	,TamSx3("B1_TIPO")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"B1_GRUPO"   	,cTabela ,"Grupo"						,PesqPict("SB7","B1_GRUPO") 	,TamSx3("B1_GRUPO")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"B1_UM"   		,cTabela ,"UM"							,PesqPict("SB7","B1_UM")   		,TamSx3("B1_UM")[1]			, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"B7_LOCAL" 	,cTabela ,"Amz"							,PesqPict("SB7","B7_LOCAL")   	,TamSx3("B7_LOCAL")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"B7_DOC"   	,cTabela ,"Docto"						,PesqPict("SB7","B7_DOC")   	,TamSx3("B7_DOC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"B7_LOCALIZ"   ,cTabela ,"Localizacao"					,PesqPict("SB7","B7_LOCALIZ")   ,TamSx3("B7_LOCALIZ")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"B7_NUMSERI"   ,cTabela ,"Num Serie"					,PesqPict("SB7","B7_NUMSERI")   ,TamSx3("B7_NUMSERI")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"B1_TIPO"   	,cTabela ,"TP"							,PesqPict("SB7","B1_TIPO")   	,TamSx3("B1_TIPO")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"B1_GRUPO"   	,cTabela ,"Grupo"						,PesqPict("SB7","B1_GRUPO") 	,TamSx3("B1_GRUPO")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"B1_UM"   		,cTabela ,"UM"							,PesqPict("SB7","B1_UM")   		,TamSx3("B1_UM")[1]			, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"B7_LOCAL" 	,cTabela ,"Amz"							,PesqPict("SB7","B7_LOCAL")   	,TamSx3("B7_LOCAL")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"B7_DOC"   	,cTabela ,"Docto"						,PesqPict("SB7","B7_DOC")   	,TamSx3("B7_DOC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"B7_QUANT"   	,cTabela ,"Quantidade Inventariada" 	,PesqPict("SB7","B7_QUANT")   	,TamSx3("B7_QUANT")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"QUANTDATA"   	,cTabela ,"Qtd na data do Inventario" 	,cPictQFim   					,cTamQFim					, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"DIFQUANT"   	,cTabela ,"Diferenca Quantidade" 		,cPictQtd   					,cTamQtd					, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"DIFVALOR"   	,cTabela ,"Diferenca Valor" 			,cPictVFim   					,cTamVFim					, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
-	TRCell():New( oSection  ,"STATUS"   	,cTabela ,"Status" 						,"@!"	                        ,15							, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"STATUS"   	,cTabela ,"Status" 						,"@!"	                        ,15							, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 
 Return oReport
 
