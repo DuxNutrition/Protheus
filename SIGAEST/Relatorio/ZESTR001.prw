@@ -18,7 +18,7 @@ User Function ZESTR001()
 Local	aArea 		:= FwGetArea()
 Local	oReport
 Local	aPergs		:= {}
-Local	dDtInv		:= Ctod(Space(8)) //Data de emissao de NF
+Local	dDtInv		:= Ctod(Space(8))
 Local   cCod        := Space(TamSX3('B1_COD')[1])
 Local   cEnder		:= Space(TamSX3('B7_LOCALIZ')[1])
 Local   cLocal      := Space(TamSX3('B7_LOCAL')[1])
@@ -73,15 +73,20 @@ Local  cPictVFim 	:= PesqPict("SB2",'B2_VFIM1',20)
 Local  cTamQFim  	:= 20
 Local  cTamQtd   	:= 20
 Local  cTamVFim  	:= 20
+Local  cDescrel     := ""
+
+cDescrel  += "Emite uma relacao que mostra o saldo em estoque e todas as contagens efetuadas "
+cDescrel  += "no inventario. Baseado nestas duas informacoes ele calcula a diferenca encontrada."
+
 
 	oReport:= TReport():New("ZESTR001",;				// --Nome da impressão
-							"Lancamento de Inventario",;  // --Título da tela de parâmetros
+							"Listagem dos itens inventariados",;  // --Título da tela de parâmetros
 							,;      		// --Grupo de perguntas na SX1, ao invés das pereguntas estou usando Parambox
-							{|oReport|  ReportPrint(oReport),};
-							) // --Descrição do relatório
-
+							{|oReport|  ReportPrint(oReport),},;
+							cDescrel) // --Descrição do relatório
+							
 	oReport:SetLandScape(.T.)			//--Orientação do relatório como paisagem.
-	oReport:HideParamPage(.F.)    	    //--Desabilita a impressao da pagina de parametros.
+	oReport:HideParamPage()    	        //--Desabilita a impressao da pagina de parametros.
 	oReport:HideHeader()        		//--Define que não será impresso o cabeçalho padrão da página
 	oReport:HideFooter()        		//--Define que não será impresso o rodapé padrão da página
 	oReport:SetPreview(.T.)   			//--Define se será apresentada a visualização do relatório antes da impressão física
