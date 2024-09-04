@@ -66,7 +66,7 @@ Return
 Static Function fReportDef() //Definições do relatório
 
 Local oReport
-Local oSection := Nil
+Local oSection 		:= Nil
 Local  cPictQFim 	:= PesqPict("SB2",'B2_QFIM',20)
 Local  cPictQtd  	:= PesqPict("SB7",'B7_QUANT',20)
 Local  cPictVFim 	:= PesqPict("SB2",'B2_VFIM1',20)
@@ -78,39 +78,14 @@ Local  cDescrel     := ""
 cDescrel  += "Emite uma relacao que mostra o saldo em estoque e todas as contagens efetuadas "
 cDescrel  += "no inventario. Baseado nestas duas informacoes ele calcula a diferenca encontrada."
 
-
-	oReport:= TReport():New("ZESTR001",;				// --Nome da impressão
-							"Listagem dos itens inventariados",;  // --Título da tela de parâmetros
-							,;      		// --Grupo de perguntas na SX1, ao invés das pereguntas estou usando Parambox
-							{|oReport|  ReportPrint(oReport),},;
-							cDescrel) // --Descrição do relatório
-							
+	oReport:= TReport():New("ZESTR001","Listagem dos itens inventariados",/*cPerg*/,{|oReport|ReportPrint(oReport)},cDescrel)
 	oReport:SetLandScape(.T.)			//--Orientação do relatório como paisagem.
-	oReport:HideParamPage()    	        //--Desabilita a impressao da pagina de parametros.
-	oReport:HideHeader()        		//--Define que não será impresso o cabeçalho padrão da página
-	oReport:HideFooter()        		//--Define que não será impresso o rodapé padrão da página
-	oReport:SetPreview(.T.)   			//--Define se será apresentada a visualização do relatório antes da impressão física
 	oReport:SetEnvironment(2)   		//--Define o ambiente para impressão 	Ambiente: 1-Server e 2-Client
-	//oReport:oPage:SetPaperSize(9)		//--Define impressão no papel A4
+	oReport:SetDevice(4)				//--Define o tipo de impressão selecionado. Opções: 1-Arquivo,2-Impressora,3-Email,4-Planilha, 5-Html e 6-PDF
 
-	oReport:lParamPage := .T. //Página de parâmetros?
+	//Seção 1 
+	oSection := TRSection():New(oReport,"Lancamento de Inventario",{cTabela})
 
-	//Impressão por planilhas
-	oReport:SetDevice(4)        		//--Define o tipo de impressão selecionado. Opções: 1-Arquivo,2-Impressora,3-Email,4-Planilha, 5-Html e 6-PDF
-	//oReport:SetTpPlanilha({.T., .T., .T., .T.}) //Formato Tabela {Normal, Suprimir linhas brancas e totais, Formato de Tabela, Formato de Tabela xlsx}
-
-	//Definições de fonte:
-	//oReport:SetLineHeight(50) 			//--Espaçamento entre linhas
-	//oReport:cFontBody := 'Arial' 			//--Tipo da fonte
-	//oReport:nFontBody := 10				//--Tamanho da fonte
-	//oReport:SetEdit(.T.) 
-	//Pergunte(oReport:GetParam(),.F.) 	//--Adicionar as perguntas na SX1
-
-	oSection := TRSection():New(oReport,; 	//--Criando a seção de dados
-		OEMToAnsi("Lancamento de Inventario"),;
-		{cTabela})
-	oReport:SetTotalInLine(.F.) 			//--Desabilita o total de linhas
-		
 	TRCell():New( oSection  ,"B1_COD"       ,cTabela ,"Produto"						,PesqPict("SB1","B1_COD")		,TamSx3("B1_COD")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"DESCRI"     	,cTabela ,"Descricao"	    			,								,TamSx3("B1_DESC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"B7_LOTECTL"   ,cTabela ,"Lote"						,PesqPict("SB7","B7_LOTECTL")   ,TamSx3("B7_LOTECTL")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
@@ -359,7 +334,6 @@ Static Function ReportPrint(oReport)
 	FwRestArea(aArea)
 	RestArea(_aAreaSB2)
 Return
-
 
 /*{Protheus.doc} A285Tot
 Função responsável por calcular a quantidade inventariada, identificando
