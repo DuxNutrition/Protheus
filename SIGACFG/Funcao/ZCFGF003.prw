@@ -14,7 +14,7 @@ Manutenção dos Acessos x Rotinas (Dux)
 /*/
 User function ZCFGF003()
 
-    Local oBrowse       := Nill
+    Local oBrowse
     Private aRotina     := MenuDef()
 
    
@@ -51,14 +51,15 @@ Static Function MenuDef()
 
     Local aRotina := {}
 
-    ADD OPTION aRotina TITLE 'Pesquisar'	        ACTION 'PesqBrw'		  OPERATION 1 ACCESS 0
-    ADD OPTION aRotina TITLE 'Visualizar'	        ACTION 'VIEWDEF.ZCFGF003' OPERATION 2 ACCESS 0
-    ADD OPTION aRotina Title 'Incluir'              ACTION 'VIEWDEF.ZCFGF003' OPERATION 3 ACCESS 0
-    ADD OPTION aRotina Title 'Alterar'              ACTION 'VIEWDEF.ZCFGF003' OPERATION 4 ACCESS 0
-    ADD OPTION aRotina Title 'Excluir'              ACTION 'VIEWDEF.ZCFGF003' OPERATION 5 ACCESS 0
-    ADD OPTION aRotina TITLE 'Legenda'    	        ACTION 'U_zBrwLeg()'      OPERATION 6 ACCESS 0
-    ADD OPTION aRotina TITLE 'Copiar Acessos'       ACTION 'U_zCopySZX()'     OPERATION 7 ACCESS 0
-    ADD OPTION aRotina TITLE 'Bloqueio de Acessos'  ACTION 'U_zBlqSZX()'	  OPERATION 8 ACCESS 0
+    ADD OPTION aRotina TITLE 'Pesquisar'	            ACTION 'PesqBrw'		  OPERATION 1 ACCESS 0
+    ADD OPTION aRotina TITLE 'Visualizar'	            ACTION 'VIEWDEF.ZCFGF003' OPERATION 2 ACCESS 0
+    ADD OPTION aRotina Title 'Incluir'                  ACTION 'VIEWDEF.ZCFGF003' OPERATION 3 ACCESS 0
+    ADD OPTION aRotina Title 'Alterar'                  ACTION 'VIEWDEF.ZCFGF003' OPERATION 4 ACCESS 0
+    ADD OPTION aRotina Title 'Excluir'                  ACTION 'VIEWDEF.ZCFGF003' OPERATION 5 ACCESS 0
+    ADD OPTION aRotina TITLE 'Legenda'    	            ACTION 'U_zBrwLeg()'      OPERATION 6 ACCESS 0
+    ADD OPTION aRotina TITLE 'Copiar Acessos Full'      ACTION 'U_zCopySZX()'     OPERATION 7 ACCESS 0
+    ADD OPTION aRotina TITLE 'Duplic Acessos Filial'    ACTION 'U_zCopyFil()'     OPERATION 7 ACCESS 0
+    ADD OPTION aRotina TITLE 'Bloqueio de Acessos'      ACTION 'U_zBlqSZX()'	  OPERATION 8 ACCESS 0
 
 Return( aRotina )
 
@@ -408,6 +409,79 @@ If !( Empty(MV_PAR01) .Or. Empty(MV_PAR02) )
         EndIf
     Else
         ApMsgStop("Não é permitida a cópia para o mesmo usuário de origem!","ZCFGF003")
+    EndIf
+Else
+    ApMsgStop("É necessário o preenchimento de ambos os usuários para cópia!","ZCFGF003")
+EndIf
+
+Return()
+
+/*/{Protheus.doc} ZCopyFil
+Faz a copia do usuario para outra filial
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 05/09/2024
+/*/
+User Function ZCopyFil()
+
+Local cQryCopy   	:= ""
+Local cAliCopy 		:= GetNextAlias()
+Local cPerg         := "ZCFGF003P2"
+
+DbSelectArea("SZX")
+SZX->(DbSetOrder(1)) //ZX_FILIAL + ZX_ID + ZX_ROTINA
+
+Pergunte(cPerg,.T.)
+
+If !Empty(MV_PAR01)
+    If !( MV_PAR01 == SZX->ZX_FILIAL )
+        If MsgYesNo("Deseja prosseguir com a seguinte cópia ?" + CRLF + CRLF + "Copiar Acessos" + CRLF + CRLF + "Filial Origem: " + SZX->ZX_FILIAL + CRLF + "Filial Destino: " + MV_PAR01 + CRLF + CRLF + "Deseja realmente continuar ??? ","ZCFGF003")
+
+                    
+            If Select((cAliCopy)) > 0
+                (cAliCopy)->(DbCloseArea())
+            EndIf
+
+            cQryCopy := ""
+            cQryCopy += " SELECT * "                                            + CRLF
+            cQryCopy += " FROM "+RetSQLName('SZX')+" SZX "                      + CRLF
+            cQryCopy += " WHERE SZX.ZX_FILIAL = '"+FWxFilial('SZX')+"' "        + CRLF
+            cQryCopy += " AND SZX.ZX_ID = '" + SZX->ZX_FILIAL + "' "            + CRLF
+            cQryCopy += " AND SZX.D_E_L_E_T_ = ' ' "                            + CRLF
+            cQryCopy += " ORDER BY SZX.ZX_FILIAL, SZX.ZX_ID, SZX.ZX_ROTINA "    + CRLF
+
+            //Executa a consulta
+            DbUseArea( .T., "TOPCONN", TcGenQry(,,cQryCopy), cAliCopy, .T., .T. )
+
+            DbSelectArea((cAliCopy))
+            (cAliCopy)->(dbGoTop())
+            While (cAliCopy)->(!Eof())
+
+                Reclock( "SZX" , .T. )
+                    SZX->ZX_FILIAL      := MV_PAR01
+                    SZX->ZX_ROTINA      := (cAliCopy)->ZX_ROTINA 
+                    SZX->ZX_ID          := (cAliCopy)->ZX_ID     
+                    SZX->ZX_LOGIN       := (cAliCopy)->ZX_LOGIN  
+                    SZX->ZX_NOME        := (cAliCopy)->ZX_NOME   
+                    SZX->ZX_DEPART      := (cAliCopy)->ZX_DEPART 
+                    SZX->ZX_ACESSO      := (cAliCopy)->ZX_ACESSO 
+                    SZX->ZX_DESCROT     := (cAliCopy)->ZX_DESCROT
+                    SZX->ZX_DTAUTDE     := (cAliCopy)->ZX_DTAUTDE
+                    SZX->ZX_DTAUTAT     := (cAliCopy)->ZX_DTAUTAT
+                    SZX->ZX_MOTBLOQ     := (cAliCopy)->ZX_MOTBLOQ
+                SZX->(MsUnlock())   
+
+                (cAliCopy)->(DbSkip())
+            EndDo
+            ApMsgInfo("Usuário copiado com Sucesso!!","[ ZCFGF003 ] - Concluído")
+            (cAliCopy)->(DbCloseArea())
+                    
+        Else
+            ApMsgStop("Processo cancelado com sucesso.","ZCFGF003")
+        EndIf
+    Else
+        ApMsgStop("Não é permitida a cópia para a mesma filial!","ZCFGF003")
     EndIf
 Else
     ApMsgStop("É necessário o preenchimento de ambos os usuários para cópia!","ZCFGF003")
