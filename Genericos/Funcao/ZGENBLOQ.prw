@@ -1,7 +1,7 @@
 #Include "Protheus.Ch"
 #Include "TopConn.Ch"
 
-/*/{Protheus.doc} ZGENUSER
+/*/{Protheus.doc} ZGENBLOQ
 Valida se o usuário pode acessar a rotina.
 @type function
 @version 12.1.2310
@@ -12,7 +12,7 @@ Valida se o usuário pode acessar a rotina.
 @param cParam03, character, mensagem
 @return logical, .T. or .F.
 /*/
-User Function ZGENUSER(cParam01,cParam02,cParam03)
+User Function ZGENBLOQ(cParam01,cParam02,cParam03)
 
 Local cUser     := cParam01
 Local cRotina   := cParam02
@@ -22,6 +22,12 @@ Local cMaster   := "**********"
 Local lMaster   := .F.
 
 Default lMsg := .F.
+
+/*Exemplo de chamada              
+lUserAut := U_ZGENBLOQ( RetCodUsr() ,; //Cod do usuário
+                        "ZMSBLQUSR" ,; //Rotina
+                        	,.T.)   ,; // .F. não mostra .T. mostra
+*/
 
 DbSelectArea("SZX")
 SZX->(DbSetOrder(1)) //ZX_FILIAL + ZX_ID + ZX_ROTINA
