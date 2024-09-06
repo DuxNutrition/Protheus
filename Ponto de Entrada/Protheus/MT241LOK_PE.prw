@@ -20,8 +20,8 @@ Local clocal    := aCols[n][n_PosLOC]
 Local cArm      := SuperGetMv("DUX_EST006",.F.,"ME01")
 Local cUser     := SuperGetMv("DUX_EST007",.F.,"000743")
 
-If FwIsInCallStack("MATA241") .AND. FwIsInCallStack("A241LinOk")
-    If !__cUserID $ cUser .AND. clocal $ cArm
+If !FwIsInCallStack("ACDV130") .AND. FwIsInCallStack("MATA241") .AND. FwIsInCallStack("A241LinOk")
+    If !__cUserID $ cUser .AND. clocal $ cArm .AND. !aCols[n][Len(aHeader)+1]
         FWAlertWarning("Usuario nao tem acesso para movimentar produtos do armazem "+clocal+" .!", "Atenção [ MT241LOK ]")
         lRet := .F.
     Endif 
