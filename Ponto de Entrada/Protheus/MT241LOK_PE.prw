@@ -18,13 +18,10 @@ Local lRet 	    := .T.
 Local n_PosLOC	:= ASCAN(aHeader,{|x|Alltrim(x[2])=="D3_LOCAL"})
 Local clocal    := aCols[n][n_PosLOC]
 Local cArm      := SuperGetMv("DUX_EST006",.F.,"ME01")
-Local lUserAut  := .F.
+Local cUser     := SuperGetMv("DUX_EST007",.F.,"000743")
 
-If FwIsInCallStack("MATA241") .AND. FwIsInCallStack("A241LinOk") .AND. clocal $ cArm 
-    lUserAut := U_ZGENBLOQ( RetCodUsr() ,; //Cod do usuário
-                            "MT241LOK"  ,; //Rotina
-                            ,.T.)          // .F. não mostra .T. mostra
-    If lUserAut == .F.                     
+If FwIsInCallStack("MATA241") .AND. FwIsInCallStack("A241LinOk")
+    If !__cUserID $ cUser .AND. clocal $ cArm
         FWAlertWarning("Usuario nao tem acesso para movimentar produtos do armazem "+clocal+" .!", "Atenção [ MT241LOK ]")
         lRet := .F.
     Endif 
