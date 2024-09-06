@@ -427,7 +427,7 @@ User Function ZCopyFil()
 
 Local cQryCopy   	:= ""
 Local cAliCopy 		:= GetNextAlias()
-Local cPerg         := "ZCFGF003P2"
+Local cPerg         := "ZCFGF003P3"
 
 DbSelectArea("SZX")
 SZX->(DbSetOrder(1)) //ZX_FILIAL + ZX_ID + ZX_ROTINA
@@ -436,49 +436,75 @@ Pergunte(cPerg,.T.)
 
 If !Empty(MV_PAR01)
     If !( MV_PAR01 == SZX->ZX_FILIAL )
-        If MsgYesNo("Deseja prosseguir com a seguinte cópia ?" + CRLF + CRLF + "Copiar Acessos" + CRLF + CRLF + "Filial Origem: " + SZX->ZX_FILIAL + CRLF + "Filial Destino: " + MV_PAR01 + CRLF + CRLF + "Deseja realmente continuar ??? ","ZCFGF003")
+
+        If MV_PAR02 == 1
+            If MsgYesNo("Deseja prosseguir com a cópia de todos os acessos ?" + CRLF + CRLF + "Usuário: " + SZX->ZX_ID + " | " + AllTrim( UsrRetName( SZX->ZX_ID ) ) + CRLF + CRLF + "Filial Origem: " + SZX->ZX_FILIAL + CRLF + "Filial Destino: " + MV_PAR01 + CRLF + CRLF + "Deseja realmente continuar ??? ","ZCFGF003")
 
                     
-            If Select((cAliCopy)) > 0
+                If Select((cAliCopy)) > 0
+                    (cAliCopy)->(DbCloseArea())
+                EndIf
+
+                cQryCopy := ""
+                cQryCopy += " SELECT * "                                            + CRLF
+                cQryCopy += " FROM "+RetSQLName('SZX')+" SZX "                      + CRLF
+                cQryCopy += " WHERE SZX.ZX_FILIAL = '"+ SZX->ZX_FILIAL +"' "        + CRLF
+                cQryCopy += " AND SZX.ZX_ID = '" + SZX->ZX_ID + "' "                + CRLF
+                cQryCopy += " AND SZX.D_E_L_E_T_ = ' ' "                            + CRLF
+                cQryCopy += " ORDER BY SZX.ZX_FILIAL, SZX.ZX_ID, SZX.ZX_ROTINA "    + CRLF
+
+                //Executa a consulta
+                DbUseArea( .T., "TOPCONN", TcGenQry(,,cQryCopy), cAliCopy, .T., .T. )
+
+                DbSelectArea((cAliCopy))
+                (cAliCopy)->(dbGoTop())
+                While (cAliCopy)->(!Eof())
+
+                    Reclock( "SZX" , .T. )
+                        SZX->ZX_FILIAL      := MV_PAR01
+                        SZX->ZX_ROTINA      := (cAliCopy)->ZX_ROTINA 
+                        SZX->ZX_ID          := (cAliCopy)->ZX_ID     
+                        SZX->ZX_LOGIN       := (cAliCopy)->ZX_LOGIN  
+                        SZX->ZX_NOME        := (cAliCopy)->ZX_NOME   
+                        SZX->ZX_DEPART      := (cAliCopy)->ZX_DEPART 
+                        SZX->ZX_ACESSO      := (cAliCopy)->ZX_ACESSO 
+                        SZX->ZX_DESCROT     := (cAliCopy)->ZX_DESCROT
+                        SZX->ZX_DTAUTDE     := SToD((cAliCopy)->ZX_DTAUTDE)
+                        SZX->ZX_DTAUTAT     := SToD((cAliCopy)->ZX_DTAUTAT)
+                        SZX->ZX_MOTBLOQ     := (cAliCopy)->ZX_MOTBLOQ
+                    SZX->(MsUnlock())   
+
+                    (cAliCopy)->(DbSkip())
+                EndDo
+                ApMsgInfo("Usuário copiado com Sucesso!!","[ ZCFGF003 ] - Concluído")
                 (cAliCopy)->(DbCloseArea())
+                    
+            Else
+                ApMsgStop("Processo cancelado com sucesso.","ZCFGF003")
             EndIf
-
-            cQryCopy := ""
-            cQryCopy += " SELECT * "                                            + CRLF
-            cQryCopy += " FROM "+RetSQLName('SZX')+" SZX "                      + CRLF
-            cQryCopy += " WHERE SZX.ZX_FILIAL = '"+FWxFilial('SZX')+"' "        + CRLF
-            cQryCopy += " AND SZX.ZX_ID = '" + SZX->ZX_FILIAL + "' "            + CRLF
-            cQryCopy += " AND SZX.D_E_L_E_T_ = ' ' "                            + CRLF
-            cQryCopy += " ORDER BY SZX.ZX_FILIAL, SZX.ZX_ID, SZX.ZX_ROTINA "    + CRLF
-
-            //Executa a consulta
-            DbUseArea( .T., "TOPCONN", TcGenQry(,,cQryCopy), cAliCopy, .T., .T. )
-
-            DbSelectArea((cAliCopy))
-            (cAliCopy)->(dbGoTop())
-            While (cAliCopy)->(!Eof())
-
+        Else
+             If MsgYesNo("Deseja prosseguir com a cópia somente do acesso selecionado ?" + CRLF + CRLF + "Usuário: " + SZX->ZX_ID + " | " + AllTrim( UsrRetName( SZX->ZX_ID ) ) + CRLF + CRLF + "Filial Origem: " + SZX->ZX_FILIAL + CRLF + "Filial Destino: " + MV_PAR01 + CRLF + CRLF + "Deseja realmente continuar ??? ","ZCFGF003")
+             
                 Reclock( "SZX" , .T. )
                     SZX->ZX_FILIAL      := MV_PAR01
-                    SZX->ZX_ROTINA      := (cAliCopy)->ZX_ROTINA 
-                    SZX->ZX_ID          := (cAliCopy)->ZX_ID     
-                    SZX->ZX_LOGIN       := (cAliCopy)->ZX_LOGIN  
-                    SZX->ZX_NOME        := (cAliCopy)->ZX_NOME   
-                    SZX->ZX_DEPART      := (cAliCopy)->ZX_DEPART 
-                    SZX->ZX_ACESSO      := (cAliCopy)->ZX_ACESSO 
-                    SZX->ZX_DESCROT     := (cAliCopy)->ZX_DESCROT
-                    SZX->ZX_DTAUTDE     := (cAliCopy)->ZX_DTAUTDE
-                    SZX->ZX_DTAUTAT     := (cAliCopy)->ZX_DTAUTAT
-                    SZX->ZX_MOTBLOQ     := (cAliCopy)->ZX_MOTBLOQ
+                    SZX->ZX_ROTINA      := SZX->ZX_ROTINA 
+                    SZX->ZX_ID          := SZX->ZX_ID     
+                    SZX->ZX_LOGIN       := SZX->ZX_LOGIN  
+                    SZX->ZX_NOME        := SZX->ZX_NOME   
+                    SZX->ZX_DEPART      := SZX->ZX_DEPART 
+                    SZX->ZX_ACESSO      := SZX->ZX_ACESSO 
+                    SZX->ZX_DESCROT     := SZX->ZX_DESCROT
+                    SZX->ZX_DTAUTDE     := SZX->ZX_DTAUTDE
+                    SZX->ZX_DTAUTAT     := SZX->ZX_DTAUTAT
+                    SZX->ZX_MOTBLOQ     := SZX->ZX_MOTBLOQ
                 SZX->(MsUnlock())   
 
-                (cAliCopy)->(DbSkip())
-            EndDo
-            ApMsgInfo("Usuário copiado com Sucesso!!","[ ZCFGF003 ] - Concluído")
-            (cAliCopy)->(DbCloseArea())
+                ApMsgInfo("Usuário copiado com Sucesso!!","[ ZCFGF003 ] - Concluído")
+                (cAliCopy)->(DbCloseArea())
                     
-        Else
-            ApMsgStop("Processo cancelado com sucesso.","ZCFGF003")
+            Else
+                ApMsgStop("Processo cancelado com sucesso.","ZCFGF003")
+            EndIf
         EndIf
     Else
         ApMsgStop("Não é permitida a cópia para a mesma filial!","ZCFGF003")
