@@ -25,7 +25,7 @@ If FwIsInCallStack("MATA241") .AND. FwIsInCallStack("A241LinOk") .AND. clocal $ 
                             "MT241LOK"  ,; //Rotina
                             ,.T.)          // .F. não mostra .T. mostra
     If lUserAut == .F.                     
-        FWAlertWarning("Usuario nao tem acesso para movimentar produtos desse Armazem", "Atenção [ MT241LOK ]")
+        FWAlertWarning("Usuario nao tem acesso para movimentar produtos do armazem "+clocal+" .!", "Atenção [ MT241LOK ]")
         lRet := .F.
     Endif 
 Endif
