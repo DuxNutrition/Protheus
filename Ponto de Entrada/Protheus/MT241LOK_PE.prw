@@ -1,4 +1,6 @@
 #INCLUDE "PROTHEUS.CH"
+#INCLUDE "RWMAKE.CH"
+#INCLUDE "TOPCONN.CH"
 
 /*/{Protheus.doc} MT241LOK
 Após a confirmação da digitação da linha, antes da gravação, 
@@ -10,10 +12,11 @@ Este ponto de entrada somente será executado se a linha da getdados for validada
 @since 05/09/2024
 @version 12.1.2310
 @database MSSQL
-@See 
+@See https://tdn.totvs.com/pages/releaseview.action?pageId=6087743
 /*/
 User Function MT241LOK()
 
+Local _aArea    := FwGetArea()
 Local lRet 	    := .T.
 Local n_PosLOC	:= ASCAN(aHeader,{|x|Alltrim(x[2])=="D3_LOCAL"})
 Local clocal    := aCols[n][n_PosLOC]
@@ -26,5 +29,7 @@ If !FwIsInCallStack("ACDV130") .AND. FwIsInCallStack("MATA241") .AND. FwIsInCall
         lRet := .F.
     Endif 
 Endif
+
+FwRestArea(_aArea)
 
 Return (lRet)
