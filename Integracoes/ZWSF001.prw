@@ -6,7 +6,7 @@
 /*ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
-±±³Programa  ³ ZWSF0001 ³ Autor ³  Allan Rabelo         ³ Data ³ 15/07/24 ³±±
+±±³Programa  ³ ZWSR001 ³ Autor ³  Allan Rabelo         ³ Data ³ 15/07/24 ³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
 ±±³Descri‡…o ³ Retornar calculos MATAXFIS de NFS                          ³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
@@ -14,68 +14,98 @@
 ±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
-WSRESTFUL ZWSF001 DESCRIPTION "Rotina para retorno de calculos de impostos"
-    WSMETHOD GET  DESCRIPTION "ZWSF001" WSSYNTAX "ZWSF001"
+WSRESTFUL ZWSR001 DESCRIPTION "Consulta calculo de impostos"
+    WSMETHOD GET  DESCRIPTION "ZWSR001 | Consulta calculo de impostos" WSSYNTAX "ZWSR001"
 END WSRESTFUL
 
-WSMETHOD GET WSSERVICE ZWSF001
-    Local oNFCAB     := JsonObject():New()
-    Local oItem      := JsonObject():New()
-    Local aPlanilha  := Array(0)
-    Local aItem      := Array(0)
-    Local _aRet       := ""
-    Local cBody      := ""
-    Local _cAuthorization := ""
-    Local _cEmpFil   := ""
-    Local _cUser     := ""
-    Local _cPass     := ""
-    Local jBody    As JSON
-    Local cTenantId := ""
-    Local empresa := ""
-    Local filial := ""
-    Local lRet := .F.
-    Local _cLogin := ""
+WSMETHOD GET WSSERVICE ZWSR001
+    Local _aRet             := ""
+    Local cBody             := ""
+    Local _cAuthorization   := ""
+    Local _cEmpFil          := ""
+    Local _cUserPar         := ""
+    Local _cPassPar         := ""
+    Local jBody             As JSON
+    Local _cEmpresa         := ""
+    Local _cFilial          := ""
+    Local _cLogin           := ""
+    Local _nPos
 
-    Self:SetContentType("application/cJson")
-    _cAuthorization := SUBSTR(Self:GetHeader('Authorization'),7,50)
-    _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
-    //_cUser  		:= Decode64(Self:GetHeader("user", .F.))
-    //_cPass          := Decode64(Self:GetHeader("pass", .F. ))
-    
-    _cUserPar 	:= Encode64(AllTrim( superGetMv( "DUX_RES01", , "allan.rabelo"	) ))	// Usuario para autenticacao no WS
-    _cPassPar 	:= Encode64(AllTrim( superGetMv( "DUX_RES02", , "123456"	) ))	// Senha para autenticao no WS*/
-    cLogin := Encode64(Decode64(_cUserPar) +":"+ Decode64(_cPassPar)) 
-    cBody := ::GetContent()
-    jBody    := JSONObject():New()
+    Begin Sequence
+        
+        Conout("ZWSR001 - Inicio "+DtoC(date())+" "+Time())
 
-    cTenantId := HTTPHeader("tenantId")
+        Self:SetContentType("application/cJson")
+        
+        cBody           := ::GetContent()
+        jBody           := JSONObject():New()
+        _cAuthorization := Self:GetHeader('Authorization')
+        _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
+        
+        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_RES01", , "allan.rabelo"))	    // Usuario para autenticacao no WS
+        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_RES02", , "123456"	))	        // Senha para autenticao no WS*/
+        _cLogin     := _cUserPar+":"+_cPassPar
 
-    if cTenantid <> "" 
-        If ("," $ cTenantId)
-        empresa := StrTokArr2(cTenantId, ",")[1]
-        filial  := StrTokArr2(cTenantId, ",")[2]
+        //Verifica se o usuário de autenticação é igual ao do Parametro.
+        If AllTrim(_cLogin) <> AllTrim(Decode64(StrTran(_cAuthorization, "Basic ", "")))
+            _aRet := {302,"Usuario ou senha Nao Autorizado "}
+            Break
+        EndIf 
+
+        _nPos := At(",", _cEmpFil)
+        If _nPos <= 0 
+            _aRet := {302,"Tenanid nao informado ."}
+            Break
         EndIf
-    else 
-        _aRet := {302," Empresa ou filial não encontrada."}
-    endif 
 
-    cEmpAnt:= empresa
-    cFilAnt:= filial
+        _cEmpresa := SubsTr(_cEmpFil,1,_nPos-1)
+        _cFilial  := SubsTr(_cEmpFil,_nPos+1)
 
-    if (_cAuthorization!=cLogin) 
-        _aRet := {302,"Usuario ou senha Nao Autorizado "}
-    endif 
-        If Empty(_aRet) 
-            _oJson := JsonObject():new()
-            _oJson:fromJson(DecodeUTF8(Self:GetContent(,.T.)))
-            jBody := u_duxfsc(@_oJson, _cEmpFil)
-            Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
-            FwFreeObj(jBody)
-        Else
-            jBody["Status"]    := _aRet 
-            Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
-            FwFreeObj(jBody)
-        endif
+        If Empty(_cEmpresa)
+            _aRet := {302,"Empresa nao encontrada."}
+            Break
+        Endif
+
+        If Empty(_cFilial)
+             _aRet := {302,"Filial nao encontrada."}
+            Break
+        Endif
+	
+        //Verifica a existencia empresa, para não ficar retornando erro 5, valida se a tabela esta abertar
+        If Select("SM0") > 0
+            SM0->(DbSetOrder(1))  //M0_CODIGO+M0_CODFIL
+            If !SM0->(DbSeek(_cEmpresa+_cFilial))
+                _aRet := {302,"Dados da Empresa inconsistente"}
+                Break
+            Endif
+        Endif
+    
+        //Tratar abertura da empresa conforme enviado no parametro
+        If cEmpAnt <> _cEmpresa .or. cFilAnt <> _cFilial
+            RpcClearEnv() 
+            RPCSetType(3) 
+            If !RpcSetEnv(_cEmpresa,_cFilial,,,,GetEnvServer(),{ })
+                _aRet := {302,"Nao foi possivel acessar ambiente"}
+                Break
+            Endif
+        EndIf
+
+End Sequence
+
+If Empty(_aRet) 
+    _oJson := JsonObject():new()
+    _oJson:fromJson(DecodeUTF8(Self:GetContent(,.T.)))
+    jBody := ZPROC001(@_oJson, _cEmpFil)
+    Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
+    FwFreeObj(jBody)
+Else
+    jBody["Status"]    := _aRet 
+    Self:SetResponse(FwHTTPEncode(jBody:ToJSON()))
+    FwFreeObj(jBody)
+EndIf
+
+Conout("ZWSR001 - Fim "+DtoC(date())+" "+Time())
+
 Return .T.
 
 /*ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -89,9 +119,7 @@ Return .T.
 ±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
-User Function duxfsc(_oJson, _cEmpFil)
-    Local lRet  := .T.
-
+Static Function ZPROC001(_oJson, _cEmpFil)
     Local aArea := GetArea()
     Local aCabec
     Local aItens
@@ -100,14 +128,8 @@ User Function duxfsc(_oJson, _cEmpFil)
     Local aImpItem := {}
     Local nLength := 0
     Local jBody     as JSON
-    Local oJson
     Local oItems
-
-    //Local cJson     := Self:GetContent()
-    Local cError
-
     Local nX
-    Local nY
     Local yX
 
 
@@ -150,7 +172,7 @@ User Function duxfsc(_oJson, _cEmpFil)
         aAdd(aItens,aLinha)
 
         cTes := MaTesInt(2,aItens[nX][6][2],aCabec[2][2],aCabec[3][2],"C",aItens[nX][2][2])
-        aImpostos := U_FIMPOSTOS(aCabec[2][2],aCabec[3][2],aCabec[1][2],aItens[nX][2][2],cTes,aItens[nX][3][2],aItens[nX][4][2],aItens[nX][5][2])
+        aImpostos := ZProcImp(aCabec[2][2],aCabec[3][2],aCabec[1][2],aItens[nX][2][2],cTes,aItens[nX][3][2],aItens[nX][4][2],aItens[nX][5][2])
         aAdd(aImpItem,aImpostos)
 
     Next nX
@@ -211,6 +233,7 @@ User Function duxfsc(_oJson, _cEmpFil)
         jBody["Item Impostos"][nLength]["Seguro"]  := aImpItem[yX][60]
         jBody["Item Impostos"][nLength]["Despesas"]  := aImpItem[yX][61]
         jBody["Item Impostos"][nLength]["Mercadoria"]  := aImpItem[yX][62]
+        jBody["Item Impostos"][nLength]["TotalItem"]  := aImpItem[yX][63]
     Next yX
 
     RestArea(aArea)
@@ -224,10 +247,11 @@ Return (jBody)
    ¦Descrição ¦ Funcao para calcular os impostos                      ¦
 ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯*/
 
-user function FIMPOSTOS(cCliente,cLoja,cTipo,cProduto,cTes,nQtd,nPrc,nValor)
-    local aImp := {}
+Static Function ZProcImp(cCliente,cLoja,cTipo,cProduto,cTes,nQtd,nPrc,nValor)
+    local aImp  := {}
+    Local i     := 0
 
-    for i := 1 to 62
+    for i := 1 to 63
         AAdd(aImp,0)
     next
 
@@ -315,6 +339,7 @@ user function FIMPOSTOS(cCliente,cLoja,cTipo,cProduto,cTes,nQtd,nPrc,nValor)
     aImp[60] := MaFisRet(1,"IT_SEGURO")			//60 Valor do Seguro
     aImp[61] := MaFisRet(1,"IT_DESPESA")		//61 Valor das Despesas
     aImp[62] := MaFisRet(1,"IT_VALMERC")		//62 Valor da Mercadoria
+    aImp[63] := MaFisRet(1,"IT_TOTAL")		//63 Valor total do item com incidencia dos impostos
     /*	aImp[10] := MaFisRet(1,"IT_DESCZF")		//Valor de Desconto da Zona Franca de Manaus
 	aImp[14] := MaFisRet(1,"IT_BASESOL")	//Base do ICMS Solidario
 	aImp[15] := MaFisRet(1,"IT_ALIQSOL")	//Aliquota do ICMS Solidario
@@ -336,8 +361,6 @@ return aImp
 Static Function ValidRequest(_User,_Pass) As Logical
     // Variáveis locais
     Local lOK As Logical // Flag de requisição válida
-    Local _login := ""
-    Local 
 
     // Inicialização de variáveis
     lOK := .T.
