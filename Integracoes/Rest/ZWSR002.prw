@@ -240,6 +240,7 @@ Static Function ZPRODPOST(_oJson, _cEmpFil)
     Local cProd := ""
     Local cTipo := ""
     Local cArmazem := ""
+    Local aCompl := {}
     //Local cDesc := "TESTE"
     Local cUn := ""
     Local aVetor := {}
@@ -249,6 +250,7 @@ Static Function ZPRODPOST(_oJson, _cEmpFil)
     Local i
 	Local x
     Local xErro := ""
+    Local nAux := 0 
     
     
     Private lMsErroAuto := .F.
@@ -584,7 +586,63 @@ Static Function ZPRODPOST(_oJson, _cEmpFil)
             _cRet := "codmarca preenchido incorretamente ou o tipo do campo está diferente de"+TamSX3("B1_XMARCA")[3]
         endif 
     endif 
+
+    if !Empty(oJson["nomeciencia"]) .and. Empty(_cRet) 
+        if (valtype(oJson["nomeciencia"]) == (TamSX3("B5_CEME")[3]) )  
+            aadd( aCompl ,{"B5_COD" , alltrim(oJson["cproduto"]) , Nil }) 
+            aadd( aCompl ,{"B5_CEME" , alltrim(oJson["nomeciencia"]) , Nil })
+        else 
+            _cRet := "nomeciencia preenchido incorretamente ou o tipo do campo está diferente de"+TamSX3("B5_CEME")[3]
+        endif 
+    endif
+
+     if !Empty(oJson["naltura"]) .and. Empty(_cRet) 
+        if (valtype(oJson["naltura"]) == (TamSX3("B5_ALTURA")[3]) )  
+            aadd( aCompl ,{"B5_ALTURA" , oJson["naltura"] , Nil })
+        else 
+            _cRet := "naltura preenchido incorretamente ou o tipo do campo está diferente de"+TamSX3("B5_ALTURA")[3]
+        endif 
+    endif
+
+    if !Empty(oJson["ncomprimento"]) .and. Empty(_cRet) 
+        if (valtype(oJson["ncomprimento"]) == (TamSX3("B5_ECCOMP")[3]) )  
+            aadd( aCompl ,{"B5_ECCOMP" , oJson["ncomprimento"] , Nil })
+        else 
+            _cRet := "ncomprimento preenchido incorretamente ou o tipo do campo está diferente de"+TamSX3("B5_ECCOMP")[3]
+        endif 
+    endif
+
+    if !Empty(oJson["nlargura"]) .and. Empty(_cRet) 
+        if (valtype(oJson["nlargura"]) == (TamSX3("B5_ECLARGU")[3]) )  
+            aadd( aCompl ,{"B5_ECLARGU" , oJson["nlargura"] , Nil })
+        else 
+            _cRet := "nlargura preenchido incorretamente ou o tipo do campo está diferente de"+TamSX3("B5_ECLARGU")[3]
+        endif 
+    endif
     
+    if !Empty(oJson["nembpeso"]) .and. Empty(_cRet) 
+        if (valtype(oJson["nembpeso"]) == (TamSX3("B5_ECPESOE")[3]) )  
+            aadd( aCompl ,{"B5_ECPESOE" , oJson["nembpeso"] , Nil })
+        else 
+            _cRet := "nembpeso preenchido incorretamente ou o tipo do campo está diferente de"+TamSX3("B5_ECPESOE")[3]
+        endif 
+    endif
+
+    if !Empty(oJson["nemb1"]) .and. Empty(_cRet) 
+        if (valtype(oJson["nemb1"]) == (TamSX3("B5_QE1")[3]) )  
+            aadd( aCompl ,{"B5_QE1" , oJson["nemb1"] , Nil })
+        else 
+            _cRet := "nemb1 preenchido incorretamente ou o tipo do campo está diferente de"+TamSX3("B5_QE1")[3]
+        endif 
+    endif
+
+    if !Empty(oJson["nemb2"]) .and. Empty(_cRet) 
+        if (valtype(oJson["nemb2"]) == (TamSX3("B5_QE2")[3]) )  
+            aadd( aCompl ,{"B5_QE2" , oJson["nemb2"] , Nil })
+        else 
+            _cRet := "nemb2 preenchido incorretamente ou o tipo do campo está diferente de"+TamSX3("B5_QE2")[3]
+        endif 
+    endif
 
     if Empty(_cRet) 
         aadd( aProd ,{"B1_DESC" , alltrim(oJson["cdesc"]) , Nil })
@@ -603,17 +661,39 @@ Static Function ZPRODPOST(_oJson, _cEmpFil)
                 Next
                     jBody["Status"] := "400" 
                     jBody["Message"]  := "Erro: "+ xErro +" "
+                    nAux := 0 
                 //SetRestFault(404, EncodeUTF8(cRet))
             Else
-                jBody["Status"] := "200" 
-                jBody["Message"] := "Response Produto incluido com sucesso, Codigo: "+SB1->B1_COD+" "
+                //jBody["Status"] := "200" 
+               //jBody["Message"] := "Response Produto incluido com sucesso, Codigo: "+SB1->B1_COD+" "
+                nAux := 1 
                 //::SetResponse(EncodeUTF8(cRet))
             EndIf
+
         end Transaction
     else 
         jBody["Status"] := "400" 
         jBody["Message"]  := "Erro de envio: "+_cRet+" "
     endif 
+
+    if nAux == 1 //Chamando o cadastro de complemento de produtos de forma automática
+        MSExecAuto({|x,y| Mata180(x,y)},aCompl,3)
+        If lMsErroAuto
+                    lRet := .F.
+                    aErro := GetAutoGRLog()
+                    For i := 1 To Len(aErro)
+                        xErro += aErro[i]
+                    Next
+                        jBody["Status"] := "400" 
+                        jBody["Message"]  := "Erro: "+ xErro +" "
+                    //SetRestFault(404, EncodeUTF8(cRet))
+        Else
+                    jBody["Status"] := "200" 
+                    jBody["Message"] := "Response Produto incluido com sucesso, Codigo: "+SB5->B5_COD+" "
+                    //::SetResponse(EncodeUTF8(cRet))
+        EndIf
+    endif 
+
     RestArea(aArea)
 Return (jBody)
 
