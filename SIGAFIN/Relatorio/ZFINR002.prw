@@ -109,7 +109,7 @@ Local nVal      := 0
 
         If !EMPTY((cAlias)->(E1_CLIENTE))
 
-            IF !EMPTY(cAliasNF)
+            If !EMPTY(cAliasNF)
 		    	(cAliasNF)->(DbCloseArea())
 	        EndIf
 
