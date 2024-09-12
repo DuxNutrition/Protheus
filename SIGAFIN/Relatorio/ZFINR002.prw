@@ -64,14 +64,14 @@ Local cTip      := ""
 Local cTipos    := ""
 Local nVal      := 0
 
-	
+
 	oFWMSEx:AddworkSheet("RA x Títulos a Receber")
 	oFWMSEx:AddTable ("RA x Títulos a Receber","RA x " + cTipoTi + "")
 	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","CLIENTE",1,1)
-	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","NOME",2,2)
-	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","LOJA",2,2)
-	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","PREFIXO",3,3)
-	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","NUMERO",1,1)
+	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","NOME",2,1)
+	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","LOJA",3,1)
+	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","PREFIXO",2,1)
+	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","NUMERO",3,1)
 	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","PARCELA",1,1)
 	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","TIPO",1,1)
 	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","VALOR",3,3)
