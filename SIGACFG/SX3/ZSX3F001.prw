@@ -11,9 +11,12 @@ Função para validar o When dos campos customizado
 User Function ZSX3F001()
 
 Local lRet := .T.
+Local lJob := IsBlind()
 
-If !Empty(M->C5_XPEDLV) .Or. !Empty(M->C5_XIDSFOR) .Or. !Empty(M->C5_ZZNUMPJ)
-    lRet := .F.
+If !lJob
+    If !Empty(M->C5_XPEDLV) .Or. !Empty(M->C5_XIDSFOR) .Or. !Empty(M->C5_ZZNUMPJ)
+        lRet := .F. 
+    EndIf
 EndIf
 
 Return(lRet)
