@@ -27,7 +27,7 @@ Local cTipoTi := Space(30)
     aAdd(aPergs, {1,"A partir de"		  ,dData	,/*Pict*/,/*Valid*/,/*F3*/,/*When*/,50,.T.})   //MV_PAR02
     aAdd(aPergs, {1,"Cliente"  			  ,cCodCli	,/*Pict*/,/*Valid*/,/*F3*/,/*When*/,50,.F.})   //MV_PAR03
     aAdd(aPergs, {1,"Loja"                ,cLoja	,/*Pict*/,/*Valid*/,/*F3*/,/*When*/,10,.F.})   //MV_PAR04
-	aAdd(aPergs, {1,"Tipo"                ,cTipoTi	,/*Pict*/,/*Valid*/,/*F3*/,/*When*/,50,.T.})   //MV_PAR05
+	aAdd(aPergs, {1,"Tipo (,)"            ,cTipoTi	,/*Pict*/,/*Valid*/,/*F3*/,/*When*/,50,.T.})   //MV_PAR05
 
 	//Se a pergunta foi confirmada
 	If ParamBox(aPergs, "Informe os parametros", /*aRet*/, /*bOK*/, /*aButtons*/, /*lCentered*/, /*nPosX*/, /*nPosY*/, /*oDlgWizard*/,cUserName, .T., .T.)
@@ -61,20 +61,20 @@ Local cPrx      := ""
 Local cNum      := ""
 Local cParc     := ""
 Local cTip      := ""
-Local cTipos    := ""
+Local cTipos    := FormatIn(cTipoTi,",") 
 Local nVal      := 0
 
 
 	oFWMSEx:AddworkSheet("RA x Títulos a Receber")
 	oFWMSEx:AddTable ("RA x Títulos a Receber","RA x " + cTipoTi + "")
-	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","CLIENTE",1,1)
+	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","CLIENTE",2,1)
 	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","NOME",2,1)
-	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","LOJA",3,1)
+	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","LOJA",2,1)
 	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","PREFIXO",2,1)
-	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","NUMERO",3,1)
-	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","PARCELA",1,1)
-	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","TIPO",1,1)
-	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","VALOR",3,3)
+	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","NUMERO",2,1)
+	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","PARCELA",2,1)
+	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","TIPO",2,1)
+	oFWMSEx:AddColumn("RA x Títulos a Receber","RA x " + cTipoTi + "","VALOR",2,3)
 
     If !Empty(cAlias)
 		(cAlias)->(DbCloseArea())
@@ -82,13 +82,11 @@ Local nVal      := 0
 
 	cQuery := " SELECT E1_CLIENTE, E1_NOMCLI, E1_LOJA, E1_PREFIXO, E1_NUM, E1_TIPO, E1_PARCELA, E1_VALOR "+ CRLF
     cQuery += " FROM "+RetSqlName("SE1")+" WITH(NOLOCK) "+ CRLF
-	cQuery += " WHERE E1_TIPO = 'RA' "+ CRLF
-    cQuery += " AND E1_SALDO <> 0 "+ CRLF
-    cQuery += " AND D_E_L_E_T_ = '' "+ CRLF
-    cQuery += " AND E1_EMISSAO > '" + DTOS(dData) + "' "+ CRLF
-	If !Empty(cFil)
-		cQuery += " AND E1_FILIAL = '" + Alltrim(cFil) + "' "+ CRLF
-	Endif
+	cQuery += " WHERE E1_FILIAL = '" + Alltrim(cFil) + "' "+ CRLF
+	cQuery += " AND D_E_L_E_T_ = '' "+ CRLF
+	cQuery += " AND E1_EMISSAO > '" + DTOS(dData) + "' "+ CRLF
+	cQuery += " AND E1_SALDO <> 0 "+ CRLF
+	cQuery += " AND E1_TIPO = 'RA' "+ CRLF
 	IF !Empty(cCodCli) 
 		cQuery += " AND E1_CLIENTE = '" + Alltrim(cCodCli) + "' "+ CRLF
         cQuery += " AND E1_LOJA = '" + Alltrim(cLoja) + "' "+ CRLF
@@ -106,10 +104,10 @@ Local nVal      := 0
 
     While (cAlias)->(!Eof())
         oFWMSEx:SetCelBold(.T.)
-        oFWMSEx:SetCelFont('Arial')
+        oFWMSEx:SetCelFont('Calibri')
         oFWMSEx:SetCelItalic(.F.)
         oFWMSEx:SetCelUnderLine(.F.)
-        oFWMSEx:SetCelSizeFont(9)
+        oFWMSEx:SetCelSizeFont(10)
         oFWMSEx:AddRow("RA x Títulos a Receber","RA x " + cTipoTi + "",{Alltrim((cAlias)->(E1_CLIENTE)),Alltrim((cAlias)->(E1_NOMCLI)),Alltrim((cAlias)->(E1_LOJA)),Alltrim((cAlias)->(E1_PREFIXO)),Alltrim((cAlias)->(E1_NUM)),Alltrim((cAlias)->(E1_PARCELA)),Alltrim((cAlias)->(E1_TIPO)),(cAlias)->(E1_VALOR)},{,,,,,,})
 
         If !Empty((cAlias)->(E1_CLIENTE))
@@ -118,22 +116,15 @@ Local nVal      := 0
 		    	(cAliasNF)->(DbCloseArea())
 	        EndIf
 
-			If !Empty(cTipoTi)
-                cTipos := Alltrim(cTipoTi)+";"
-                cTipos := RetClausulaIN(cTipos) 
-            EndIf
-
             cQueryNF := " SELECT E1_CLIENTE, E1_NOMCLI, E1_LOJA, E1_PREFIXO AS PRX, E1_NUM AS NUM, E1_PARCELA AS PARC, E1_TIPO AS TIP, E1_VALOR AS VAL "+ CRLF 
             cQueryNF += " FROM "+RetSqlName("SE1")+" WITH(NOLOCK) "+ CRLF
             cQueryNF += " WHERE E1_FILIAL = '" + Alltrim(cFil)+"' "+ CRLF
-			If !Empty(cTipos)
-                cQueryNF += " AND E1_TIPO IN ("+cTipos+") "+ CRLF
-            EndIf
+			cQueryNF += " AND D_E_L_E_T_ = '' "+ CRLF
+			cQueryNF += " AND E1_EMISSAO > '" + DTOS(dData) + "' "+ CRLF
+			cQueryNF += " AND E1_CLIENTE = '" + Alltrim((cAlias)->(E1_CLIENTE)) + "' "+ CRLF
+			cQueryNF += " AND E1_LOJA = '" + Alltrim((cAlias)->(E1_LOJA)) + "' "+ CRLF
+			cQueryNF += " AND E1_TIPO IN " + cTipos + " "+ CRLF 
             cQueryNF += " AND E1_SALDO <> 0 "+ CRLF
-            cQueryNF += " AND D_E_L_E_T_ = '' "+ CRLF
-            cQueryNF += " AND E1_EMISSAO > '" + DTOS(dData) + "' "+ CRLF
-            cQueryNF += " AND E1_CLIENTE = '" + Alltrim((cAlias)->(E1_CLIENTE)) + "' "+ CRLF
-            cQueryNF += " AND E1_LOJA = '" + Alltrim((cAlias)->(E1_LOJA)) + "' "+ CRLF
             cQueryNF += " ORDER BY E1_CLIENTE,E1_NOMCLI,E1_LOJA,PRX,NUM,PARC,TIP,VAL "+ CRLF
 
             cAliasNF := MpSysOpenQuery(cQueryNF)
@@ -146,10 +137,10 @@ Local nVal      := 0
                 nVal  := (cAliasNF)->(VAL)
 
                 oFWMSEx:SetCelBold(.T.)
-                oFWMSEx:SetCelFont('Arial')
+                oFWMSEx:SetCelFont('Calibri')
                 oFWMSEx:SetCelItalic(.F.)
                 oFWMSEx:SetCelUnderLine(.F.)
-                oFWMSEx:SetCelSizeFont(9)
+                oFWMSEx:SetCelSizeFont(10)
                 oFWMSEx:AddRow("RA x Títulos a Receber","RA x " + cTipoTi + "",{"","","",cPrx,cNum,cParc,cTip,nVal},{,})
 
                 (cAliasNF)->(DBSkip())
@@ -162,10 +153,10 @@ Local nVal      := 0
 
 		oFWMSEx:SetCelBgColor('#4F81BD')
 		oFWMSEx:SetCelBold(.T.)
-		oFWMSEx:SetCelFont('Arial')
+		oFWMSEx:SetCelFont('Calibri')
 		oFWMSEx:SetCelItalic(.F.)
 		oFWMSEx:SetCelUnderLine(.F.)
-		oFWMSEx:SetCelSizeFont(9)
+		oFWMSEx:SetCelSizeFont(10)
 		oFWMSEx:SetCelFrColor("#FFFFFF")
 		oFWMSEx:AddRow("RA x Títulos a Receber","RA x " + cTipoTi + "",{"CLIENTE","NOME","LOJA","PREFIXO","NUMERO","PARCELA","TIPO","VALOR"},{1,2,3,4,5,6,7,8})
 
@@ -183,6 +174,7 @@ Local nVal      := 0
 	oFWMSEx:AddRow("Parametros","RA x " + cTipoTi + "",{"A partir de ",dData})
 	oFWMSEx:AddRow("Parametros","RA x " + cTipoTi + "",{"Cliente",cCodCli})
 	oFWMSEx:AddRow("Parametros","RA x " + cTipoTi + "",{"Loja",cLoja})
+	oFWMSEx:AddRow("Parametros","RA x " + cTipoTi + "",{"Tipo (,)",cTipoTi})
 
 	//Criando o XML
 	oFWMSEx:Activate()
@@ -200,44 +192,3 @@ Local nVal      := 0
 FWRestArea(aArea)
 
 Return
-
-/*/{Protheus.doc} RetClausulaIN
-Recebe os Tipos de Títulos para filtrar na Query
-@type function
-@version 12.1.2310
-@author Dux | Jedielson Rodrigues
-@since 12/09/2024
-/*/
-
-Static Function RetClausulaIN(cStrIn)  
-Local nI 	  := 0
-Local aStatus := {}
-Default cStrIn := ""
-    cStrIn := ValidaSeparador(cStrIn)
-    aStatus	:= StrToKArr(cStrIn,";")
-    cStrIn  := "'"
-    For nI := 1 To Len(aStatus)
-        cStrIn += aStatus[nI]+"','"
-    Next nI
-    cStrIn := Substring(cStrIn,1,len(cStrIn)-2)
-Return(cStrIn)
-
-/*/{Protheus.doc} ValidaSeparador
-Oculta caracters Especiais
-@type function
-@version 12.1.2310
-@author Dux | Jedielson Rodrigues
-@since 12/09/2024
-/*/
-
-Static Function ValidaSeparador(cText)
-Local ni := 0
-Local cRet := ""
-For ni:= 1 to len(cText)
-    If Substr(cText,ni,1) $ '/|,:'
-        cRet += ";"
-    Else 
-        cRet += Substr(cText,ni,1)
-    EndIf
-Next
-Return(cRet) 
