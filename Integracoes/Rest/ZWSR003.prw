@@ -169,15 +169,78 @@ Static Function ZTITGET(_oJson, _cEmpFil)
     jBody["Status"]   := {}
     aTitulos := JsonObject():New()
 
-    cQrySE1 := " SELECT E1_NUM AS NUM, E1_TIPO AS TIPO, E1_VALOR AS VAL , E1_PARCELA AS PARCELA , E1_VENCREA AS VENCIMENTO , E1_CLIENTE AS CLIENTE , E1_LOJA AS LOJA , E1_STATUS AS STATUSX,  "
-    cQrySE1 += " SF2.F2_CHVNFE AS CHAVE, SF2.F2_DOC AS DOCNF,  "
-    cQrySE1 += " SA1.A1_PESSOA AS SA1PESSOA, SA1.A1_CGC AS SA1CGC, SA1.A1_COD AS SA1COD, SA1.A1_LOJA AS SA1LOJA, SA1.A1_NOME AS SA1NOME, SA1.A1_ZZESTAB AS SA1ESTAB,     "
-    cQrySE1 += " SA1.A1_ENDCOB AS SA1ENDCOB, SA1.A1_EMAIL AS SA1EMAIL, SA1.A1_END AS SA1END, SA1.A1_BAIRRO AS SA1BAIRRO , SA1.A1_EST AS SA1EST , SA1.A1_CEP AS SA1CEP , SA1.A1_TEL AS SA1TEL  "
-    cQrySE1 += " FROM "+Retsqlname("SE1")+" AS SE1 "
-    cQrySE1 += " INNER JOIN "+Retsqlname("SF2")+" AS SF2 ON SE1.E1_NUM = SF2.F2_DUPL AND SE1.E1_FILIAL = SF2.F2_FILIAL AND SF2.D_E_L_E_T_ = '' "
-    cQrySE1 += " INNER JOIN "+Retsqlname("SA1")+" AS SA1 ON SE1.E1_CLIENTE = SA1.A1_COD AND SE1.E1_LOJA = SA1.A1_LOJA "
-    cQrySE1 += " WHERE SA1.A1_PESSOA = 'J' AND SE1.E1_TIPO IN ("+cTipoTit+") AND SE1.E1_SALDO <> 0  AND SE1.D_E_L_E_T_ = '' "
-    cQrySE1 += " ORDER BY E1_NUM, E1_PARCELA, E1_CLIENTE , E1_LOJA"
+    cQrySE1 := "  SELECT 	SE1.E1_FILIAL		AS FILIAL "
+    cQrySE1 += " ,SA1.A1_PESSOA 		    	AS TIPOCLI_INT"
+    cQrySE1 += " ,SA1.A1_CGC 				    AS CNPJ_INT"
+    cQrySE1 += " ,SA1.A1_NOME 			    	AS NOME_INT"
+    cQrySE1 += " ,TRIM(SA1.A1_COD) + TRIM(SA1.A1_LOJA) 						AS CONTRATO_INT"
+    cQrySE1 += " ,TRIM(SE1.E1_NUM)+'/'+TRIM(SE1.E1_PARCELA)					AS TITULO_PARCELA_INT"
+    cQrySE1 += " ,SE1.E1_VENCREA 											AS VENCIMENTO_INT"
+    cQrySE1 += " ,SE1.E1_SALDO 												AS VALOR_INT"
+    cQrySE1 += " ,IsNull(TRIM(SE1.E1_TIPO)+'-'+TRIM(SX5A.X5_DESCRI),'')		AS DETALHE_INT"
+    cQrySE1 += " ,IsNull(TRIM(SA1.A1_ZZESTAB)+'-'+TRIM(SX5B.X5_DESCRI),'')	AS CONTRATO_INT"
+    cQrySE1 += " ,SA1.A1_ENDCOB												AS END_COBRANCA_INT"
+    cQrySE1 += " ,SA1.A1_ZZWHATS									     	AS FONE1_INT"
+    cQrySE1 += " ,SA1.A1_EMAIL											   	AS EMAIL1_INT"
+    cQrySE1 += " ,SA1.A1_END												AS END1_INT"
+    cQrySE1 += " ,SA1.A1_BAIRRO												AS BAIRRO1_INT"
+    cQrySE1 += " ,SA1.A1_MUN													AS CIDADE1_INT"
+    cQrySE1 += " ,SA1.A1_EST													AS UF1_INT"
+    cQrySE1 += " ,SA1.A1_CEP													AS CEP1_INT"
+    cQrySE1 += " ,SA1.A1_TEL													AS FONE2_INT"
+    cQrySE1 += " ,'NFISCAL_'+TRIM(SA1.A1_CGC)+'_'+TRIM(SE1.E1_NUM)+'_'+TRIM(SE1.E1_PARCELA)+'.PDF' AS BOLETO"
+    cQrySE1 += " ,SF2.F2_CHVNFE												AS CHAVE_NF_INT"
+    cQrySE1 += " ,CASE"
+    cQrySE1 += " WHEN SE1.E1_STATUS  = 'B' 															THEN 'LIQUIDADO'"
+    cQrySE1 += " WHEN SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA =  '' AND SE1.E1_VENCREA >  '"+Dtos(Date())+"'	THEN 'A VENCER'"
+    cQrySE1 += " WHEN SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA =  '' AND SE1.E1_VENCREA <= '"+Dtos(Date())+"' 	THEN 'VENCIDO'"
+    cQrySE1 += " WHEN SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA <> '' AND SE1.E1_VENCREA >  '"+Dtos(Date())+"'	THEN 'PARCIAL A VENCER'"
+    cQrySE1 += " SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA <> ''      AND SE1.E1_VENCREA <= '"+Dtos(Date())+"' 	THEN 'VENCIDO PARCIAL'"
+    cQrySE1 += " ELSE 'SEM STATUS' "
+    cQrySE1 += " END 														AS STATUS_INT"+;
+                " ,IsNull(SE1.E1_SITUACA+'-'+TRIM(FRV.FRV_DESCRI),'') 		AS SITUACAO_NOVO"+;
+		        " ,IsNull(SE1.E1_ZZCART+'-'+TRIM(SX5C.X5_DESCRI),'') 			AS CARTEIRA_NOVO"+;
+                " ,SE1.E1_BAIXA 												AS DTBAIXA"+;
+                " ,SE1.R_E_C_N_O_												AS RECSE1"+;
+                "  FROM "+Retsqlname("SE1")+" SE1 WITH(NOLOCK)"+;
+                " INNER JOIN "+Retsqlname("SF2")+" AS SF2 WITH(NOLOCK)"+; 
+                " ON SF2.F2_FILIAL = SE1.E1_FILIAL"+;
+                " AND SF2.F2_DOC = SE1.E1_NUM"+;
+                " AND SF2.F2_SERIE = SE1.E1_PREFIXO"+;
+                " AND SF2.F2_CLIENTE = SE1.E1_CLIENTE"+;
+                " AND SF2.F2_LOJA = SE1.E1_LOJA"+;
+                " AND SF2.D_E_L_E_T_ = '' " +;
+	            " INNER JOIN "+Retsqlname("SA1")+" SA1 WITH(NOLOCK)"+;
+                " ON SA1.A1_FILIAL = '  '"+;
+                " AND SA1.A1_COD = SE1.E1_CLIENTE"+;
+                " AND SA1.A1_LOJA = SE1.E1_LOJA"+;
+                " AND SA1.A1_PESSOA = 'J' "+;
+                " AND SA1.D_E_L_E_T_ = ''" +;
+                " LEFT JOIN "+Retsqlname("FRV")+" FRV WITH(NOLOCK)"+;
+                " ON FRV.FRV_FILIAL = '  '"+;
+                " AND FRV.FRV_CODIGO = SE1.E1_SITUACA"+;
+                " AND FRV.D_E_L_E_T_ = ''"+;
+                " LEFT JOIN "+Retsqlname("SX5")+" SX5A WITH(NOLOCK)"+;
+                " ON SX5A.X5_FILIAL = '  '"+;
+                " AND SX5A.X5_TABELA = '05'"+;
+                " AND SX5A.X5_CHAVE = SE1.E1_TIPO"+;
+                " AND SX5A.D_E_L_E_T_ = ''"+;
+                " LEFT JOIN "+Retsqlname("SX5")+" SX5B WITH(NOLOCK)"+;
+                " ON SX5B.X5_FILIAL = '  '"+;
+                " AND SX5B.X5_TABELA = 'ES'"+;
+                " AND SX5B.X5_CHAVE = SA1.A1_ZZESTAB"+;
+                " AND SX5B.D_E_L_E_T_ = ''"+;
+                " LEFT JOIN "+Retsqlname("SX5")+" SX5C WITH(NOLOCK)"+;
+                " ON SX5C.X5_FILIAL = '  '"+;
+                " AND SX5C.X5_TABELA = 'Z1'"+;
+                " AND SX5C.X5_CHAVE = SE1.E1_ZZCART"+;
+                " AND SX5C.D_E_L_E_T_ = ''"+;
+                " WHERE SE1.E1_FILIAL IN ('02','03')"+;
+                " AND SE1.E1_TIPO IN ('NF','BOL','NCC','RA') "+;
+                " AND ( SE1.E1_BAIXA >= '20240811' OR SE1.E1_BAIXA = '' )"+;
+                " AND SE1.D_E_L_E_T_ = ''"+;
+                " ORDER BY SE1.E1_FILIAL, SE1.E1_NUM, SE1.E1_PARCELA, SE1.E1_CLIENTE, SE1.E1_LOJA"
+                 /////AND SE1.CAMPO = X CRITERIO PARA TITULOS QUE FORAM REGISTRADOS NO BANCO.
     /////////// Verifico qual é o processo ////////////////
     ////////////// Verifico se a tabela já se encontra aberta e fecho ////////////
     IF SELECT("TMPC1") > 0
