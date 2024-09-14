@@ -50,7 +50,7 @@ If lAtivo == .T.
 			Endif
 		Endif
 
-	Next
+	Next i
 
 Else
 
@@ -63,7 +63,7 @@ Else
 				aCols[i,_nPosLoc] := SB1->B1_LOCPAD
 			Endif                                                
 		Endif
-	Next
+	Next i
 
 Endif
 
