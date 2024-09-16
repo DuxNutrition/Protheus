@@ -14,7 +14,7 @@ Alteração de Itens Empenhados na Abertura da OP.
 /*/
 
 User Function EMP650()
- 
+
 Local aArea  	 := FWGetArea()
 Local aAreaSC2   := SC2->(GetArea())
 Local aAreaSB1   := SB1->(GetArea())
@@ -22,8 +22,9 @@ Local _nPosCod	 := aScan(aHeader,{|x| AllTrim(x[2]) == "G1_COMP" })   //Armazena
 Local _nPosLoc	 := aScan(aHeader,{|x| AllTrim(x[2]) == "D4_LOCAL"})   //Armazena o numero da coluna no aCols referente ao armazem
 Local _nPosLocLz := aScan(aHeader,{|x| AllTrim(x[2]) == "DC_LOCALIZ"}) //Armazena o numero da coluna no aCols referente ao Endereco
 Local cLocPro1   := SuperGetMv("DUX_EST008",.F.,"PR01;PRODUCAO")
-Local cLocPro2   := SuperGetMv("DUX_EST009",.F.,"PR02;INDUSTRIALIZACAO")
+Local cLocPro2   := SuperGetMv("DUX_EST009",.F.,"PR02;INDUSTRIALIZACA")
 Local lAtivo   	 := SuperGetMv("DUX_EST010",.F.,.T.)
+Local nTam    	 := TamSX3("B1_COD")[1]
 Local cLocaliz   := ""
 Local i		     := 0
 Local cTipo      := SC2->C2_XTPOP
@@ -34,7 +35,7 @@ If lAtivo == .T.
 	For i:= 1 To Len(aCols)
 
 		aItem    := {}
-		cLocaliz := Posicione("SB1",1,xFilial("SB1") + aCols[i,_nPosCod],"B1_LOCALIZ")
+		cLocaliz := Posicione("SB1",1,FWxFilial("SB1")+Padr(aCols[i,_nPosCod],nTam),"B1_LOCALIZ")
 
 		If cTipo == "1"
 			aItem := StrToKArr(cLocPro1,";")
@@ -56,8 +57,9 @@ Else
 
 	For i:= 1 To Len(aCols)						
 		DbSelectArea("SB1")
-		If DbSeek(xFilial("SB1")+aCols[i,_nPosCod])
-			If !Empty(SB1->B1_ZZPENC) //Criar este parâmetro para que o PE funcione
+		SB1->(DbSetOrder(1))
+		If SB1->(MsSeek(FWxFilial("SB1")+Padr(aCols[i,_nPosCod],nTam)))
+			If !Empty(SB1->B1_ZZPENC)
 				aCols[i,_nPosLoc] := SB1->B1_ZZPENC
 			Else
 				aCols[i,_nPosLoc] := SB1->B1_LOCPAD
