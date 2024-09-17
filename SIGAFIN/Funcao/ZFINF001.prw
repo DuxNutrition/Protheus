@@ -12,13 +12,37 @@ Rotina para gerar boletos por titulo.
 /*/
 User Function ZFINF001(aTitulos)
 
+	Local oCombo	:= Nil
+	Local oCombo2   := Nil
+	Local cTipoImp  := " "
+	Local cCaminho	:= ""
+	Private oDlg    := Nil      // Dialog Principal
+
+    DEFINE MSDIALOG oDlg TITLE "[ ZFINF001 ] - Boleto Dux" FROM C(178),C(160) TO C(490),C(450) PIXEL
+
+    @ C(005),C(006) TO C(140),C(140) LABEL "Preencha os Parametros" PIXEL OF oDlg
+
+    @ C(022),C(020) Say "Imprime por ?:" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oDlg
+    @ C(030),C(020) COMBOBOX oCombo VAR cTipoImp ITEMS {"Parcela","Titulo"} SIZE 100,08  PIXEL OF oDlg
+    
+	@ C(042),C(020) Say "Salvar PDF ?:" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oDlg
+    @ C(050),C(020) COMBOBOX oCombo2 VAR cCaminho ITEMS {"FTP iRecebi [ X:\BoletosDux\ ]", "Local [ C:\BoletosDux\ ]"} SIZE 100,08  PIXEL OF oDlg
+        
+    DEFINE SBUTTON FROM C(143),C(095) TYPE 6 ENABLE OF oDlg ACTION ( Processa( { || ZFINS001(aTitulos,cTipoImp,cCaminho)} ,"[ ZFINF001 ] - Imprimindo Boleto Dux..." )  ,oDlg:End() )
+            
+    ACTIVATE MSDIALOG oDlg CENTERED
+
+Return()
+
+Static Function ZFINS001(aTitulos,cTipoImp,cCaminho)
+
     Local nI 			:= 0
 	Local nX			:= 1
 	Local lImprime		:= .F.
 	Local aBoletos  	:= {}
 	Local aPrint  		:= {}
 	Local cArquivo 		:= ""
-	Local cDiretorio	:= "C:\BoletosDux\"
+	Local cDiretorio	:= ""
 	Local cPrefixo		:= ""
 	Local cNumero		:= ""
 	Local cParcela		:= ""
@@ -33,9 +57,19 @@ User Function ZFINF001(aTitulos)
 	Local nPosCli		:= 7
 	Local nPosLj		:= 8
 
+	Default aTitulos	:= {}
+	Default cTipoImp	:= ""
+	Default cCaminho	:= ""
+
+	If cCaminho == "Local [ C:\BoletosDux\ ]"
+		cDiretorio := "C:\BoletosDux\"
+	Else
+		cDiretorio := "X:\BoletosDux\"
+	EndIf
+
 	If !ExistDir( cDiretorio )
 		MakeDir( cDiretorio )
-		ApMsgInfo("Pasta para salvar o(s) boleto(s) criada com sucesso."+CRLF+"Caminho: "+cDiretorio,"[ ZFINF001 ]")
+		ApMsgInfo("Pasta para salvar o(s) boleto(s) criada com sucesso."+CRLF+"Caminho: "+cCaminho,"[ ZFINF001 ]")
 	Endif
 	
 	For nI := 1 To Len(aTitulos)
@@ -56,7 +90,8 @@ User Function ZFINF001(aTitulos)
 
 	While nX <= Len(aBoletos)
 		
-		cNumero := aBoletos[nX, 02]
+		cNumero 	:= aBoletos[nX, 02]
+		cParcela 	:= aBoletos[nX, 03]
 
 		aAdd(aPrint, {	aBoletos[nX, 01],; //Prefixo
 						aBoletos[nX, 02],; //Numero
@@ -69,16 +104,31 @@ User Function ZFINF001(aTitulos)
 		If ( nX > Len(aBoletos) )
 			lImprime := .T.
 		Else
-			If ( cNumero <> aBoletos[nX, 02] )
-				lImprime := .T.
+			If cTipoImp == "Titulo"
+				If ( cNumero <> aBoletos[nX, 02] )
+					lImprime := .T.
+				Else
+					lImprime := .F.
+				EndIf
 			Else
-				lImprime := .F.
+				If ( cNumero+cParcela <> aBoletos[nX, 02]+aBoletos[nX, 03] )
+					lImprime := .T.
+				Else
+					lImprime := .F.
+				EndIf
 			EndIf
 		EndIf
 
 		If lImprime
 
-			cArquivo 	:= "NF_" + AllTrim(cPrefixo) + "_" + AllTrim(cNumero) + ".pdf"
+			SA1->(DbSetOrder(1))
+			If SA1->(DbSeek(FwxFilial("SA1") + cCliente + cLoja ))
+				If cTipoImp == "Parcela"
+					cArquivo 	:= "NFISCAL_" + AllTrim(SA1->A1_CGC) + "_" + AllTrim(MV_PAR01) + "_" + AllTrim(cPrefixo) + "_" + AllTrim(cNumero)+"_"+AllTrim(cParcela)+".PDF"
+				Else
+					cArquivo 	:= "NFISCAL_" + AllTrim(SA1->A1_CGC) + "_" + AllTrim(MV_PAR01) + "_" + AllTrim(cPrefixo) + "_" + AllTrim(cNumero)+"_"+'.PDF'
+				EndIf
+			EndIf
 
 			oBol:setTitulos(aPrint)
 			oBol:Imprime(cDiretorio+cArquivo)
@@ -90,7 +140,7 @@ User Function ZFINF001(aTitulos)
 	EndDo	
 
 	If !Empty(cArquivo) 
-		ApMsgInfo("Boleto(s) Gerado(s) com sucesso"+CRLF+"Caminho: "+cDiretorio,"[ ZFINF001 ]")
+		ApMsgInfo("Boleto(s) Gerado(s) com sucesso"+CRLF+"Caminho: "+cCaminho,"[ ZFINF001 ]")
 	EndIf
 
 Return()

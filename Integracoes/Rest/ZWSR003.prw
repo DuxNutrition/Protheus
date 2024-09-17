@@ -127,7 +127,7 @@ Static Function GetFin10( Self )
     Endif
 
     Conout("ZWSR003 - Fim "+DtoC(date())+" "+Time())
-    
+
 Return .T.
 
 /*‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
@@ -193,7 +193,7 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     cQrySE1 += "            ,SA1.A1_EST													            AS A1_EST "  + CRLF
     cQrySE1 += "            ,SA1.A1_CEP													            AS A1_CEP "  + CRLF
     cQrySE1 += "            ,SA1.A1_TEL													            AS A1_TEL "  + CRLF
-    cQrySE1 += "            ,'NFISCAL_'+TRIM(SA1.A1_CGC)+'_'+TRIM(SE1.E1_PORTADO)+'_'+TRIM(SE1.E1_NUM)+'_'+TRIM(SE1.E1_PARCELA)+'.PDF' AS ARQ_BOLETO "  + CRLF
+    cQrySE1 += "            ,'nfiscal_'+TRIM(SA1.A1_CGC)+'_'+TRIM(SE1.E1_PORTADO)+'_'+TRIM(SE1.E1_PREFIXO)+'_'+TRIM(SE1.E1_NUM)+'_'+TRIM(SE1.E1_PARCELA)+'.PDF' AS ARQ_BOLETO "  + CRLF
     cQrySE1 += "            ,SF2.F2_CHVNFE												            AS F2_CHVNFE "  + CRLF
     cQrySE1 += "            ,CASE "  + CRLF
     cQrySE1 += "                WHEN SE1.E1_STATUS  = 'B' 															        THEN 'LIQUIDADO' "  + CRLF
