@@ -127,6 +127,7 @@ Static Function GetFin10( Self )
     Endif
 
     Conout("ZWSR003 - Fim "+DtoC(date())+" "+Time())
+    
 Return .T.
 
 /*ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
@@ -142,32 +143,32 @@ Return .T.
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
 
 Static Function ZTITGET(_oJson, _cEmpFil , self )
+
     Local aArea         := GetArea()
     Local aCabec
     Local aItens
     Local aTitulos
     Local aTit
-    Local jBody         as JSON
+    Local jBody         As JSON
     Local cTipoTit      := FormatIn(SuperGetMv("DUX_FAT009",.F.,"NF|BOL|NCC|RA"),"|") 
     Local cFilTit       := FormatIn(SuperGetMv("DUX_FAT010",.F.,"02|03"),"|") 
     Local cAliasTRB		:= GetNextAlias()
     Local cQrySE1	    := ""
     Local nAux          := 0
     Local lRet          := .T.
-    Local nDiasbx       := SuperGetMv("DUX_FAT010",.F.,30)
+    Local nDiasbx       := SuperGetMv("DUX_FAT011",.F.,30)
     Local nCount        := 0
     Local nStart        := 1
     Local nReg          := 0
 
 
-    aCabec  := {}
-    aItens  := {}
-    aImpItem := {}
-    JBody   := JSONObject():New()
-    //
-    jBody["Status"]   := {}
-    aTitulos := JsonObject():New()
-    aTit := JSONObject():New()
+    aCabec          := {}
+    aItens          := {}
+    aImpItem        := {}
+    JBody           := JSONObject():New()
+    jBody["Status"] := {}
+    aTitulos        := JsonObject():New()
+    aTit            := JSONObject():New()
 
     If Select( (cAliasTRB) ) > 0
         (cAliasTRB)->(DbCloseArea())
@@ -252,8 +253,7 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     DbUseArea( .T., "TOPCONN", TcGenQry(,,cQrySE1), cAliasTRB, .T., .T. )
 
     DbSelectArea((cAliasTRB))
-    DbSelectArea((cAliasTRB))
-
+    (cAliasTRB)->(dbGoTop())
     If (cAliasTRB)->( ! Eof() )
         //-------------------------------------------------------------------
         // Identifica a quantidade de registro no alias temporário
@@ -291,57 +291,63 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     DbSelectArea('SE1')
     SE1->(dbSetOrder(1))
 
+    (cAliasTRB)->(dbGoTop())
     While !(cAliasTRB)->(eof())
+
         nCount++
+    
         If nCount >= nStart
+    
             nAux++
             aTit := {}
             aTit := JSONObject():New()
-            if lRet
-                aTit["ctipocli"]                := AllTrim((cAliasTRB)->A1_PESSOA)
-                aTit["ccnpj"]                   := AllTrim((cAliasTRB)->A1_CGC)
-                aTit["cnome"]                   := AllTrim((cAliasTRB)->A1_NOME)
-                aTit["ccontrato"]               := AllTrim((cAliasTRB)->A1_COD_LOJA)
-                aTit["ctitulo"]                 := AllTrim((cAliasTRB)->E1_NUM_PARCELA)
-                aTit["cvencimento"]             := AllTrim(DToC(SToD((cAliasTRB)->E1_VENCREA)))
-                aTit["nvalor"]                  := (cAliasTRB)->E1_SALDO
-                aTit["cdetalhe"]                := AllTrim((cAliasTRB)->E1_TIPO)
-                if !Empty((cAliasTRB)->A1_ZZESTAB)
-                    aTit["ccartcontrato"]       := AllTrim((cAliasTRB)->A1_ZZESTAB)
-                else
-                    aTit["ccartcontrato"]       := "GERAL"
-                endif
-                aTit["cendcob"]                 := AllTrim((cAliasTRB)->A1_ENDCOB)
-                aTit["cemail"]                  := AllTrim((cAliasTRB)->A1_EMAIL)
-                aTit["cendereco"]               := AllTrim((cAliasTRB)->A1_END)
-                aTit["cbairro"]                 := AllTrim((cAliasTRB)->A1_BAIRRO)
-                aTit["cmunicipio"]              := AllTrim((cAliasTRB)->A1_MUN)
-                aTit["cestado"]                 := AllTrim((cAliasTRB)->A1_EST)
-                aTit["ccep"]                    := AllTrim((cAliasTRB)->A1_CEP)
-                aTit["cfone1"]                  := AllTrim((cAliasTRB)->A1_ZZWHATS)
-                aTit["cfone2"]                  := AllTrim((cAliasTRB)->A1_TEL)
-                aTit["cboletoapi"]              := AllTrim((cAliasTRB)->ARQ_BOLETO)
-                aTit["cchavenfe"]               := AllTrim((cAliasTRB)->F2_CHVNFE)
-                aTit["csituacao"]               := AllTrim((cAliasTRB)->E1_SITUACA)
-                aTit["ccarteira"]               := ""//AllTrim((cAliasTRB)->E1_ZZCART)
-                aTit["cstatusparc"]             := AllTrim((cAliasTRB)->STATUSPARC)
-            endif
+            If lRet
+                aTit["ctipocli"]            := AllTrim((cAliasTRB)->A1_PESSOA)
+                aTit["ccnpj"]               := AllTrim((cAliasTRB)->A1_CGC)
+                aTit["cnome"]               := AllTrim((cAliasTRB)->A1_NOME)
+                aTit["ccontrato"]           := AllTrim((cAliasTRB)->A1_COD_LOJA)
+                aTit["ctitulo"]             := AllTrim((cAliasTRB)->E1_NUM_PARCELA)
+                aTit["cvencimento"]         := AllTrim(DToC(SToD((cAliasTRB)->E1_VENCREA)))
+                aTit["nvalor"]              := (cAliasTRB)->E1_SALDO
+                aTit["cdetalhe"]            := AllTrim((cAliasTRB)->E1_TIPO)
+                If !Empty((cAliasTRB)->A1_ZZESTAB)
+                    aTit["ccartcontrato"]   := AllTrim((cAliasTRB)->A1_ZZESTAB)
+                Else
+                    aTit["ccartcontrato"]   := "GERAL"
+                EndIf
+                aTit["cendcob"]             := AllTrim((cAliasTRB)->A1_ENDCOB)
+                aTit["cemail"]              := AllTrim((cAliasTRB)->A1_EMAIL)
+                aTit["cendereco"]           := AllTrim((cAliasTRB)->A1_END)
+                aTit["cbairro"]             := AllTrim((cAliasTRB)->A1_BAIRRO)
+                aTit["cmunicipio"]          := AllTrim((cAliasTRB)->A1_MUN)
+                aTit["cestado"]             := AllTrim((cAliasTRB)->A1_EST)
+                aTit["ccep"]                := AllTrim((cAliasTRB)->A1_CEP)
+                aTit["cfone1"]              := AllTrim((cAliasTRB)->A1_ZZWHATS)
+                aTit["cfone2"]              := AllTrim((cAliasTRB)->A1_TEL)
+                aTit["cboletoapi"]          := AllTrim((cAliasTRB)->ARQ_BOLETO)
+                aTit["cchavenfe"]           := AllTrim((cAliasTRB)->F2_CHVNFE)
+                aTit["csituacao"]           := AllTrim((cAliasTRB)->E1_SITUACA)
+                aTit["ccarteira"]           := ""//AllTrim((cAliasTRB)->E1_ZZCART)
+                aTit["cstatusparc"]         := AllTrim((cAliasTRB)->STATUSPARC)
+            EndIf
+
             aAdd(aTitulos["Item"], aTit)
+
             If Len( aTitulos["Item"]) >= self:pageSize
                 Exit
             EndIf
-            // nAux := nAux + 1
-        endif
+
+        EndIf
         (cAliasTRB)->(DBSkip())
-    Enddo
+    EndDo
+
     // Valida a exitencia de mais paginas
-    //-------------------------------------------------------------------
     If nReg  > self:pageSize
         aTitulos['hasNext'] := .T.
     Else
         aTitulos['hasNext'] := .F.
     EndIf
-   // aTitulos["Total"] := cValToChar(nAux)
+
     RestArea(aArea)
     (cAliasTRB)->( DBCloseArea() )
 Return(aTitulos)
