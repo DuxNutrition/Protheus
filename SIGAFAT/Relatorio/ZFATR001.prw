@@ -18,8 +18,7 @@ Relatório de Picking por Pedido de Vendas.
 User Function ZFATR001()
                   
 Local cPerg  		:= "ZFATR001"
-Local lTemum        := .F.
-Local cQryTmp		:= " "
+Local aArea 		:= FwGetArea()
 
 Private cAlsTMP 	:= GetNextAlias()  
 Private oPrinter 	:= Nil
@@ -49,6 +48,17 @@ U_PutSX1( cPerg	, "01"	, "Do Pedido  :"	, "mv_par01", "mv_ch1"	, "C"		, 06	  , 0
 U_PutSX1( cPerg	, "02"	, "Ate Pedido :"	, "mv_par02", "mv_ch2"	, "C"		, 06	  , 0			, "G"		,               	, 			, 			, 			,					,			,			,			,		, 			)
 
 Pergunte(cPerg,.T.)
+Processa({|| RelProc()}, "Filtrando...")
+
+FWRestArea(aArea)
+
+Return
+
+Static Function RelProc()
+
+Local lTemum  := .F.
+Local cQryTmp := " "
+Local nAtual  := 0
 
 fErase(GetTempPath() + "ZFATR001_" + DTOS(DATE()) + ".pdf")
 oPrinter:= FWMSPrinter():New("ZFATR001_" + DTOS(DATE()), IMP_PDF, .F.,, .T.) 
@@ -139,6 +149,8 @@ DbUseArea(.T.,"TOPCONN",TcGenQry(,,cQryTmp),cAlsTMP,.T.,.F.)
 
 Count to nReg 
 
+ProcRegua(nReg)
+
 If  nReg = 0 
 	FWAlertError("Não foram encontrados Pedidos de Vendas.","Aviso")
 	Return
@@ -174,6 +186,9 @@ While !(cAlsTMP)->(Eof())
 		
 		nSalto ++
 
+		nAtual++
+        IncProc("Processando registros " + cValToChar(nAtual) + " de " + cValToChar(nReg) + "...")
+
 		(cAlsTMP)->(dbSkip())
 
 		lTemum := .T.
@@ -187,6 +202,8 @@ While !(cAlsTMP)->(Eof())
 	Endif
 
 EndDo
+
+FWAlertSuccess("Foram processado "+cValTochar(nAtual)+" registros.!", "Sucesso")
 
 oPrinter:EndPage()
 oPrinter:Preview()   
