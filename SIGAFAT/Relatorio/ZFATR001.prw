@@ -100,8 +100,8 @@ cQryTmp += "	SB1.B1_DESC, "+CRLF
 cQryTmp += "	SB1.B1_UM, "+CRLF
 cQryTmp += "	SC6.C6_LOCAL, "+CRLF
 cQryTmp += "	SB1.B1_ZENDPIC, "+CRLF
-cQryTmp += "	SC6.C6_LOTECTL, "+CRLF
-cQryTmp += "	SC6.C6_DTVALID "+CRLF
+cQryTmp += "	IsNull(SC9.C9_LOTECTL,'') AS C9_LOTECTL, "+CRLF
+cQryTmp += "	IsNull(SC9.C9_DTVALID,'') AS C9_DTVALID "+CRLF
 cQryTmp += " FROM " + RetSqlName("SC6") + " SC6 WITH(NOLOCK) "+CRLF
 cQryTmp += " 	INNER JOIN " + RetSqlName("SC5") + " SC5 WITH(NOLOCK) "+CRLF
 cQryTmp += " 		ON SC5.C5_FILIAL = SC6.C6_FILIAL "+CRLF
@@ -119,20 +119,28 @@ cQryTmp += "		ON SA1.A1_FILIAL = '"+FWxFilial("SA1")+"' "+CRLF
 cQryTmp += "		AND SA1.A1_COD = SC6.C6_CLI "+CRLF
 cQryTmp += "		AND SA1.A1_LOJA = SC6.C6_LOJA "+CRLF
 cQryTmp += "		AND SA1.D_E_L_E_T_ = ' ' "+CRLF
+cQryTmp += "	LEFT JOIN " + RetSqlName("SC9") + " SC9 WITH(NOLOCK) "+CRLF 
+cQryTmp += "		ON SC9.C9_FILIAL = SC6.C6_FILIAL "+CRLF
+cQryTmp += "		AND SC9.C9_PEDIDO = SC6.C6_NUM "+CRLF
+cQryTmp += "		AND SC9.C9_ITEM = SC6.C6_ITEM "+CRLF
+cQryTmp += "		AND SC9.C9_CLIENTE = SC5.C5_CLIENT "+CRLF
+cQryTmp += "		AND SC9.C9_LOJA = SC5.C5_LOJACLI "+CRLF
+cQryTmp += "		AND SC9.C9_NFISCAL = ' ' "+CRLF
+cQryTmp += "		AND SC9.D_E_L_E_T_ = ' ' "+CRLF
 cQryTmp += " WHERE SC6.C6_FILIAL = '"+FWxFilial("SC6")+"' "+CRLF 
 cQryTmp += " AND SC6.C6_NOTA = ' ' "+CRLF
 cQryTmp += " AND SC6.C6_NUM BETWEEN '"+MV_PAR01+"' AND '"+MV_PAR02+"' "+CRLF
 cQryTmp += " AND SC6.C6_QTDVEN > 0 "+CRLF
 cQryTmp += " AND SC6.C6_BLQ <> 'R' "+CRLF
 cQryTmp += " AND SC6.D_E_L_E_T_ = ' ' "+CRLF
-cQryTmp += " ORDER BY SC6.C6_FILIAL,SC6.C6_NUM,SC6.C6_CLI,SB1.B1_ZENDPIC,SC6.C6_PRODUTO,SC6.C6_ITEM,SC6.C6_LOTECTL,SC6.C6_DTVALID "+CRLF
+cQryTmp += " ORDER BY SC6.C6_FILIAL,SC6.C6_NUM,SC6.C6_CLI,SB1.B1_ZENDPIC,SC6.C6_PRODUTO,SC6.C6_ITEM,SC9.C9_LOTECTL,SC9.C9_DTVALID "+CRLF
 		
 DbUseArea(.T.,"TOPCONN",TcGenQry(,,cQryTmp),cAlsTMP,.T.,.F.)
 
 Count to nReg 
 
 If  nReg = 0 
-	msgstop("Não foram encontradas as notas.")
+	FWAlertError("Não foram encontrados Pedidos de Vendas.","Aviso")
 	Return
 Endif
 
@@ -141,9 +149,9 @@ While !(cAlsTMP)->(Eof())
 
 	cNumPed  := ALLTRIM((cAlsTMP)->C5_NUM)
 	cLoja    := (cAlsTMP)->C5_LOJACLI
-	cEmissao  := SToD((cAlsTMP)->C5_EMISSAO)
+	cEmissao := SToD((cAlsTMP)->C5_EMISSAO)
 	 
-	While !(cAlsTMP)->(Eof()) .and. cNumPed == (cAlsTMP)->C5_NUM 
+	While !(cAlsTMP)->(Eof()) .AND. cNumPed == (cAlsTMP)->C5_NUM 
 
 		If  nSalto >= 29
 			If  nFolha > 0
@@ -161,24 +169,24 @@ While !(cAlsTMP)->(Eof())
 		oPrinter:Say(nLinha, nMargemEsq + 320	, (cAlsTMP)->B1_UM 					, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq	+ 350	, (cAlsTMP)->C6_LOCAL				, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq	+ 380	, (cAlsTMP)->B1_ZENDPIC				, oFont10:oFont) 
-		oPrinter:Say(nLinha, nMargemEsq	+ 420	, (cAlsTMP)->C6_LOTECTL				, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq	+ 460	, DToC(SToD((cAlsTMP)->C6_DTVALID))	, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq	+ 420	, (cAlsTMP)->C9_LOTECTL				, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq	+ 460	, DToC(SToD((cAlsTMP)->C9_DTVALID))	, oFont10:oFont)
 		
 		nSalto ++
 
 		(cAlsTMP)->(dbSkip())
 
 		lTemum := .T.
-	End
+	EndDo
 	
 	If !lTemum
 		(cAlsTMP)->(dbSkip())
 	Else
 		nSalto := 30
 		nFolha := 0
-	ENDIF
+	Endif
 
-End
+EndDo
 
 oPrinter:EndPage()
 oPrinter:Preview()   
@@ -248,7 +256,7 @@ Static Function zCabPed()
 
 	nLinha	:= 50		
 
-	// Imprime dados da nota
+	// Imprime dados do Pedido
 
 	nLinha += 120
 
