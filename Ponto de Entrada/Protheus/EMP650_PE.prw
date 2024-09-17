@@ -35,7 +35,7 @@ If lAtivo == .T.
 	For i:= 1 To Len(aCols)
 
 		aItem    := {}
-		cLocaliz := Posicione("SB1",1,FWxFilial("SB1")+Padr(aCols[i,_nPosCod],nTam),"B1_LOCALIZ")
+		cLocaliz := NGSEEK('SB1',Padr(aCols[i,_nPosCod],nTam),1,"B1_LOCALIZ")
 
 		If cTipo == "1"
 			aItem := StrToKArr(cLocPro1,";")
