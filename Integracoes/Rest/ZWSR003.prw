@@ -217,7 +217,7 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     cQrySE1 += " ,SA1.A1_EST													AS UF1   "
     cQrySE1 += " ,SA1.A1_CEP													AS CEP1   "
     cQrySE1 += " ,SA1.A1_TEL													AS FONE2   "
-    cQrySE1 += " ,'NFISCAL_'+TRIM(SA1.A1_CGC)+'_'+TRIM(SE1.E1_NUM)+'_'+TRIM(SE1.E1_PARCELA)+'.PDF' AS BOLETO"
+    cQrySE1 += " ,'NFISCAL_'+TRIM(SA1.A1_CGC)+'_'+TRIM(SE1.E1_PORTADO)+'_'+TRIM(SE1.E1_NUM)+'_'+TRIM(SE1.E1_PARCELA)+'.PDF' AS BOLETO "
     cQrySE1 += " ,SF2.F2_CHVNFE												AS CHAVE_NF   "
     cQrySE1 += " ,CASE"
     cQrySE1 += " WHEN SE1.E1_STATUS  = 'B' 															THEN 'LIQUIDADO'"
