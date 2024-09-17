@@ -56,10 +56,10 @@ Static Function MenuDef()
     ADD OPTION aRotina Title 'Incluir'                  ACTION 'VIEWDEF.ZCFGF003' OPERATION 3 ACCESS 0
     ADD OPTION aRotina Title 'Alterar'                  ACTION 'VIEWDEF.ZCFGF003' OPERATION 4 ACCESS 0
     ADD OPTION aRotina Title 'Excluir'                  ACTION 'VIEWDEF.ZCFGF003' OPERATION 5 ACCESS 0
-    ADD OPTION aRotina TITLE 'Legenda'    	            ACTION 'U_zBrwLeg()'      OPERATION 6 ACCESS 0
-    ADD OPTION aRotina TITLE 'Copiar Acessos Full'      ACTION 'U_zCopySZX()'     OPERATION 7 ACCESS 0
-    ADD OPTION aRotina TITLE 'Duplic Acessos Filial'    ACTION 'U_zCopyFil()'     OPERATION 7 ACCESS 0
-    ADD OPTION aRotina TITLE 'Bloqueio de Acessos'      ACTION 'U_zBlqSZX()'	  OPERATION 8 ACCESS 0
+    ADD OPTION aRotina TITLE 'Legenda'    	            ACTION 'U_ZCFGF031()'     OPERATION 6 ACCESS 0
+    ADD OPTION aRotina TITLE 'Copiar Acessos Full'      ACTION 'U_ZCFGF032()'     OPERATION 7 ACCESS 0
+    ADD OPTION aRotina TITLE 'Duplic Acessos Filial'    ACTION 'U_ZCFGF033()'     OPERATION 7 ACCESS 0
+    ADD OPTION aRotina TITLE 'Bloqueio de Acessos'      ACTION 'U_ZCFGF034()'	  OPERATION 8 ACCESS 0
 
 Return( aRotina )
 
@@ -137,7 +137,7 @@ Browse da legenda
 @author Dux | Evandro Mariano
 @since 05/09/2024
 /*/
-User Function zBrwLeg()
+User Function ZCFGF031()
 
     Local aLegenda := {}
 
@@ -298,7 +298,7 @@ Faz a copia do usuario
 @author Dux | Evandro Mariano
 @since 05/09/2024
 /*/
-User Function ZCopySZX()
+User Function ZCFGF032()
 
 Local cQryUpd   	:= ""
 Local cQryCopy   	:= ""
@@ -416,14 +416,14 @@ EndIf
 
 Return()
 
-/*/{Protheus.doc} ZCopyFil
+/*/{Protheus.doc} ZCFGF033
 Faz a copia do usuario para outra filial
 @type function
 @version 12.1.2310
 @author Dux | Evandro Mariano
 @since 05/09/2024
 /*/
-User Function ZCopyFil()
+User Function ZCFGF033()
 
 Local cQryCopy   	:= ""
 Local cAliCopy 		:= GetNextAlias()
@@ -515,14 +515,14 @@ EndIf
 
 Return()
 
-/*/{Protheus.doc} ZBlqSZX
+/*/{Protheus.doc} ZCFGF034
 Bloqueio do usuário
 @type function
 @version 12.1.2310
 @author Dux | Evandro Mariano
 @since 05/09/2024
 /*/
-User Function ZBlqSZX()
+User Function ZCFGF034()
 
 Local cQryBlq   	:= ""
 Local cAliBlq 		:= GetNextAlias()
