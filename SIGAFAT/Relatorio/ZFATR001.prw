@@ -47,9 +47,12 @@ Private cLogo		:= "system\LGMID.png"
 U_PutSX1( cPerg	, "01"	, "Do Pedido  :"	, "mv_par01", "mv_ch1"	, "C"		, 06	  , 0			, "G"		,               	, 			, 			, 			,					,			,			,			,		, 			)
 U_PutSX1( cPerg	, "02"	, "Ate Pedido :"	, "mv_par02", "mv_ch2"	, "C"		, 06	  , 0			, "G"		,               	, 			, 			, 			,					,			,			,			,		, 			)
 
-Pergunte(cPerg,.T.)
-
-Processa({|| RelProc()}, "Filtrando...")
+If Pergunte(cPerg,.T.) 
+	Processa({|| RelProc()}, "Filtrando...")
+Else 
+	FWRestArea(aArea)
+	Return (.F.)
+Endif
 
 FWRestArea(aArea)
 
