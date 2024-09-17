@@ -64,15 +64,53 @@ Static Function GetFin10( Self )
         _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
 
         // PREPARE ENVIRONMENT EMPRESA "99" FILIAL "01" MODULO "COM"
-
-
-        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_RES01", , "allan.rabelo"))	    // Usuario para autenticacao no WS
-        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_RES02", , "123456"	))	        // Senha para autenticao no WS
+        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_API003", , "hom.api.irecebi"))	    // Usuario para autenticacao no WS
+        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_API004", , "20@epT5jgS"	))	        // Senha para autenticao no WS
         _cLogin     := _cUserPar+":"+_cPassPar
 
+         //Verifica se o usuário de autenticação é igual ao do Parametro.
+        If AllTrim(_cLogin) <> AllTrim(Decode64(StrTran(_cAuthorization, "Basic ", "")))
+            _aRet := {302,"Usuario ou senha Nao Autorizado "}
+            Break
+        EndIf 
 
-        _aRet := ZVALREQ(_cLogin,_cAuthorization,_cEmpFil)
+        _nPos := At(",", _cEmpFil)
+        If _nPos <= 0 
+            _aRet := {302,"Tenanid nao informado ."}
+            Break
+        EndIf
 
+        _cEmpresa := SubsTr(_cEmpFil,1,_nPos-1)
+        _cFilial  := SubsTr(_cEmpFil,_nPos+1)
+
+        If Empty(_cEmpresa)
+            _aRet := {302,"Empresa nao encontrada."}
+            Break
+        Endif
+
+        If Empty(_cFilial)
+             _aRet := {302,"Filial nao encontrada."}
+            Break
+        Endif
+	
+        //Verifica a existencia empresa, para não ficar retornando erro 5, valida se a tabela esta abertar
+        If Select("SM0") > 0
+            SM0->(DbSetOrder(1))  //M0_CODIGO+M0_CODFIL
+            If !SM0->(DbSeek(_cEmpresa+_cFilial))
+                _aRet := {302,"Dados da Empresa inconsistente"}
+                Break
+            Endif
+        Endif
+    
+        //Tratar abertura da empresa conforme enviado no parametro
+        If cEmpAnt <> _cEmpresa .or. cFilAnt <> _cFilial
+            RpcClearEnv() 
+            RPCSetType(3) 
+            If !RpcSetEnv(_cEmpresa,_cFilial,,,,GetEnvServer(),{ })
+                _aRet := {302,"Nao foi possivel acessar ambiente"}
+                Break
+            Endif
+        EndIf
 
     End Sequence
 
@@ -96,71 +134,6 @@ Return .T.
 ±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
 ±±³Programa  ³ ZWSF0003 ³ Autor ³  Allan Rabelo         ³ Data ³ 09/09/24 ³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Descri‡…o ³ Função para encontrar empresa e user                       ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Uso       ³ SIGAFIN                                                   ³±±
-±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
-
-Static Function ZVALREQ(_cLogin,_cAuthorization,_cEmpFil)
-    Local _cEmpresa         := ""
-    Local _cFilial          := ""
-    Local _nPos
-    Local _aRet             := ""
-
-    //  PREPARE ENVIRONMENT EMPRESA "99" FILIAL "01" MODULO "COM"
-
-    If AllTrim(_cLogin) <> AllTrim(Decode64(StrTran(_cAuthorization, "Basic ", "")))
-        _aRet := {302,"Usuario ou senha Nao Autorizado "}
-        Break
-    EndIf
-
-    _nPos := At(",", _cEmpFil)
-    If _nPos <= 0
-        _aRet := {302,"Tenanid nao informado ."}
-        Break
-    EndIf
-
-    _cEmpresa := SubsTr(_cEmpFil,1,_nPos-1)
-    _cFilial  := SubsTr(_cEmpFil,_nPos+1)
-
-    If Empty(_cEmpresa)
-        _aRet := {302,"Empresa nao encontrada."}
-        Break
-    Endif
-
-    If Empty(_cFilial)
-        _aRet := {302,"Filial nao encontrada."}
-        Break
-    Endif
-
-    //Verifica a existencia empresa, para não ficar retornando erro 5, valida se a tabela esta abertar
-    If Select("SM0") > 0
-        SM0->(DbSetOrder(1))  //M0_CODIGO+M0_CODFIL
-        If !SM0->(DbSeek(_cEmpresa+_cFilial))
-            _aRet := {302,"Dados da Empresa inconsistente"}
-            Break
-        Endif
-    Endif
-
-    //Tratar abertura da empresa conforme enviado no parametro
-    If cEmpAnt <> _cEmpresa .or. cFilAnt <> _cFilial
-        RpcClearEnv()
-        RPCSetType(3)
-        If !RpcSetEnv(_cEmpresa,_cFilial,,,,GetEnvServer(),{ })
-            _aRet := {302,"Nao foi possivel acessar ambiente"}
-            Break
-        Endif
-    EndIf
-
-
-Return(_aRet)
-/*ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
-±±³Programa  ³ ZWSF0003 ³ Autor ³  Allan Rabelo         ³ Data ³ 09/09/24 ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
 ±±³Descri‡…o ³ Titulos a receber vencimento                               ³±±
 ±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
 ±±³Uso       ³ Encontrar titulos financeiro                               ³±±
@@ -169,24 +142,22 @@ Return(_aRet)
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
 
 Static Function ZTITGET(_oJson, _cEmpFil , self )
-    Local aArea := GetArea()
+    Local aArea         := GetArea()
     Local aCabec
     Local aItens
     Local aTitulos
     Local aTit
-    Local jBody     as JSON
-    Local cTipoTit := SuperGetMv("DUX_TPTIT",.F.,"'NF'")
-    Local cQrySE1	:= ""
-    Local nAux := 0
-    Local aCli
-    Local lRet := .T.
-    Local nDiasbx := SuperGetMv("DUX_DIBX",.F.,30)
-    Local cSearch       := ''
-    // Local cWhere        := "AND SA1.A1_FILIAL = '"+xFilial('SA1')+"'"
+    Local jBody         as JSON
+    Local cTipoTit      := FormatIn(SuperGetMv("DUX_FAT009",.F.,"NF|BOL|NCC|RA"),"|") 
+    Local cFilTit       := FormatIn(SuperGetMv("DUX_FAT010",.F.,"02|03"),"|") 
+    Local cAliasTRB		:= GetNextAlias()
+    Local cQrySE1	    := ""
+    Local nAux          := 0
+    Local lRet          := .T.
+    Local nDiasbx       := SuperGetMv("DUX_FAT010",.F.,30)
     Local nCount        := 0
     Local nStart        := 1
     Local nReg          := 0
-    Local nAux          := 0
 
 
     aCabec  := {}
@@ -198,91 +169,92 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     aTitulos := JsonObject():New()
     aTit := JSONObject():New()
 
-    cQrySE1 := "  SELECT 	SE1.E1_FILIAL		AS FILIAL "
-    cQrySE1 += " ,SA1.A1_PESSOA 		    	AS TIPOCLI   "
-    cQrySE1 += " ,SA1.A1_CGC 				    AS CNPJ   "
-    cQrySE1 += " ,SA1.A1_NOME 			    	AS NOME   "
-    cQrySE1 += " ,TRIM(SA1.A1_COD) + TRIM(SA1.A1_LOJA) 						AS CONTRATO   "
-    cQrySE1 += " ,TRIM(SE1.E1_NUM)+'/'+TRIM(SE1.E1_PARCELA)					AS TITULO_PARCELA   "
-    cQrySE1 += " ,SE1.E1_VENCREA 											AS VENCIMENTO   "
-    cQrySE1 += " ,SE1.E1_SALDO 												AS VALOR   "
-    cQrySE1 += " ,IsNull(TRIM(SE1.E1_TIPO)+'-'+TRIM(SX5A.X5_DESCRI),'')		AS DETALHE   "
-    cQrySE1 += " ,IsNull(TRIM(SA1.A1_ZZESTAB)+'-'+TRIM(SX5B.X5_DESCRI),'')	AS CARTCONTRATO   "
-    cQrySE1 += " ,SA1.A1_ENDCOB												AS END_COBRANCA   "
-    cQrySE1 += " ,SA1.A1_ZZWHATS									     	AS FONE1   "
-    cQrySE1 += " ,SA1.A1_EMAIL											   	AS EMAIL1   "
-    cQrySE1 += " ,SA1.A1_END												AS END1   "
-    cQrySE1 += " ,SA1.A1_BAIRRO												AS BAIRRO1   "
-    cQrySE1 += " ,SA1.A1_MUN													AS CIDADE1   "
-    cQrySE1 += " ,SA1.A1_EST													AS UF1   "
-    cQrySE1 += " ,SA1.A1_CEP													AS CEP1   "
-    cQrySE1 += " ,SA1.A1_TEL													AS FONE2   "
-    cQrySE1 += " ,'NFISCAL_'+TRIM(SA1.A1_CGC)+'_'+TRIM(SE1.E1_PORTADO)+'_'+TRIM(SE1.E1_NUM)+'_'+TRIM(SE1.E1_PARCELA)+'.PDF' AS BOLETO "
-    cQrySE1 += " ,SF2.F2_CHVNFE												AS CHAVE_NF   "
-    cQrySE1 += " ,CASE"
-    cQrySE1 += " WHEN SE1.E1_STATUS  = 'B' 															THEN 'LIQUIDADO'"
-    cQrySE1 += " WHEN SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA =  '' AND SE1.E1_VENCREA >  '"+Dtos(Date())+"'	THEN 'A VENCER'"
-    cQrySE1 += " WHEN SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA =  '' AND SE1.E1_VENCREA <= '"+Dtos(Date())+"' 	THEN 'VENCIDO'"
-    cQrySE1 += " WHEN SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA <> '' AND SE1.E1_VENCREA >  '"+Dtos(Date())+"'	THEN 'PARCIAL A VENCER'"
-    cQrySE1 += " WHEN SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA <> '' AND SE1.E1_VENCREA <= '"+Dtos(Date())+"' 	THEN 'VENCIDO PARCIAL'"
-    cQrySE1 += " ELSE 'SEM STATUS' "
-    cQrySE1 += " END 														AS STATUSX   "
-    cQrySE1 += " ,IsNull(SE1.E1_SITUACA+'-'+TRIM(FRV.FRV_DESCRI),'') 		AS SITUACAO   "
-    //cQrySE1 += " ,IsNull(SE1.E1_ZZCART+'-'+TRIM(SX5C.X5_DESCRI),'') 			AS CARTEIRA   "
-    cQrySE1 += " ,SE1.E1_BAIXA 												AS DTBAIXA"
-    cQrySE1 += " ,SE1.R_E_C_N_O_												AS RECSE1"
-    cQrySE1 += "  FROM "+Retsqlname("SE1")+" SE1 WITH(NOLOCK)"
-    cQrySE1 += " INNER JOIN "+Retsqlname("SF2")+" AS SF2 WITH(NOLOCK)"
-    cQrySE1 += " ON SF2.F2_FILIAL = SE1.E1_FILIAL"
-    cQrySE1 += " AND SF2.F2_DOC = SE1.E1_NUM"
-    cQrySE1 += " AND SF2.F2_SERIE = SE1.E1_PREFIXO"
-    cQrySE1 += " AND SF2.F2_CLIENTE = SE1.E1_CLIENTE"
-    cQrySE1 += " AND SF2.F2_LOJA = SE1.E1_LOJA"
-    cQrySE1 += " AND SF2.D_E_L_E_T_ = '' "
-    cQrySE1 += " INNER JOIN "+Retsqlname("SA1")+" SA1 WITH(NOLOCK)"
-    cQrySE1 += " ON SA1.A1_FILIAL = '  '"
-    cQrySE1 += " AND SA1.A1_COD = SE1.E1_CLIENTE"
-    cQrySE1 += " AND SA1.A1_LOJA = SE1.E1_LOJA"
-    cQrySE1 += " AND SA1.A1_PESSOA = 'J' "
-    cQrySE1 += " AND SA1.D_E_L_E_T_ = ''"
-    cQrySE1 += " LEFT JOIN "+Retsqlname("FRV")+" FRV WITH(NOLOCK)"
-    cQrySE1 += " ON FRV.FRV_FILIAL = '  '"
-    cQrySE1 += " AND FRV.FRV_CODIGO = SE1.E1_SITUACA"
-    cQrySE1 += " AND FRV.D_E_L_E_T_ = ''"
-    cQrySE1 += " LEFT JOIN "+Retsqlname("SX5")+" SX5A WITH(NOLOCK)"
-    cQrySE1 += " ON SX5A.X5_FILIAL = '  '"
-    cQrySE1 += " AND SX5A.X5_TABELA = '05'"
-    cQrySE1 += " AND SX5A.X5_CHAVE = SE1.E1_TIPO"
-    cQrySE1 += " AND SX5A.D_E_L_E_T_ = ''"
-    cQrySE1 += " LEFT JOIN "+Retsqlname("SX5")+" SX5B WITH(NOLOCK)"
-    cQrySE1 += " ON SX5B.X5_FILIAL = '  '"
-    cQrySE1 += " AND SX5B.X5_TABELA = 'ES'"
-    cQrySE1 += " AND SX5B.X5_CHAVE = SA1.A1_ZZESTAB"
-    cQrySE1 += " AND SX5B.D_E_L_E_T_ = ''"
-    /*
-    cQrySE1 += " LEFT JOIN "+Retsqlname("SX5")+" SX5C WITH(NOLOCK)"
-    cQrySE1 += " ON SX5C.X5_FILIAL = '  '"
-    cQrySE1 += " AND SX5C.X5_TABELA = 'Z1'"
-    cQrySE1 += " AND SX5C.X5_CHAVE = SE1.E1_ZZCART"
-    cQrySE1 += " AND SX5C.D_E_L_E_T_ = ''"
-    */
-    cQrySE1 += " WHERE SE1.E1_FILIAL IN ('02','03')"
-    cQrySE1 += " AND SE1.E1_TIPO IN ('NF','BOL','NCC','RA') "
-    cQrySE1 += " AND ( SE1.E1_BAIXA >= '"+Dtos(DaySub(Date(),nDiasbx))+"' OR SE1.E1_BAIXA = '' )"
+    If Select( (cAliasTRB) ) > 0
+        (cAliasTRB)->(DbCloseArea())
+    EndIf
+
+    cQrySE1 := "  SELECT    SE1.E1_FILIAL		                                                    AS FILIAL "  + CRLF
+    cQrySE1 += "            ,SA1.A1_PESSOA 		    	                                            AS A1_PESSOA "  + CRLF
+    cQrySE1 += "            ,SA1.A1_CGC 				                                            AS A1_CGC "  + CRLF
+    cQrySE1 += "            ,SA1.A1_NOME 			    	                                        AS A1_NOME "  + CRLF
+    cQrySE1 += "            ,TRIM(SA1.A1_COD) + TRIM(SA1.A1_LOJA) 						            AS A1_COD_LOJA "  + CRLF
+    cQrySE1 += "            ,TRIM(SE1.E1_NUM)+'/'+TRIM(SE1.E1_PARCELA)					            AS E1_NUM_PARCELA "  + CRLF
+    cQrySE1 += "            ,SE1.E1_VENCREA 											            AS E1_VENCREA "  + CRLF
+    cQrySE1 += "            ,SE1.E1_SALDO 												            AS E1_SALDO "  + CRLF
+    cQrySE1 += "            ,IsNull(TRIM(SE1.E1_TIPO)+'-'+TRIM(SX5A.X5_DESCRI),'')		            AS E1_TIPO "  + CRLF
+    cQrySE1 += "            ,IsNull(TRIM(SA1.A1_ZZESTAB)+'-'+TRIM(SX5B.X5_DESCRI),'')	            AS A1_ZZESTAB "  + CRLF
+    cQrySE1 += "            ,SA1.A1_ENDCOB												            AS A1_ENDCOB "  + CRLF
+    cQrySE1 += "            ,SA1.A1_ZZWHATS									     	                AS A1_ZZWHATS "  + CRLF
+    cQrySE1 += "            ,SA1.A1_EMAIL											   	            AS A1_EMAIL "  + CRLF
+    cQrySE1 += "            ,SA1.A1_END												                AS A1_END "  + CRLF
+    cQrySE1 += "            ,SA1.A1_BAIRRO												            AS A1_BAIRRO "  + CRLF
+    cQrySE1 += "            ,SA1.A1_MUN													            AS A1_MUN "  + CRLF
+    cQrySE1 += "            ,SA1.A1_EST													            AS A1_EST "  + CRLF
+    cQrySE1 += "            ,SA1.A1_CEP													            AS A1_CEP "  + CRLF
+    cQrySE1 += "            ,SA1.A1_TEL													            AS A1_TEL "  + CRLF
+    cQrySE1 += "            ,'NFISCAL_'+TRIM(SA1.A1_CGC)+'_'+TRIM(SE1.E1_PORTADO)+'_'+TRIM(SE1.E1_NUM)+'_'+TRIM(SE1.E1_PARCELA)+'.PDF' AS ARQ_BOLETO "  + CRLF
+    cQrySE1 += "            ,SF2.F2_CHVNFE												            AS F2_CHVNFE "  + CRLF
+    cQrySE1 += "            ,CASE "  + CRLF
+    cQrySE1 += "                WHEN SE1.E1_STATUS  = 'B' 															        THEN 'LIQUIDADO' "  + CRLF
+    cQrySE1 += "                WHEN SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA =  '' AND SE1.E1_VENCREA >  '"+Dtos(Date())+"'	THEN 'A VENCER' "  + CRLF
+    cQrySE1 += "                WHEN SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA =  '' AND SE1.E1_VENCREA <= '"+Dtos(Date())+"' 	THEN 'VENCIDO' "  + CRLF
+    cQrySE1 += "                WHEN SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA <> '' AND SE1.E1_VENCREA >  '"+Dtos(Date())+"'	THEN 'PARCIAL A VENCER' "  + CRLF
+    cQrySE1 += "                WHEN SE1.E1_STATUS  = 'A' AND SE1.E1_BAIXA <> '' AND SE1.E1_VENCREA <= '"+Dtos(Date())+"' 	THEN 'VENCIDO PARCIAL' "  + CRLF
+    cQrySE1 += "                ELSE 'SEM STATUS' "  + CRLF
+    cQrySE1 += "            END 														            AS STATUSPARC "  + CRLF
+    cQrySE1 += "            ,IsNull(SE1.E1_SITUACA+'-'+TRIM(FRV.FRV_DESCRI),'') 		            AS E1_SITUACA "  + CRLF
+    //cQrySE1 += "            ,IsNull(SE1.E1_ZZCART+'-'+TRIM(SX5C.X5_DESCRI),'') 			            AS E1_ZZCART "  + CRLF
+    cQrySE1 += " FROM "+Retsqlname("SE1")+" SE1 WITH(NOLOCK) "  + CRLF
+    cQrySE1 += "    INNER JOIN "+Retsqlname("SF2")+" AS SF2 WITH(NOLOCK) "  + CRLF
+    cQrySE1 += "        ON SF2.F2_FILIAL = SE1.E1_FILIAL "  + CRLF
+    cQrySE1 += "        AND SF2.F2_DOC = SE1.E1_NUM "  + CRLF
+    cQrySE1 += "        AND SF2.F2_SERIE = SE1.E1_PREFIXO "  + CRLF
+    cQrySE1 += "        AND SF2.F2_CLIENTE = SE1.E1_CLIENTE "  + CRLF
+    cQrySE1 += "        AND SF2.F2_LOJA = SE1.E1_LOJA "  + CRLF
+    cQrySE1 += "        AND SF2.D_E_L_E_T_ = '' "  + CRLF
+    cQrySE1 += "    INNER JOIN "+Retsqlname("SA1")+" SA1 WITH(NOLOCK) "  + CRLF
+    cQrySE1 += "        ON SA1.A1_FILIAL = '  ' "  + CRLF
+    cQrySE1 += "        AND SA1.A1_COD = SE1.E1_CLIENTE "  + CRLF
+    cQrySE1 += "        AND SA1.A1_LOJA = SE1.E1_LOJA "  + CRLF
+    cQrySE1 += "        AND SA1.A1_PESSOA = 'J' "  + CRLF
+    cQrySE1 += "        AND SA1.D_E_L_E_T_ = '' "  + CRLF
+    cQrySE1 += "    LEFT JOIN "+Retsqlname("FRV")+" FRV WITH(NOLOCK) "  + CRLF
+    cQrySE1 += "        ON FRV.FRV_FILIAL = '  ' "  + CRLF
+    cQrySE1 += "        AND FRV.FRV_CODIGO = SE1.E1_SITUACA "  + CRLF
+    cQrySE1 += "        AND FRV.D_E_L_E_T_ = '' "  + CRLF
+    cQrySE1 += "    LEFT JOIN "+Retsqlname("SX5")+" SX5A WITH(NOLOCK) "  + CRLF
+    cQrySE1 += "        ON SX5A.X5_FILIAL = '  ' "  + CRLF
+    cQrySE1 += "        AND SX5A.X5_TABELA = '05' "  + CRLF
+    cQrySE1 += "        AND SX5A.X5_CHAVE = SE1.E1_TIPO "  + CRLF
+    cQrySE1 += "        AND SX5A.D_E_L_E_T_ = '' "  + CRLF
+    cQrySE1 += "    LEFT JOIN "+Retsqlname("SX5")+" SX5B WITH(NOLOCK) "  + CRLF
+    cQrySE1 += "        ON SX5B.X5_FILIAL = '  ' "  + CRLF
+    cQrySE1 += "        AND SX5B.X5_TABELA = 'ES' "  + CRLF
+    cQrySE1 += "        AND SX5B.X5_CHAVE = SA1.A1_ZZESTAB "  + CRLF
+    cQrySE1 += "        AND SX5B.D_E_L_E_T_ = '' "  + CRLF
+    /*  
+    cQrySE1 += "    LEFT JOIN "+Retsqlname("SX5")+" SX5C WITH(NOLOCK) "  + CRLF
+    cQrySE1 += "        ON SX5C.X5_FILIAL = '  ' "  + CRLF
+    cQrySE1 += "        AND SX5C.X5_TABELA = 'Z1' "  + CRLF
+    cQrySE1 += "        AND SX5C.X5_CHAVE = SE1.E1_ZZCART "  + CRLF
+    cQrySE1 += "        AND SX5C.D_E_L_E_T_ = '' "  + CRLF
+    */ 
+    cQrySE1 += " WHERE SE1.E1_FILIAL IN "+cFilTit+" "  + CRLF
+    cQrySE1 += " AND SE1.E1_TIPO IN "+cTipoTit+" "  + CRLF
+    cQrySE1 += " AND ( SE1.E1_BAIXA >= '"+Dtos(DaySub(Date(),nDiasbx))+"' OR SE1.E1_BAIXA = '' ) "  + CRLF
+    cQrySE1 += " AND SE1.E1_PORTADO <> '' "  + CRLF
+    cQrySE1 += " AND SE1.E1_NUMBCO <> '' "  + CRLF
     /////////AND SE1.CAMPO = X CRITERIO PARA TITULOS QUE FORAM REGISTRADOS NO BANCO./////////////
-    cQrySE1 += " AND SE1.D_E_L_E_T_ = ''"
-    cQrySE1 += " ORDER BY SE1.E1_FILIAL, SE1.E1_NUM, SE1.E1_PARCELA, SE1.E1_CLIENTE, SE1.E1_LOJA"
+    cQrySE1 += " AND SE1.D_E_L_E_T_ = '' "  + CRLF
+    cQrySE1 += " ORDER BY SE1.E1_FILIAL, SE1.E1_PORTADO, SE1.E1_CLIENTE, SE1.E1_LOJA, SE1.E1_NUM, SE1.E1_PARCELA " + CRLF
 
-    /////////// Verifico qual é o processo ////////////////
-    ////////////// Verifico se a tabela já se encontra aberta e fecho ////////////
-    IF SELECT("TMPC1") > 0
-        TMPC1->(DbCloseArea())
-    ENDIF
+   // Executa a consulta.
+    DbUseArea( .T., "TOPCONN", TcGenQry(,,cQrySE1), cAliasTRB, .T., .T. )
 
-    dbUseArea(.T.,"TOPCONN",TCGENQRY(,,cQrySE1),"TMPC1",.F.,.T.)
-    ///////////// Aponto dados para o JSON /////////////
+    DbSelectArea((cAliasTRB))
+    DbSelectArea((cAliasTRB))
 
-    If TMPC1->( ! Eof() )
+    If (cAliasTRB)->( ! Eof() )
         //-------------------------------------------------------------------
         // Identifica a quantidade de registro no alias temporário
         //-------------------------------------------------------------------
@@ -301,7 +273,7 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
         //-------------------------------------------------------------------
         // Posiciona no primeiro registro.
         //-------------------------------------------------------------------
-        TMPC1->( DBGoTop() )
+        (cAliasTRB)->( DBGoTop() )
 
         //-------------------------------------------------------------------
 
@@ -313,46 +285,46 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     EndIf
     aTitulos["paginaatual"] := self:page
     aTitulos["numtopage"] := self:pageSize
-    aTitulos["totalpaginas"] := (nReg/self:pageSize)
-    // aTitulos["totalpaginas"] := (nRecord / aself:pageSize)
+    aTitulos["totalpaginas"] := Round((nReg/self:pageSize),0)
     aTitulos["Item"] := {}
 
     DbSelectArea('SE1')
     SE1->(dbSetOrder(1))
 
-    While !TMPC1->(eof())
+    While !(cAliasTRB)->(eof())
         nCount++
         If nCount >= nStart
             nAux++
             aTit := {}
             aTit := JSONObject():New()
             if lRet
-                aTit["tipocliente"]              := TMPC1->TIPOCLI
-                aTit["cnpjcpf"]                  := TMPC1->CNPJ
-                aTit["nome"]                     := TMPC1->NOME
-                aTit["numcontrato"]              := TMPC1->CONTRATO
-                aTit["titulo"]                   := TMPC1->TITULO_PARCELA
-                aTit["vencimento"]               := TMPC1->VENCIMENTO
-                aTit["valor"]                    := TMPC1->VALOR
-                aTit["detalhe"]                     := TMPC1->DETALHE
-                if !Empty(TMPC1->CARTCONTRATO)
-                    aTit["cartcontrato"]                 := TMPC1->CARTCONTRATO
+                aTit["ctipocli"]                := AllTrim((cAliasTRB)->A1_PESSOA)
+                aTit["ccnpj"]                   := AllTrim((cAliasTRB)->A1_CGC)
+                aTit["cnome"]                   := AllTrim((cAliasTRB)->A1_NOME)
+                aTit["ccontrato"]               := AllTrim((cAliasTRB)->A1_COD_LOJA)
+                aTit["ctitulo"]                 := AllTrim((cAliasTRB)->E1_NUM_PARCELA)
+                aTit["cvencimento"]             := AllTrim(DToC(SToD((cAliasTRB)->E1_VENCREA)))
+                aTit["nvalor"]                  := (cAliasTRB)->E1_SALDO
+                aTit["cdetalhe"]                := AllTrim((cAliasTRB)->E1_TIPO)
+                if !Empty((cAliasTRB)->A1_ZZESTAB)
+                    aTit["ccartcontrato"]       := AllTrim((cAliasTRB)->A1_ZZESTAB)
                 else
-                    aTit["cartcontrato"]                 := "Geral"
+                    aTit["ccartcontrato"]       := "GERAL"
                 endif
-                aTit["endcob"]                   := TMPC1->END_COBRANCA
-                aTit["email"]                    := ALLTRIM(TMPC1->EMAIL1)
-                aTit["end"]                      := TMPC1->END1
-                aTit["bairro"]                   := TMPC1->BAIRRO1
-                aTit["estado"]                   := TMPC1->UF1
-                aTit["cep"]                      := TMPC1->CEP1
-                aTit["telefone1"]                := TMPC1->FONE1
-                aTit["telefone2"]                := TMPC1->FONE2
-                aTit["boletoapi"]                := TMPC1->BOLETO
-                aTit["nfapi"]                    := TMPC1->CHAVE_NF
-                aTit["statusparc"]               := TMPC1->STATUSX
-                aTit["situacao"]                 := TMPC1->SITUACAO
-                //aTit["carteira"]                 := TMPC1->CARTEIRA
+                aTit["cendcob"]                 := AllTrim((cAliasTRB)->A1_ENDCOB)
+                aTit["cemail"]                  := AllTrim((cAliasTRB)->A1_EMAIL)
+                aTit["cendereco"]               := AllTrim((cAliasTRB)->A1_END)
+                aTit["cbairro"]                 := AllTrim((cAliasTRB)->A1_BAIRRO)
+                aTit["cmunicipio"]              := AllTrim((cAliasTRB)->A1_MUN)
+                aTit["cestado"]                 := AllTrim((cAliasTRB)->A1_EST)
+                aTit["ccep"]                    := AllTrim((cAliasTRB)->A1_CEP)
+                aTit["cfone1"]                  := AllTrim((cAliasTRB)->A1_ZZWHATS)
+                aTit["cfone2"]                  := AllTrim((cAliasTRB)->A1_TEL)
+                aTit["cboletoapi"]              := AllTrim((cAliasTRB)->ARQ_BOLETO)
+                aTit["cchavenfe"]               := AllTrim((cAliasTRB)->F2_CHVNFE)
+                aTit["csituacao"]               := AllTrim((cAliasTRB)->E1_SITUACA)
+                aTit["ccarteira"]               := ""//AllTrim((cAliasTRB)->E1_ZZCART)
+                aTit["cstatusparc"]             := AllTrim((cAliasTRB)->STATUSPARC)
             endif
             aAdd(aTitulos["Item"], aTit)
             If Len( aTitulos["Item"]) >= self:pageSize
@@ -360,7 +332,7 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
             EndIf
             // nAux := nAux + 1
         endif
-        TMPC1->(DBSkip())
+        (cAliasTRB)->(DBSkip())
     Enddo
     // Valida a exitencia de mais paginas
     //-------------------------------------------------------------------
@@ -371,5 +343,5 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     EndIf
    // aTitulos["Total"] := cValToChar(nAux)
     RestArea(aArea)
-    TMPC1->( DBCloseArea() )
+    (cAliasTRB)->( DBCloseArea() )
 Return(aTitulos)
