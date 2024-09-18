@@ -44,16 +44,52 @@ WSMETHOD GET WSSERVICE ZWSR002
         _cAuthorization := Self:GetHeader('Authorization')
         _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
 
-        //PREPARE ENVIRONMENT EMPRESA "99" FILIAL "01" MODULO "COM"
-
-
-        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_RES01", , "allan.rabelo"))	    // Usuario para autenticacao no WS
-        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_RES02", , "123456"	))	        // Senha para autenticao no WS
+        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_API001", , "hom.api.produto"))	    // Usuario para autenticacao no WS
+        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_API002", , "N1R7v668oZ2%"	))	    // Senha para autenticao no WS
         _cLogin     := _cUserPar+":"+_cPassPar
 
+        If AllTrim(_cLogin) <> AllTrim(Decode64(StrTran(_cAuthorization, "Basic ", "")))
+            _aRet := {302,"Usuario ou senha Nao Autorizado "}
+            Break
+        EndIf
 
-        _aRet := ZVALREQ(_cLogin,_cAuthorization,_cEmpFil)
+        _nPos := At(",", _cEmpFil)
+        If _nPos <= 0
+            _aRet := {302,"Tenanid nao informado ."}
+            Break
+        EndIf
 
+        _cEmpresa := SubsTr(_cEmpFil,1,_nPos-1)
+        _cFilial  := SubsTr(_cEmpFil,_nPos+1)
+
+        If Empty(_cEmpresa)
+            _aRet := {302,"Empresa nao encontrada."}
+            Break
+        Endif
+
+        If Empty(_cFilial)
+            _aRet := {302,"Filial nao encontrada."}
+            Break
+        Endif
+
+        //Verifica a existencia empresa, para não ficar retornando erro 5, valida se a tabela esta abertar
+        If Select("SM0") > 0
+            SM0->(DbSetOrder(1))  //M0_CODIGO+M0_CODFIL
+            If !SM0->(DbSeek(_cEmpresa+_cFilial))
+                _aRet := {302,"Dados da Empresa inconsistente"}
+                Break
+            Endif
+        Endif
+
+        //Tratar abertura da empresa conforme enviado no parametro
+        If cEmpAnt <> _cEmpresa .or. cFilAnt <> _cFilial
+            RpcClearEnv()
+            RPCSetType(3)
+            If !RpcSetEnv(_cEmpresa,_cFilial,,,,GetEnvServer(),{ })
+                _aRet := {302,"Nao foi possivel acessar ambiente"}
+                Break
+            Endif
+        EndIf
 
     End Sequence
 
@@ -87,15 +123,8 @@ Static Function ZPRODGET(_oJson, _cEmpFil)
     Local aArea := GetArea()
     Local aCabec
     Local aItens
-    Local aLinha
-    Local aImpostos
     Local aImpItem := {}
-    Local nLength := 0
     Local jBody     as JSON
-    Local oItems
-    Local nX
-    Local yX
-
 
     aCabec  := {}
     aItens  := {}
@@ -108,47 +137,47 @@ Static Function ZPRODGET(_oJson, _cEmpFil)
     IF (SB1->(dbSeek(FWxFilial("SB1")+PadR(_oJson:GetJsonObject('produto'),TamSX3("B1_COD")[1]))))
         jBody["Status"]             := "200"
         jBody["Message"]            := "OK"
-        jBody["cproduto"]            := alltrim(SB1->B1_COD)
-        jBody["cdesc"]               := SB1->B1_DESC
-        jBody["ctipo"]               := SB1->B1_TIPO
-        jBody["cgrupo"]              := SB1->B1_GRUPO
-        jBody["ctamprod"]            := SB1->B1_ZTAM
-        jBody["csabor"]              := SB1->B1_ZSAB
-        jBody["cobsgeral"]           := SB1->B1_ZZOBSGE
-        JBody["cposipi"]             := alltrim(SB1->B1_POSIPI)
-        jBody["cunidade"]            := SB1->B1_UM
-        jBody["carmazempad"]         := SB1->B1_LOCPAD
-        jBody["carmazememp"]         := SB1->B1_ZZPENC
-        jBody["ccodgtin"]            := alltrim(SB1->B1_CODGTIN)
-        jBody["naliqicms"]           := SB1->B1_PICM
-        jBody["nipi"]                := SB1->B1_IPI
-        jBody["calergenico"]         := SB1->B1_ZALERGE
-        jBody["ctipoalergenico"]     := SB1->B1_ZZALERG
-        JBody["nqtdemb"]             := SB1->B1_QE
-        jBody["npesoliquido"]        := SB1->B1_PESO
-        jBody["npesobruto"]          := SB1->B1_PESBRU
-        jBody["nprazoentrega"]       := SB1->B1_PE
-        jBody["ccontacontabil"]      := alltrim(SB1->B1_CONTA)
-        jBody["ccontadspadm"]        := SB1->B1_ZZCTA1
-        JBody["ccontadespcml"]       := SB1->B1_ZZCTA3
-        jBody["ccontacstdiretos"]    := SB1->B1_ZZCTA2
-        jBody["contacstindiretos"]  := SB1->B1_ZZCTA4
-        JBody["corigem"]             := SB1->B1_ORIGEM
-        jBody["ccontrolalote"]       := SB1->B1_RASTRO
-        jBody["cfabricante"]         := alltrim(SB1->B1_FABRIC)
-        jBody["cgrptrib"]            := SB1->B1_GRTRIB
-        jBody["ctipocq"]             := SB1->B1_TIPOCQ
-        jBody["cregraseq"]           := SB1->B1_REGSEQ
-        jBody["cunidadenegocio"]     := SB1->B1_CLVL
-        JBody["ccest"]               := SB1->B1_CEST
-        jBody["cenqipi"]             := SB1->B1_GRPCST
-        jBody["ccodarvcat"]          := SB1->B1_XCATEGO
-        jBody["ccodmarca"]           := SB1->B1_XMARCA
-        jBody["nestabatido"]         := SB1->B1_XESTABA
-        jBody["nqtdpcx"]             := SB1->B1_ZQEEXP
-        jBody["ccomprasn"]           := SB1->B1_ZZCOM
-        jBody["cintsforce"]          := SB1->B1_XINTSF
-        //   jBody["cean13"]              := SB1->B1_XCODBAR
+        jBody["cproduto"]           := Alltrim(SB1->B1_COD)
+        jBody["cdesc"]              := Alltrim(SB1->B1_DESC)
+        jBody["ctipo"]              := Alltrim(SB1->B1_TIPO)
+        jBody["cgrupo"]             := Alltrim(SB1->B1_GRUPO)
+        jBody["ctamprod"]           := Alltrim(SB1->B1_ZTAM)
+        jBody["csabor"]             := Alltrim(SB1->B1_ZSAB)
+        jBody["cobsgeral"]          := Alltrim(SB1->B1_ZZOBSGE)
+        JBody["cposipi"]            := Alltrim(SB1->B1_POSIPI)
+        jBody["cunidade"]           := Alltrim(SB1->B1_UM)
+        jBody["carmazempad"]        := Alltrim(SB1->B1_LOCPAD)
+        jBody["carmazememp"]        := Alltrim(SB1->B1_ZZPENC)
+        jBody["ccodgtin"]           := Alltrim(SB1->B1_CODGTIN)
+        jBody["naliqicms"]          := SB1->B1_PICM
+        jBody["nipi"]               := SB1->B1_IPI
+        jBody["calergenico"]        := Alltrim(SB1->B1_ZALERGE)
+        jBody["ctipoalergenico"]    := Alltrim(SB1->B1_ZZALERG)
+        JBody["nqtdemb"]            := SB1->B1_QE
+        jBody["npesoliquido"]       := SB1->B1_PESO
+        jBody["npesobruto"]         := SB1->B1_PESBRU
+        jBody["nprazoentrega"]      := SB1->B1_PE
+        jBody["ccontacontabil"]     := Alltrim(SB1->B1_CONTA)
+        jBody["ccontadspadm"]       := Alltrim(SB1->B1_ZZCTA1)
+        JBody["ccontadespcml"]      := Alltrim(SB1->B1_ZZCTA3)
+        jBody["ccontacstdiretos"]   := Alltrim(SB1->B1_ZZCTA2)
+        jBody["contacstindiretos"]  := Alltrim(SB1->B1_ZZCTA4)
+        JBody["corigem"]            := Alltrim(SB1->B1_ORIGEM)
+        jBody["ccontrolalote"]      := Alltrim(SB1->B1_RASTRO)
+        jBody["cfabricante"]        := Alltrim(SB1->B1_FABRIC)
+        jBody["cgrptrib"]           := Alltrim(SB1->B1_GRTRIB)
+        jBody["ctipocq"]            := Alltrim(SB1->B1_TIPOCQ)
+        jBody["cregraseq"]          := Alltrim(SB1->B1_REGSEQ)
+        jBody["cunidadenegocio"]    := Alltrim(SB1->B1_CLVL)
+        JBody["ccest"]              := Alltrim(SB1->B1_CEST)
+        jBody["cenqipi"]            := Alltrim(SB1->B1_GRPCST)
+        jBody["ccodarvcat"]         := Alltrim(SB1->B1_XCATEGO)
+        jBody["ccodmarca"]          := Alltrim(SB1->B1_XMARCA)
+        jBody["nestabatido"]        := SB1->B1_XESTABA
+        jBody["nqtdpcx"]            := SB1->B1_ZQEEXP
+        jBody["ccomprasn"]          := Alltrim(SB1->B1_ZZCOM)
+        jBody["cintsforce"]         := Alltrim(SB1->B1_XINTSF)
+        //   jBody["cean13"]              := Alltrim(SB1->B1_XCODBAR)
     else
         jBody["Status"]             := "400"
         jBody["Message"]            := "Produto não encontrado"
@@ -192,15 +221,53 @@ WSMETHOD POST WSSERVICE ZWSR002
         _cAuthorization := Self:GetHeader('Authorization')
         _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
 
-        //PREPARE ENVIRONMENT EMPRESA "01" FILIAL "01" MODULO "COM"
-
-
-        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_RES01", , "allan.rabelo"))	    // Usuario para autenticacao no WS
-        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_RES02", , "123456"	))	        // Senha para autenticao no WS
+        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_API001", , "hom.api.fluig"))	    // Usuario para autenticacao no WS
+        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_API002", , "N1R7v668oZ2%"	))	    // Senha para autenticao no WS
         _cLogin     := _cUserPar+":"+_cPassPar
 
 
-        ZVALREQ(_cLogin,_cAuthorization,_cEmpFil)
+        If AllTrim(_cLogin) <> AllTrim(Decode64(StrTran(_cAuthorization, "Basic ", "")))
+            _aRet := {302,"Usuario ou senha Nao Autorizado "}
+            Break
+        EndIf
+
+        _nPos := At(",", _cEmpFil)
+        If _nPos <= 0
+            _aRet := {302,"Tenanid nao informado ."}
+            Break
+        EndIf
+
+        _cEmpresa := SubsTr(_cEmpFil,1,_nPos-1)
+        _cFilial  := SubsTr(_cEmpFil,_nPos+1)
+
+        If Empty(_cEmpresa)
+            _aRet := {302,"Empresa nao encontrada."}
+            Break
+        Endif
+
+        If Empty(_cFilial)
+            _aRet := {302,"Filial nao encontrada."}
+            Break
+        Endif
+
+        //Verifica a existencia empresa, para não ficar retornando erro 5, valida se a tabela esta abertar
+        If Select("SM0") > 0
+            SM0->(DbSetOrder(1))  //M0_CODIGO+M0_CODFIL
+            If !SM0->(DbSeek(_cEmpresa+_cFilial))
+                _aRet := {302,"Dados da Empresa inconsistente"}
+                Break
+            Endif
+        Endif
+
+        //Tratar abertura da empresa conforme enviado no parametro
+        If cEmpAnt <> _cEmpresa .or. cFilAnt <> _cFilial
+            RpcClearEnv()
+            RPCSetType(3)
+            If !RpcSetEnv(_cEmpresa,_cFilial,,,,GetEnvServer(),{ })
+                _aRet := {302,"Nao foi possivel acessar ambiente"}
+                Break
+            Endif
+        EndIf
 
     End Sequence
 
@@ -234,24 +301,16 @@ Return .T.
 Static Function ZPRODPOST(_oJson, _cEmpFil)
     Local aArea := GetArea()
     Local oJson := _oJson
-    Local retJson
     Local aProd := {}
     Local _cRet := ""
     Local cProd := ""
-    Local cTipo := ""
-    Local cArmazem := ""
     Local aCompl := {}
-    //Local cDesc := "TESTE"
-    Local cUn := ""
-    Local aVetor := {}
-    Local cRet := ""
     Local lRet := ""
     Local aErro := ""
     Local i
     Local x
     Local xErro := ""
     Local nAux := 0
-
 
     Private lMsErroAuto := .F.
     Private lAutoErrNoFile := .T.
@@ -822,69 +881,3 @@ Static Function ZPRODPOST(_oJson, _cEmpFil)
 
     RestArea(aArea)
 Return (jBody)
-
-
-
-/*ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
-±±³Programa  ³ ZWSF0001 ³ Autor ³  Allan Rabelo         ³ Data ³ 18/08/24 ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Descri‡…o ³ VALIDAR EMPRESA, USER E ACESSO                             ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Uso       ³ PRODUTOS                                                   ³±±
-±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
-
-Static Function ZVALREQ(_cLogin,_cAuthorization,_cEmpFil)
-    Local _cEmpresa         := ""
-    Local _cFilial          := ""
-    Local _nPos
-    Local _aRet             := ""
-
-    If AllTrim(_cLogin) <> AllTrim(Decode64(StrTran(_cAuthorization, "Basic ", "")))
-        _aRet := {302,"Usuario ou senha Nao Autorizado "}
-        Break
-    EndIf
-
-    _nPos := At(",", _cEmpFil)
-    If _nPos <= 0
-        _aRet := {302,"Tenanid nao informado ."}
-        Break
-    EndIf
-
-    _cEmpresa := SubsTr(_cEmpFil,1,_nPos-1)
-    _cFilial  := SubsTr(_cEmpFil,_nPos+1)
-
-    If Empty(_cEmpresa)
-        _aRet := {302,"Empresa nao encontrada."}
-        Break
-    Endif
-
-    If Empty(_cFilial)
-        _aRet := {302,"Filial nao encontrada."}
-        Break
-    Endif
-
-    //Verifica a existencia empresa, para não ficar retornando erro 5, valida se a tabela esta abertar
-    If Select("SM0") > 0
-        SM0->(DbSetOrder(1))  //M0_CODIGO+M0_CODFIL
-        If !SM0->(DbSeek(_cEmpresa+_cFilial))
-            _aRet := {302,"Dados da Empresa inconsistente"}
-            Break
-        Endif
-    Endif
-
-    //Tratar abertura da empresa conforme enviado no parametro
-    If cEmpAnt <> _cEmpresa .or. cFilAnt <> _cFilial
-        RpcClearEnv()
-        RPCSetType(3)
-        If !RpcSetEnv(_cEmpresa,_cFilial,,,,GetEnvServer(),{ })
-            _aRet := {302,"Nao foi possivel acessar ambiente"}
-            Break
-        Endif
-    EndIf
-
-
-Return(_aRet)
