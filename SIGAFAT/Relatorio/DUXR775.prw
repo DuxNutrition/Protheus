@@ -10,6 +10,7 @@
 =====================================================================================
 Programa.: DUXR775
 Autor....: Ci | Result
+@history.:26/07/2024 - Jedilson Rodrigues - Manutenção do Fonte
 Data.....: 15/07/2024
 Descricao / Objetivo: Pick-List Nota Fiscal
 Doc. Origem:
@@ -23,8 +24,8 @@ User Function DUXR775()
 Local cPerg  		:= "DUXPIC"
 Local lTemum        := .F.
 Local cQryTmp		:= " "
-Private cAlsTMP 		:= GetNextAlias()  
 
+Private cAlsTMP 	:= GetNextAlias()  
 Private oPrinter 	:= Nil
 Private oFont10N   	:= Nil
 Private oFont07N   	:= Nil
@@ -42,9 +43,9 @@ Private nFolha      := 0
 Private nSalto      := 30
 Private nLinha      := 0
 Private nMargemEsq  := 25
-Private cNFiscal    := 0
-Private cSerie      := 0
-Private cDtFat      := 0
+Private cNFiscal    := " "
+Private cSerie      := " "
+Private cDtFat   	:= CTOD(" ")
 Private cLogo		:= "system\LGMID.png"
 
 //PutSX1( cGrupo, cOrdem, cTexto		, cMVPar	, cVariavel	, cTipoCamp	, nTamanho, nDecimal	, cTipoPar	, cValid			, cF3		, cPicture	, cDef01	, cDef02			, cDef03	, cDef04	, cDef05	, cHelp	, cGrpSXG	)
@@ -83,53 +84,56 @@ If Select(cAlsTMP) > 0
 	(cAlsTMP)->(dbCloseArea())
 EndIf
 
-cQryTmp := " "
-cQryTmp += " SELECT	SB1.B1_ZENDPIC "									+ CRLF	
-cQryTmp += " 		,SD2.D2_DOC "										+ CRLF
-cQryTmp += " 		,SD2.D2_FILIAL "									+ CRLF
-cQryTmp += " 		,SD2.D2_SERIE "										+ CRLF
-cQryTmp += " 		,SD2.D2_QUANT "										+ CRLF
-cQryTmp += " 		,SD2.D2_COD "										+ CRLF
-cQryTmp += " 		,SD2.D2_NUMSEQ "									+ CRLF
-cQryTmp += " 		,SD2.D2_EMISSAO "									+ CRLF
-cQryTmp += " 		,SD2.D2_CLIENTE "									+ CRLF
-cQryTmp += " 		,SD2.D2_LOJA "										+ CRLF
-cQryTmp += " 		,SD2.D2_LOCAL "										+ CRLF
-cQryTmp += " 		,SD2.D2_GRADE "										+ CRLF
-cQryTmp += " 		,SD2.D2_LOTECTL "									+ CRLF
-cQryTmp += " 		,SD2.D2_POTENCI "									+ CRLF
-cQryTmp += " 		,SD2.D2_ITEM "										+ CRLF
-cQryTmp += " 		,SD2.D2_NUMLOTE "									+ CRLF
-cQryTmp += " 		,SD2.D2_DTVALID "									+ CRLF
-cQryTmp += " 		,SD2.D2_PEDIDO "									+ CRLF
-cQryTmp += " 		,SD2.D2_ITEMPV "									+ CRLF
-cQryTmp += " 		,SF2.F2_ESPECI1 "									+ CRLF
-cQryTmp += " 		,SF2.F2_VOLUME1 "									+ CRLF
-cQryTmp += " 		,SF2.F2_TRANSP "									+ CRLF
-cQryTmp += " 		,SB1.B1_ZENDPIC "									+ CRLF
-cQryTmp += " 		,SB1.B1_DESC "										+ CRLF
-cQryTmp += " 		,SB1.B1_UM "										+ CRLF
-cQryTmp += " FROM " + RetSqlName("SD2") + " SD2 "						+ CRLF
-cQryTmp += " 	INNER JOIN " + RetSqlName("SF2") + " SF2 "				+ CRLF
-cQryTmp += " 		ON SF2.F2_FILIAL = SD2.D2_FILIAL "					+ CRLF
-cQryTmp += " 		AND SF2.F2_DOC = SD2.D2_DOC "						+ CRLF
-cQryTmp += " 		AND SF2.F2_SERIE = SD2.D2_SERIE "					+ CRLF
-cQryTmp += " 		AND SF2.F2_CLIENTE = SD2.D2_CLIENTE "				+ CRLF 
-cQryTmp += " 		AND SF2.F2_LOJA = SD2.D2_LOJA "						+ CRLF
-cQryTmp += " 		AND SF2.D_E_L_E_T_ = ' ' "							+ CRLF
-cQryTmp += " 	INNER JOIN " + RetSqlName("SB1") + " SB1 "				+ CRLF
-cQryTmp += " 		ON SB1.B1_FILIAL = '"+FWxFilial("SB1")+"' "			+ CRLF
-cQryTmp += " 		AND SB1.B1_COD = SD2.D2_COD "						+ CRLF
-cQryTmp += " 		AND SB1.D_E_L_E_T_ = ' ' "							+ CRLF
-cQryTmp += " WHERE SD2.D2_FILIAL = '"+FWxFilial("SD2")+"' "				+ CRLF
-cQryTmp += " AND SD2.D2_DOC BETWEEN '"+MV_PAR01+"' AND '"+MV_PAR02+"' "	+ CRLF 
+cQryTmp := " SELECT "+CRLF
+cQryTmp += " 	SB1.B1_ZENDPIC "+CRLF	
+cQryTmp += " 	,SD2.D2_DOC "+CRLF
+cQryTmp += " 	,SD2.D2_FILIAL "+CRLF
+cQryTmp += " 	,SD2.D2_SERIE "+CRLF
+cQryTmp += " 	,SD2.D2_QUANT "+CRLF
+cQryTmp += " 	,SD2.D2_COD "+CRLF
+cQryTmp += " 	,SD2.D2_NUMSEQ "+CRLF
+cQryTmp += " 	,SD2.D2_EMISSAO "+CRLF
+cQryTmp += " 	,SD2.D2_CLIENTE "+CRLF
+cQryTmp += " 	,SD2.D2_LOJA "+CRLF
+cQryTmp += " 	,SD2.D2_LOCAL "+CRLF
+cQryTmp += " 	,SD2.D2_GRADE "+CRLF
+cQryTmp += " 	,SD2.D2_LOTECTL "+CRLF
+cQryTmp += " 	,SD2.D2_POTENCI "+CRLF
+cQryTmp += " 	,SD2.D2_ITEM "+CRLF
+cQryTmp += " 	,SD2.D2_NUMLOTE "+CRLF
+cQryTmp += " 	,SD2.D2_DTVALID "+CRLF
+cQryTmp += " 	,SD2.D2_PEDIDO "+CRLF
+cQryTmp += " 	,SD2.D2_ITEMPV "+CRLF
+cQryTmp += " 	,SF2.F2_ESPECI1 "+CRLF
+cQryTmp += " 	,SF2.F2_VOLUME1 "+CRLF
+cQryTmp += " 	,SF2.F2_TRANSP "+CRLF
+cQryTmp += " 	,SB1.B1_ZENDPIC "+CRLF
+cQryTmp += " 	,SB1.B1_DESC "+CRLF
+cQryTmp += " 	,SB1.B1_UM "+CRLF
+cQryTmp += " FROM " + RetSqlName("SD2") + " SD2 "+CRLF
+cQryTmp += " 	INNER JOIN " + RetSqlName("SF2") + " SF2 "+CRLF
+cQryTmp += " 		ON SF2.F2_FILIAL = SD2.D2_FILIAL "+CRLF
+cQryTmp += " 		AND SF2.F2_DOC = SD2.D2_DOC "+CRLF
+cQryTmp += " 		AND SF2.F2_SERIE = SD2.D2_SERIE "+CRLF
+cQryTmp += " 		AND SF2.F2_CLIENTE = SD2.D2_CLIENTE "+CRLF 
+cQryTmp += " 		AND SF2.F2_LOJA = SD2.D2_LOJA "+CRLF
+cQryTmp += " 		AND SF2.D_E_L_E_T_ = ' ' "+CRLF
+cQryTmp += "	INNER JOIN " + RetSqlName("SA1") + " SA1 "+CRLF
+cQryTmp += " 		ON SF2.F2_CLIENTE = SA1.A1_COD "+CRLF
+cQryTmp += "		AND SA1.D_E_L_E_T_ = '' "+CRLF
+cQryTmp += " 	INNER JOIN " + RetSqlName("SB1") + " SB1 "+CRLF
+cQryTmp += " 		ON SB1.B1_FILIAL = '"+FWxFilial("SB1")+"' "+CRLF
+cQryTmp += " 		AND SB1.B1_COD = SD2.D2_COD "+CRLF
+cQryTmp += " 		AND SB1.D_E_L_E_T_ = ' ' "+CRLF
+cQryTmp += " WHERE SD2.D2_FILIAL = '"+FWxFilial("SD2")+"' "+CRLF
+cQryTmp += " AND SD2.D2_DOC BETWEEN '"+MV_PAR01+"' AND '"+MV_PAR02+"' "+CRLF 
 If !Empty(MV_PAR03)
-	cQryTmp += " AND SD2.D2_SERIE = '"+MV_PAR03+"' "					+ CRLF
+	cQryTmp += " AND SD2.D2_SERIE = '"+MV_PAR03+"' "+ CRLF
 EndIf
-cQryTmp += " AND SD2.D2_QUANT > 0 "										+ CRLF
-cQryTmp += " AND SD2.D_E_L_E_T_ = ' ' "									+ CRLF
-cQryTmp += " ORDER BY SB1.B1_ZENDPIC, SD2.D2_FILIAL,SD2.D2_DOC,SD2.D2_SERIE,SD2.D2_CLIENTE " + CRLF
-cQryTmp += " ,SD2.D2_LOJA,SD2.D2_COD,SD2.D2_LOTECTL,SD2.D2_NUMLOTE,SD2.D2_DTVALID "
+cQryTmp += " AND SD2.D2_QUANT > 0 "+CRLF
+cQryTmp += " AND SD2.D_E_L_E_T_ = ' ' "+CRLF
+cQryTmp += " ORDER BY SD2.D2_FILIAL,SD2.D2_DOC,SD2.D2_SERIE,SD2.D2_CLIENTE,SD2.D2_LOJA,SB1.B1_ZENDPIC,SD2.D2_COD,SD2.D2_LOTECTL, "+CRLF
+cQryTmp += " SD2.D2_NUMLOTE,SD2.D2_DTVALID "+CRLF
 		
 DbUseArea(.T.,"TOPCONN",TcGenQry(,,cQryTmp),cAlsTMP,.T.,.F.)
 
@@ -141,13 +145,13 @@ If  nReg = 0
 Endif
 
 (cAlsTMP)->(dbGoTop())
-While (cAlsTMP)->(!Eof())
-	
+While !(cAlsTMP)->(Eof())
+
 	cNFiscal := (cAlsTMP)->D2_DOC
 	cSerie   := (cAlsTMP)->D2_SERIE
-	cDtFat   := SToD((cAlsTMP)->D2_EMISSAO)
+	cDtFat   := SToD((cAlsTMP)->D2_EMISSAO) 
 
-	While (cAlsTMP)->(!Eof()) .and. cNFiscal = (cAlsTMP)->D2_DOC .and. cSerie = (cAlsTMP)->D2_SERIE 
+	While !(cAlsTMP)->(Eof()) .and. cNFiscal == (cAlsTMP)->D2_DOC .and. cSerie == (cAlsTMP)->D2_SERIE 
 
 		If  nSalto >= 29
 			If  nFolha > 0
@@ -161,13 +165,13 @@ While (cAlsTMP)->(!Eof())
 
 		oPrinter:Say(nLinha, nMargemEsq + 30	, CValToChar((cAlsTMP)->D2_QUANT)	, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq + 50	, (cAlsTMP)->D2_COD					, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq + 100   , Substr((cAlsTMP)->B1_DESC,1,50)	, oFont10:oFont)
+		oPrinter:Say(nLinha, nMargemEsq + 100   , Substr((cAlsTMP)->B1_DESC,1,51)	, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq + 320	, (cAlsTMP)->B1_UM 					, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq	+ 350	, (cAlsTMP)->D2_LOCAL				, oFont10:oFont)
-		oPrinter:Say(nLinha, nMargemEsq	+ 380	, (cAlsTMP)->B1_ZENDPIC				, oFont10:oFont) //Criado por Renan Ranzani - 05/06/2024
+		oPrinter:Say(nLinha, nMargemEsq	+ 380	, (cAlsTMP)->B1_ZENDPIC				, oFont10:oFont) 
 		oPrinter:Say(nLinha, nMargemEsq	+ 420	, (cAlsTMP)->D2_LOTECTL				, oFont10:oFont)
 		oPrinter:Say(nLinha, nMargemEsq	+ 460	, DToC(SToD((cAlsTMP)->D2_DTVALID))	, oFont10:oFont)
-
+		
 		nSalto ++
 
 		(cAlsTMP)->(dbSkip())
@@ -212,12 +216,14 @@ Static Function zFimPag()
 
 	oPrinter:Say(040, 180, "PICK-LIST NOTA FISCAL"											, oFont12:oFont)
 
-	oPrinter:Say(060, 200, cvaltochar(cNFiscal)												, oFont18N:oFont)
+	oPrinter:Say(060, 200, cNFiscal															, oFont18N:oFont)
 
 	oPrinter:FWMSBAR("CODE128" , nLinC , nColC, cCode, oPrinter,/*lCheck*/,/*Color*/,/*lHorz*/, nWidth, nHeigth,.F.,/*cFont*/,/*cMode*/,.F./*lPrint*/,nPFWidth,nPFHeigth,lCmtr2Pix)
 	
 	oPrinter:Say(040, 420, "Data Faturamento:"												, oFont10n:oFont)
 	oPrinter:Say(060, 420, cvaltochar(cDtFat)			        							, oFont16:oFont)
+
+	//oPrinter:Say(075, 420, cCanal			        										, oFont12N:oFont)
 
 	nFolha ++
 
@@ -230,7 +236,7 @@ Static Function zFimPag()
 	If  dbSeek(xFilial("SA1") + (cAlsTMP)->D2_CLIENTE +(cAlsTMP)->D2_LOJA)
 		oPrinter:Say(100, 027, SA1->A1_END		       										, oFont10:oFont)
 		oPrinter:Say(107, 027, SA1->A1_BAIRRO												, oFont10:oFont)
-		oPrinter:Say(115, 027, "CEP " + SA1->A1_CEP+"-"+AllTrim(A1_MUN)+"-"+A1_EST					, oFont10:oFont)
+		oPrinter:Say(115, 027, "CEP " + SA1->A1_CEP+"-"+AllTrim(A1_MUN)+"-"+A1_EST			, oFont10:oFont)
 	Endif
 	
 	oPrinter:Box(080, 200, 120, 537	)	
@@ -249,7 +255,7 @@ Static Function zFimPag()
 	Endif
 	
 	oPrinter:Say(130, 456, "Volumes:"  														, oFont10N:oFont)
-	oPrinter:Say(140, 456, cvaltochar((cAlsTMP)->F2_VOLUME1)+" "+(cAlsTMP)->F2_ESPECI1  , oFont10:oFont)
+	oPrinter:Say(140, 456, cvaltochar((cAlsTMP)->F2_VOLUME1)+" "+(cAlsTMP)->F2_ESPECI1  	, oFont10:oFont)
 
 	nLinha	:= 50		
 
@@ -258,14 +264,14 @@ Static Function zFimPag()
 	nLinha += 120
 
 	oPrinter:Box(nLinha-10, 025, nLinha+600, 537)	
-	oPrinter:Say(nLinha, nMargemEsq	+ 2		, "Quantidade"				, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq + 50	, "Código"					, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq + 100	, "Nome"					, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq + 320	, "Unid" 					, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq	+ 350	, "Local"					, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq	+ 380	, "Endereço"				, oFont10n:oFont) //Criado por Renan Ranzani - 05/06/2024
-	oPrinter:Say(nLinha, nMargemEsq	+ 420	, "Lote"					, oFont10n:oFont)
-	oPrinter:Say(nLinha, nMargemEsq	+ 460	, "Validade"				, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq	+ 2		, "Quantidade"		, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq + 50	, "Código"			, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq + 100	, "Nome"			, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq + 320	, "Unid" 			, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq	+ 350	, "Local"			, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq	+ 380	, "Endereço"		, oFont10n:oFont) 
+	oPrinter:Say(nLinha, nMargemEsq	+ 420	, "Lote"			, oFont10n:oFont)
+	oPrinter:Say(nLinha, nMargemEsq	+ 460	, "Validade"		, oFont10n:oFont)
 
 Return 
 
