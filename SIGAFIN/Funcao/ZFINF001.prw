@@ -26,7 +26,7 @@ User Function ZFINF001(aTitulos)
     @ C(030),C(020) COMBOBOX oCombo VAR cTipoImp ITEMS {"Parcela","Titulo"} SIZE 100,08  PIXEL OF oDlg
     
 	@ C(042),C(020) Say "Salvar PDF ?:" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oDlg
-    @ C(050),C(020) COMBOBOX oCombo2 VAR cCaminho ITEMS {"Local [ C:\BoletosDux\ ]","FTP iRecebi"} SIZE 100,08  PIXEL OF oDlg
+    @ C(050),C(020) COMBOBOX oCombo2 VAR cCaminho ITEMS {"FTP iRecebi","Local [ C:\BoletosDux\ ]"} SIZE 100,08  PIXEL OF oDlg
         
     DEFINE SBUTTON FROM C(143),C(095) TYPE 6 ENABLE OF oDlg ACTION ( Processa( { || ZFINS001(aTitulos,cTipoImp,cCaminho)} ,"[ ZFINF001 ] - Imprimindo Boleto Dux..." )  ,oDlg:End() )
             
