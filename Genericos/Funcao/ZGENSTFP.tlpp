@@ -1,0 +1,57 @@
+    
+#include "totvs.ch"
+#include "protheus.ch"
+#include 'tlpp-core.th'
+
+User Function ZGENSTFP(cArqData, cArqFtp, cFtpSrv, cFtpPor, cFtpUsr, cFTpPss, cFtpDir)
+
+	Local nRet1         := 0
+    Local nRet2         := 0
+  	Local oSftp1        := TsFtpClient():new()
+    Local lJob          := IsBlind()
+
+    Default cFtpSrv     := ""
+    Default cFtpPor     := ""
+    Default cFtpUsr     := ""
+    Default cFTpPss     := ""
+    Default cFtpDir     := ""
+    Default cArqData    := ""
+    Default cArqFtp     := ""
+
+  	//Conecta no servidor SFTP
+    nRet1 := oSftp1:Connect(cFtpSrv,cFtpPor,cFtpUsr, cFTpPss)
+  
+  	If (nRet1 == 0) //Realizou a conexao
+    
+      	//Envia o arquivo para o servidor ftp
+        nRet2 := oSftp1:SendFile(cArqData,cFtpDir+cArqFtp)
+
+  	    If (nRet2 <> 0) //Não conseguiu salvar o arquivo no FTP
+            If lJob
+                ConOut("[ ZFINF002 ] Falha ao salvar o arquivo no servidor SFTP iRecebi | " + DtoC(date()) + " - "+Time())
+            Else
+    	        MsgInfo("Falha ao salvar o arquivo no servidor SFTP iRecebi","ZFINF002")
+            EndIf
+        Else
+            //Apaga o resgistro do servidor
+            If (FErase(cArqData) <> 0)
+                If lJob
+                    ConOut("[ ZFINF002 ] Falha ao apagar o arquivo na /Protheus_Data/boletosirecebi/ | " + DtoC(date()) + " - "+Time())
+                Else
+    	            MsgInfo("Falha ao apagar o arquivo na /Protheus_Data/boletosirecebi/","ZFINF002")
+                EndIf
+            EndIf
+  	    EndIf
+        
+        //Desconecta o servidor FTP
+        oSftp1:Disconnect()
+
+    Else
+        If lJob
+            ConOut("[ ZFINF002 ] Falha em conectar ao servidor SFTP iRecebi | " + DtoC(date()) + " - "+Time())
+        Else
+            MsgInfo(" Falha em conectar ao servidor SFTP iRecebi","ZFINF002")
+        EndIf
+  	Endif
+
+Return()

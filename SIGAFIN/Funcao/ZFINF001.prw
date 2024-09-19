@@ -26,7 +26,7 @@ User Function ZFINF001(aTitulos)
     @ C(030),C(020) COMBOBOX oCombo VAR cTipoImp ITEMS {"Parcela","Titulo"} SIZE 100,08  PIXEL OF oDlg
     
 	@ C(042),C(020) Say "Salvar PDF ?:" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oDlg
-    @ C(050),C(020) COMBOBOX oCombo2 VAR cCaminho ITEMS {"FTP iRecebi [ X:\BoletosDux\ ]", "Local [ C:\BoletosDux\ ]"} SIZE 100,08  PIXEL OF oDlg
+    @ C(050),C(020) COMBOBOX oCombo2 VAR cCaminho ITEMS {"Local [ C:\BoletosDux\ ]","FTP iRecebi"} SIZE 100,08  PIXEL OF oDlg
         
     DEFINE SBUTTON FROM C(143),C(095) TYPE 6 ENABLE OF oDlg ACTION ( Processa( { || ZFINS001(aTitulos,cTipoImp,cCaminho)} ,"[ ZFINF001 ] - Imprimindo Boleto Dux..." )  ,oDlg:End() )
             
@@ -39,6 +39,7 @@ Static Function ZFINS001(aTitulos,cTipoImp,cCaminho)
     Local nI 			:= 0
 	Local nX			:= 1
 	Local lImprime		:= .F.
+	Local lFtp			:= .F.
 	Local aBoletos  	:= {}
 	Local aPrint  		:= {}
 	Local cArquivo 		:= ""
@@ -49,6 +50,11 @@ Static Function ZFINS001(aTitulos,cTipoImp,cCaminho)
 	Local cTipo			:= ""
 	Local cCliente		:= ""
 	Local cLoja			:= ""
+	Local cFtpSrv   	:= SuperGetMV("DUX_FIN010", , "app.irecebi.com")
+    Local cFtpPor   	:= SuperGetMV("DUX_FIN011", , "22")
+    Local cFtpUsr   	:= SuperGetMV("DUX_FIN012", , "dux")
+    Local cFTpPss   	:= SuperGetMV("DUX_FIN013", , "dUx6De2i-RU9O3E")
+    Local cFtpDir   	:= SuperGetMV("DUX_FIN014", , "/dados/homologacao/")
 	Local nPosMark		:= 1
 	Local nPosPrefix	:= 2
 	Local nPosNum		:= 3
@@ -64,13 +70,16 @@ Static Function ZFINS001(aTitulos,cTipoImp,cCaminho)
 	If cCaminho == "Local [ C:\BoletosDux\ ]"
 		cDiretorio := "C:\BoletosDux\"
 	Else
-		cDiretorio := "X:\BoletosDux\"
+		cDiretorio := "/boletosirecebi/"
+		lFtp := .T.
 	EndIf
 
-	If !ExistDir( cDiretorio )
-		MakeDir( cDiretorio )
-		ApMsgInfo("Pasta para salvar o(s) boleto(s) criada com sucesso."+CRLF+"Caminho: "+cCaminho,"[ ZFINF001 ]")
-	Endif
+	If lFtp == .F.
+		If !ExistDir( cDiretorio )
+			MakeDir( cDiretorio )
+			ApMsgInfo("Pasta para salvar o(s) boleto(s) criada com sucesso."+CRLF+"Caminho: "+cCaminho,"[ ZFINF001 ]")
+		Endif
+	EndIf
 	
 	For nI := 1 To Len(aTitulos)
 		
@@ -124,17 +133,23 @@ Static Function ZFINS001(aTitulos,cTipoImp,cCaminho)
 			SA1->(DbSetOrder(1))
 			If SA1->(DbSeek(FwxFilial("SA1") + cCliente + cLoja ))
 				If cTipoImp == "Parcela"
-					cArquivo 	:= "NFISCAL_" + AllTrim(SA1->A1_CGC) + "_" + AllTrim(MV_PAR01) + "_" + AllTrim(cPrefixo) + "_" + AllTrim(cNumero)+"_"+AllTrim(cParcela)+".PDF"
+					cArquivo 	:= "nfiscal_" + AllTrim(SA1->A1_CGC) + "_" + AllTrim(MV_PAR01) + "_" + AllTrim(cPrefixo) + "_" + AllTrim(cNumero)+"_"+AllTrim(cParcela)+".pdf"
 				Else
-					cArquivo 	:= "NFISCAL_" + AllTrim(SA1->A1_CGC) + "_" + AllTrim(MV_PAR01) + "_" + AllTrim(cPrefixo) + "_" + AllTrim(cNumero)+"_"+'.PDF'
+					cArquivo 	:= "nfiscal_" + AllTrim(SA1->A1_CGC) + "_" + AllTrim(MV_PAR01) + "_" + AllTrim(cPrefixo) + "_" + AllTrim(cNumero)+"_"+'.pdf'
 				EndIf
 			EndIf
 
-			oBol:setTitulos(aPrint)
+			oBol:SetTitulos(aPrint)
 			oBol:Imprime(cDiretorio+cArquivo)
 
 			lImprime 	:= .F.
 			aPrint		:= {}
+
+			//Envia os arquivos para o ftp do iRecebi
+			If lFtp
+				U_ZGENSTFP(cDiretorio+cArquivo, cArquivo, cFtpSrv, cFtpPor, cFtpUsr, cFTpPss, cFtpDir)
+						//(Caminho+Arquivo salvo no Protheus_Data, Nome do Arquivo, URL do FTP, Porta do FTP, Usuario do FTP, Senha do FTP, Caminho)
+			EndIf
 		EndIf
 
 	EndDo	
