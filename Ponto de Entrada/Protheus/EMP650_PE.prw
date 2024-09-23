@@ -20,7 +20,6 @@ Local aAreaSC2   := SC2->(GetArea())
 Local aAreaSB1   := SB1->(GetArea())
 Local _nPosCod	 := aScan(aHeader,{|x| AllTrim(x[2]) == "G1_COMP" })   //Armazena o numero da coluna no aCols referente ao codigo
 Local _nPosLoc	 := aScan(aHeader,{|x| AllTrim(x[2]) == "D4_LOCAL"})   //Armazena o numero da coluna no aCols referente ao armazem
-//Local _nPosLocLz := aScan(aHeader,{|x| AllTrim(x[2]) == "DC_LOCALIZ"}) //Armazena o numero da coluna no aCols referente ao Endereco
 Local cLocPro1   := SuperGetMv("DUX_EST008",.F.,"PR01;PRODUCAO")
 Local cLocPro2   := SuperGetMv("DUX_EST009",.F.,"PR02;INDUSTRIALIZACA")
 Local lAtivo   	 := SuperGetMv("DUX_EST010",.F.,.T.)
@@ -40,15 +39,9 @@ If lAtivo == .T.
 		If cTipo == "1"
 			aItem := StrToKArr(cLocPro1,";")
 			aCols[i,_nPosLoc] := Alltrim(aItem[1])
-			/*If cLocaliz == "S"
-				aCols[i,_nPosLocLz] := Alltrim(aItem[2])
-			Endif*/
 		Else 
 			aItem := StrToKArr(cLocPro2,";")
 			aCols[i,_nPosLoc] := Alltrim(aItem[1])
-			/*If cLocaliz == "S"
-				aCols[i,_nPosLocLz] := Alltrim(aItem[2])
-			Endif*/
 		Endif
 
 	Next i
