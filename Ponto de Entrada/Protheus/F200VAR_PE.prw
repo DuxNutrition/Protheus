@@ -41,17 +41,13 @@ User Function F200VAR()
             If SubString(cLinhaTxt,014,001) == "T" //Executa somente para segmento T
     
                 If AllTrim(SubString(cLinhaTxt,184,010)) == "0130044887"
-                    cAgencia    := PadR("2050", TamSx3('A6_AGENCIA') [1])
-                    cConta      := "13004488"
+                    cConta      := PadR("13004488", TamSx3('A6_NUMCON') [1])
                 ElseIf AllTrim(SubString(cLinhaTxt,184,010)) == "0290005221"
-                    cAgencia    := PadR("2050", TamSx3('A6_AGENCIA') [1])
-                    cConta      := "29000522"
+                    cConta      := PadR("29000522", TamSx3('A6_NUMCON') [1])
                 ElseIf AllTrim(SubString(cLinhaTxt,184,010)) == "0290005427"
-                    cAgencia    := PadR("2050", TamSx3('A6_AGENCIA') [1])
-                    cConta      := "29000542"
+                    cConta      := PadR("29000542", TamSx3('A6_NUMCON') [1])
                 ElseIf AllTrim(SubString(cLinhaTxt,184,010)) == "0290005764"
-                    cAgencia    := PadR("2050", TamSx3('A6_AGENCIA') [1])
-                    cConta      := "290005764"
+                    cConta      := PadR("290005764", TamSx3('A6_NUMCON') [1])
                 EndIf
                 
             EndIf
@@ -62,10 +58,10 @@ User Function F200VAR()
     
                 If  AllTrim(SubString(cLinhaTxt,108,001)) == "1"     //Cobranca Simples
                     cAgencia    := PadR("0001", TamSx3('A6_AGENCIA') [1])
-                    cConta      := "0003033653"
+                    cConta      := PadR("0003033653", TamSx3('A6_NUMCON') [1])
                 ElseIf AllTrim(SubString(cLinhaTxt,184,001)) == "2" //Cobranca Vinculada
                     cAgencia    := PadR("0001", TamSx3('A6_AGENCIA') [1])
-                    cConta      := "0003033661"
+                    cConta      := PadR("0003033661", TamSx3('A6_NUMCON') [1])
                 ElseIf AllTrim(SubString(cLinhaTxt,184,001)) == "3" //Cobranca Caucionada
                     cAgencia    := cAgencia
                     cConta      := cConta
