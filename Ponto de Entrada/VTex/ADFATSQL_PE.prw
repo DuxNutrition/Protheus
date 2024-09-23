@@ -12,9 +12,11 @@ User Function ADFATSQL()
 	Local   cStatusFOK 	:= SuperGetMV("VT_STFRTOK", , "FRTOK")
 	Local 	cLogArq		:= "ADFATAUT.sql"
 
-	Private cStatusOK   := SuperGetMV("VT_STSEPOK", , "SEPOK")	// Separação OK
+	Private cStatusOK   := SuperGetMV("VT_STSEPOK", , "SEPOK")	// SeparaÃ§Ã£o OK
 
 	DEFAULT _lLogs := .F.
+
+	
 
 	cSQL := "     SELECT "+ CRLF
 	If Upper(AllTrim(TCGetDB())) == "MSSQL"
@@ -27,7 +29,15 @@ User Function ADFATSQL()
 		cSQL += " ,C5_XITEMCC, C5_XPEDLV " + CRLF
 	EndIF
 
-    cSQL += "  ,  (SELECT COUNT(*) FROM SC9010 SC9 WHERE C9_FILIAL = C5_FILIAL    AND SC9.C9_PEDIDO = C5_NUM         AND SC9.D_E_L_E_T_= ' '  AND C9_BLEST <> ' ' ) " + CRLF
+    cSQL += "  ,  (SELECT COUNT(1)  " + CRLF 
+	cSQL += "       FROM " + RetSQLName("SC9") + " SC9 "
+	If Upper(AllTrim(TCGetDB())) == "MSSQL"
+		cSQL += "(NOLOCK) " + CRLF
+	Else
+		cSQL += CRLF
+	EndIf
+	cSQL += " WHERE C9_FILIAL = C5_FILIAL    AND SC9.C9_PEDIDO = C5_NUM         AND SC9.D_E_L_E_T_= ' '  AND C9_BLEST <> ' ' ) " + CRLF
+	cSQL += "  , SEPEOK.DATAEHORA " + CRLF
 
 	cSQL += "       FROM " + RetSQLName("SC5") + " SC5 "
 	If Upper(AllTrim(TCGetDB())) == "MSSQL"
@@ -50,6 +60,25 @@ User Function ADFATSQL()
 		cSQL += "        AND ZAA.D_E_L_E_T_= ' ' " + CRLF
 	EndIf
 
+
+	cSQL += " LEFT JOIN ( SELECT ZT0_FILIAL " + CRLF
+   	cSQL += "                        , ZT0_IDLV	" + CRLF
+   	cSQL += "                        , DATAEHORA = MAX( ZT0_DATA + ' ' + ZT0_HORA ) " + CRLF
+	cSQL += " FROM " + RetSQLName("ZT0") + " ZT0 "
+		
+	If "MSSQL" $ Upper(AllTrim(TCGetDB()))
+		cSQL += " (NOLOCK) " + CRLF
+	Else
+		cSQL += CRLF
+	EndIf
+
+   	cSQL += "                    WHERE ZT0_PROCES ='FEED Atualizado - SEPOK'	" + CRLF
+   	cSQL += "                      AND D_E_L_E_T_ = ''	" + CRLF
+   	cSQL += "                    GROUP BY ZT0_FILIAL	" + CRLF
+   	cSQL += "                            , ZT0_IDLV	" + CRLF
+   	cSQL += "                  ) SEPEOK ON SC5.C5_FILIAL = SEPEOK.ZT0_FILIAL	" + CRLF
+   	cSQL += "                          AND SC5.C5_XPEDLV = SEPEOK.ZT0_IDLV	" + CRLF
+
 	
 
 	cSQL += "      WHERE C5_FILIAL = '" + xFilial("SC5") + "' " + CRLF
@@ -63,7 +92,7 @@ User Function ADFATSQL()
 		cSQL += "        AND C5_NUM BETWEEN '" + SC5->C5_NUM + "' AND '" + SC5->C5_NUM + "' " + CRLF
 	EndIf
 	cSQL += "        AND C5_NOTA = '" + Space(TamSX3("C5_NOTA")[1]) + "' " + CRLF
-	//Define se fatura apenas pedidos do E-commerce ou todos os pedidos disponíveis
+	//Define se fatura apenas pedidos do E-commerce ou todos os pedidos disponÃ­veis
 
 	cSQL += " AND  ( "
 
@@ -86,9 +115,22 @@ User Function ADFATSQL()
     //cSQL += "  GROUP BY " + CRLF
     //cSQL += "  C5_XDATA, C5_XHORA, C5_NUM ,C5_XITEMCC, C5_XPEDLV " + CRLF
     //cSQL += "  HAVING COUNT(DISTINCT C9_BLEST) = 1 " + CRLF
-	cSQL  += " AND (SELECT COUNT(*) FROM SC9010 SC9 WHERE C9_FILIAL = C5_FILIAL     AND SC9.C9_PEDIDO = C5_NUM         AND SC9.D_E_L_E_T_= ' '  AND C9_BLEST <> ' ' )  = 0 "
+	//cSQL  += " AND (SELECT COUNT(*) FROM SC9010 SC9 WHERE C9_FILIAL = C5_FILIAL     AND SC9.C9_PEDIDO = C5_NUM         AND SC9.D_E_L_E_T_= ' '  AND C9_BLEST <> ' ' )  = 0 "
+	cSQL  += "AND NOT EXISTS ( SELECT 1 	" + CRLF
+    cSQL += "       FROM " + RetSQLName("SC9") + " SC9 "
+	If Upper(AllTrim(TCGetDB())) == "MSSQL"
+		cSQL += "(NOLOCK) " + CRLF
+	Else
+		cSQL += CRLF
+	EndIf
+    cSQL  += "                     WHERE C9_FILIAL = C5_FILIAL   	" + CRLF  
+    cSQL  += "                      AND SC9.C9_PEDIDO = C5_NUM   	" + CRLF      
+    cSQL  += "                       AND SC9.D_E_L_E_T_= ' ' 		" + CRLF 
+    cSQL  += "                       AND C9_BLEST <> ' ' 			" + CRLF
+    cSQL  += "                 )      	" + CRLF
+ 	cSQL  += "ORDER BY SEPEOK.DATAEHORA, C5_NUM " + CRLF
 
-	cSQL += "        ORDER BY C5_XDATA ASC, C5_XHORA,C5_NUM  ASC " + CRLF
+	//cSQL += "        ORDER BY C5_XDATA ASC, C5_XHORA,C5_NUM  ASC " + CRLF 
 
 
 	
