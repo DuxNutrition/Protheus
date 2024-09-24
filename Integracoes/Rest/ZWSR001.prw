@@ -42,8 +42,8 @@ WSMETHOD GET WSSERVICE ZWSR001
         _cAuthorization := Self:GetHeader('Authorization')
         _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
         
-        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_RES01", , "allan.rabelo"))	    // Usuario para autenticacao no WS
-        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_RES02", , "123456"	))	        // Senha para autenticao no WS*/
+        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_API005", , "hom.api.impostos"))	    // Usuario para autenticacao no WS
+        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_API006", , "Lw&4L6~i\l26"	))	        // Senha para autenticao no WS*/
         _cLogin     := _cUserPar+":"+_cPassPar
 
         //Verifica se o usuário de autenticação é igual ao do Parametro.
