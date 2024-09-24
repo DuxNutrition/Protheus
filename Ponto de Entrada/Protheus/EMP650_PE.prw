@@ -23,7 +23,7 @@ Local _nPosLoc	 := aScan(aHeader,{|x| AllTrim(x[2]) == "D4_LOCAL"})   //Armazena
 Local cLocPro1   := SuperGetMv("DUX_EST008",.F.,"PR01;PRODUCAO")
 Local cLocPro2   := SuperGetMv("DUX_EST009",.F.,"PR02;INDUSTRIALIZACA")
 Local lAtivo   	 := SuperGetMv("DUX_EST010",.F.,.T.)
-Local cFil    	 := SuperGetMv("DUX_EST011",.F.,"01")
+Local cFil    	 := SuperGetMv("DUX_EST011",.F.,"02")
 Local nTam    	 := TamSX3("B1_COD")[1]
 Local cLocaliz   := ""
 Local i		     := 0
