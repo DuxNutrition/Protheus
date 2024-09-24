@@ -261,20 +261,32 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			if !Empty(aICMS[nCont])
 				aadd(aICMSgrp,aICMS[nCont])
 			else 
-				aadd(aICMSgrp[nCont],{"","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+				aadd(aICMSgrp,{"","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""})
 			endif 
 			///////////// PIS //////////////////////
-			if !Empty(aPIS[nCont])
+			If !Empty(aPIS[nCont])
 				aadd(aPISgrp,aPIS[nCont])
-			else 
-				aadd(aPISgrp[nCont],{"","","","","","","",""})
-			endif 
+			Else 
+				aadd(aPISgrp,{ "",; //01 - CD2->CD2_CST
+								0,;	//02 - CD2->CD2_BC
+								0,; //03 - CD2->CD2_ALIQ
+								0,;	//04 - CD2->CD2_VLTRIB
+								0,; //05 - CD2->CD2_QTRIB
+								0,; //06 - CD2->CD2_PAUTA
+								""})//07 - CD2->CD2_CODPRO
+			EndIf 
 			//////////// COFINS //////////////////
-			if !Empty(aCOFINS[nCont])
+			If !Empty(aCOFINS[nCont])
 				aadd(aCOFINSgrp,aCOFINS[nCont])
-			else 
-				aadd(aCOFINSgrp[nCont],{"","","","","","","",""})
-			endif
+			Else 
+				aadd(aCOFINSgrp,{	""; 	//CD2->CD2_CST
+									,0;		//CD2->CD2_BC	
+									,0; 	//CD2->CD2_ALIQ
+									,0; 	//CD2->CD2_VLTRIB
+									,0; 	//CD2->CD2_QTRIB
+									,0;		//CD2->CD2_PAUTA
+									,""})	//CD2->CD2_CODPRO
+			EndIf
 			////////////////////////////////////////////////////
 			if(!empty(SD2->D2_LOTECTL))
 				aadd( aLoteProd , { SD2->D2_COD,;
@@ -323,13 +335,17 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			aICMSgrp[nPos,09] += aICMS[nCont,09]
 			aICMSgrp[nPos,15] += aICMS[nCont,15]
 			/////////////////////////// PIS /////////////////////////////////////////////////////////
-			aPISgrp[nPos,02] += aPIS[nCont,02]
-			aPISgrp[nPos,04] += aPIS[nCont,04]
-			aPISgrp[nPos,05] += aPIS[nCont,05]
+			If !Empty(aPIS[nCont])					
+				aPISgrp[nPos,02] += aPIS[nCont,02]
+				aPISgrp[nPos,04] += aPIS[nCont,04]
+				aPISgrp[nPos,05] += aPIS[nCont,05]
+			EndIf
 			/////////////////////////// COFINS ////////////////////////////////////////////////
-			aCOFINSgrp[nPos,02] += aCOFINS[nCont,02]
-			aCOFINSgrp[nPos,04] += aCOFINS[nCont,04]
-			aCOFINSgrp[nPos,05] += aCOFINS[nCont,05]
+			If !Empty(aCOFINS[nCont])
+				aCOFINSgrp[nPos,02] += aCOFINS[nCont,02]
+				aCOFINSgrp[nPos,04] += aCOFINS[nCont,04]
+				aCOFINSgrp[nPos,05] += aCOFINS[nCont,05]
+			EndIf
 
 			nPos := aScan(aLoteProd , {|Registro| Registro[1] == SD2->D2_COD })
 			if(nPos > 0)
@@ -425,36 +441,6 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	//--------------------------------------------------------------------
 	//02.02.01.02 - FCI
 	//--------------------------------------------------------------------
-	/*
-	if(valtype(aFCI) == "A" .and. len(aFCI) > 0)
-		atmp := {}
-		for nCont := 1 to Len(aFCI)
-			if Len(aFCI[nCont])>1
-				nPos := aScan(atmp,{|x| x[2] == aFCI[nCont][2]})
-				if nPos == 0
-					aadd(atmp,aFCI[nCont])
-				else
-					atmp[nPos][1]	:= aFCI[nCont][1]
-				endif
-			else
-				aadd(atmp,{"",""})
-			endif
-		next
-		for nCont := 1 to Len(atmp)
-			if atmp[nCont][1] == ""
-				atmp[nCont] := {}
-			endif
-		next
-		aFCI := aClone(atmp)
-		for nCont := 1 to len(aFCI)
-			if(valtype(aFCI[1]) == "A")
-
-			endif
-		next nCont
-	endif
-	aFCI 	:= aClone(atmp)
-	atmp:= {}*/
-
 	if(valtype(aFCI) == "A" .and. len(aFCI) > 0)
 		atmp := {}
 		for nCont := 1 to Len(aProd)
@@ -743,49 +729,12 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	//--------------------------------------------------------------------
 	//02.02.04 - PIS
 	//--------------------------------------------------------------------
-	if((valtype(aPIS) == "A") .and. (len(aPIS) > 0))
-		/*for nCont:=1 to len(aPIS)
-			if(valtype(aPIS[1]) == "A")
-				if(len(aPIS[nCont]) > 0)
-
-					nCampo   := len(aPIS[nCont])
-					cProduto := aPIS[nCont,nCampo]
-					cItem	 := aInfoItem[nCont,04]
-
-					dbSelectArea("SB1")
-					SB1->(dbSetOrder(1))
-					SB1->(MsSeek(xFilial("SB1")+cProduto))
-
-					dbSelectArea("SD2")
-					SD2->(dbSetOrder(3))
-					SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
-
-					aadd(aPIS[nCont],SD2->D2_CF)
-
-					if(len(aImpAgrp) > 0)
-						nPos 	:= aScan( aImpAgrp , {|Registro| iif(len(aPIS[nCont])-1 >= nCampo .and.;
-							len(Registro) >= nCampo,;
-							Registro[nCampo] + ;
-							Registro[len(aPIS[nCont])] == ;
-							aPIS[nCont,nCampo] + ;
-							aPIS[nCont,len(aPIS[nCont])], .F.)})
-					else
-						nPos := 0
-					endif
-
-					if(nPos == 0)
-						aadd( aImpAgrp , aPIS[nCont] )
-					else
-						aImpAgrp[nPos,02] += aPIS[nCont,02]
-						aImpAgrp[nPos,04] += aPIS[nCont,04]
-						aImpAgrp[nPos,05] += aPIS[nCont,05]
-					endif
-				else
-					aadd( aImpAgrp , {} )
-				endif
+	if((valtype(aPISgrp) == "A") .and. (len(aPISgrp) > 0))
+		for nCont := 1 to Len(aPISgrp)
+			if (aPISgrp[nCont][1] == "" .and. aPISgrp[nCont][4] == 0)
+				aPISgrp[nCont] := {}
 			endif
-		next nCont
-		*/
+		next
 	endif
 
 	if len(aPISgrp) > 0
@@ -848,44 +797,12 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	//--------------------------------------------------------------------
 	//02.02.06 - COFINS
 	//--------------------------------------------------------------------
-	if(valtype(aCOFINS) == "A" .and. len(aCOFINS) > 0)
-		/*for nCont:=1 to len(aCOFINS)
-			if(valtype(aCOFINS[1]) == "A")
-				if(len(aCOFINS[nCont]) > 0)
-
-					nCampo   := len(aCOFINS[nCont])
-					cProduto := aCOFINS[nCont,nCampo]
-					cItem	 := aInfoItem[nCont,04]
-
-					dbSelectArea("SB1")
-					SB1->(dbSetOrder(1))
-					SB1->(MsSeek(xFilial("SB1")+cProduto))
-
-					dbSelectArea("SD2")
-					SD2->(dbSetOrder(3))
-					SD2->(dbSeek(xFilial("SD2")+cDoc+cSerie+cClifor+cLoja+cProduto+cItem))
-
-					aadd(aCOFINS[nCont],SD2->D2_CF)
-
-					if(len(aImpAgrp) > 0)
-						nPos 	:= aScan( aImpAgrp , {|Registro| iif(len(aCOFINS[nCont])-1 >= nCampo .and. len(Registro) >= nCampo, Registro[nCampo]+Registro[len(aCOFINS[nCont])] == aCOFINS[nCont,nCampo]+aCOFINS[nCont,len(aCOFINS[nCont])], .F.) } ) //Procura o Produto no Array de Aglutinados
-					else
-						nPos := 0
-					endif
-
-					if(nPos == 0)
-						aadd( aImpAgrp , aCOFINS[nCont] )
-					else
-						aImpAgrp[nPos,02] += aCOFINS[nCont,02]
-						aImpAgrp[nPos,04] += aCOFINS[nCont,04]
-						aImpAgrp[nPos,05] += aCOFINS[nCont,05]
-					endif
-				else
-					aadd( aImpAgrp , {} )
-				endif
+	if(valtype(aCOFINS) == "A" .and. len(aCOFINSgrp) > 0)
+		for nCont := 1 to Len(aCOFINSgrp)
+			if (aCOFINSgrp[nCont][1] == "" .and. aCOFINSgrp[nCont][4] == 0)
+				aCOFINSgrp[nCont] := {}
 			endif
 		next
-		*/
 	endif
 
 	if len(aCOFINSgrp) > 0
