@@ -222,6 +222,7 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	local aICMSgrp      := {} as array
 	local aPISgrp       := {} as array 
 	local aCOFINSgrp    := {} as array 
+	local aFCIAgrp      := {} as array 
 	default aInfoItem   := {}
 
 	for nCont := 1 to len(aProd)
@@ -257,7 +258,7 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			else 
 				aadd(aCSTGrp,{"","",""})
 			endif 
-			//////////// ICMS
+			//////////// ICMS //////////////////////
 			if !Empty(aICMS[nCont])
 				aadd(aICMSgrp,aICMS[nCont])
 			else 
@@ -287,7 +288,15 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 									,0;		//CD2->CD2_PAUTA
 									,""})	//CD2->CD2_CODPRO
 			EndIf
-			////////////////////////////////////////////////////
+			/////////////  FCI ////////////////////
+			If !Empty(aFCI[nCont])
+				aadd(aFCIAgrp,aFCI[nCont])
+			Else 
+				aadd(aFCIAgrp,{	 ""; 	//CD2->CD2_CODFCI
+								,"";	//CD2->CD2_CODPRO	
+								   })	
+			EndIf
+
 			if(!empty(SD2->D2_LOTECTL))
 				aadd( aLoteProd , { SD2->D2_COD,;
 					alltrim(SD2->D2_LOTECTL)})
@@ -345,6 +354,11 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 				aCOFINSgrp[nPos,02] += aCOFINS[nCont,02]
 				aCOFINSgrp[nPos,04] += aCOFINS[nCont,04]
 				aCOFINSgrp[nPos,05] += aCOFINS[nCont,05]
+			EndIf
+			/////////////////////////// FCI //////////////////////////////////////////////////////
+			If !Empty(aFCI[nCont])
+				aFCIAgrp[nPos,01] := aFCI[nCont,01]
+				aFCIAgrp[nPos,02] := aFCI[nCont,02]
 			EndIf
 
 			nPos := aScan(aLoteProd , {|Registro| Registro[1] == SD2->D2_COD })
@@ -441,9 +455,14 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	//--------------------------------------------------------------------
 	//02.02.01.02 - FCI
 	//--------------------------------------------------------------------
-	if(valtype(aFCI) == "A" .and. len(aFCI) > 0)
-		atmp := {}
-		for nCont := 1 to Len(aProd)
+	if(valtype(aFCIAgrp) == "A" .and. len(aFCIAgrp) > 0)
+		for nCont := 1 to Len(aFCIAgrp)
+			if (aFCIAgrp[nCont][1] == "")
+				aFCIAgrp[nCont] := {}
+			endif
+		next
+		//atmp := {}
+		/*for nCont := 1 to Len(aProd)
 			//if Len(aProd[nCont][57])
 			if !Empty(aProd[nCont][57])
 				aadd(atmp,{aProd[nCont][57]})
@@ -463,7 +482,9 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			endif
 		next nCont
 	endif
-	aFCI 	:= aClone(atmp)
+	*/
+	endif 
+	aFCI 	:= aClone(aFCIAgrp)
 	atmp:= {}
 
 

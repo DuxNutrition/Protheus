@@ -2873,10 +2873,10 @@ If cTipo == "1"
 								EndIf
 								
 							Else
-								aadd(aFCI,{"",(cAliasSD2)->D2_COD})
+								aadd(aFCI,{})
 							EndIf
 						Else 
-							aadd(aFCI,{"",(cAliasSD2)->D2_COD})
+							aadd(aFCI,{})
 						EndIf
 						// Retirada a validação devido a criação da tag nFCI (NT 2013/006)
 						//--------------------------------------------------------------------------------
