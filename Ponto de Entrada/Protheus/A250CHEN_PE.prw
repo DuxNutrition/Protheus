@@ -2,7 +2,7 @@
 #INCLUDE "TOTVS.CH"
 
 /*/{Protheus.doc} A250CHEN
-Força endereço específico para verificação de saldos.
+Forca endereco especifico para verificacao de saldos.
 @type Function
 @version 12.1.23
 @author Jedielson Rodrigues
@@ -24,6 +24,7 @@ Local nCampo   := PARAMIXB[3]
 Local cLocPro1 := SuperGetMv("DUX_EST008",.F.,"PR01;PRODUCAO")
 Local cLocPro2 := SuperGetMv("DUX_EST009",.F.,"PR02;INDUSTRIALIZACA")
 Local lAtivo   := SuperGetMv("DUX_EST010",.F.,.T.)
+Local cFil     := SuperGetMv("DUX_EST011",.F.,"01")
 Local aItem    := {}
 Local cTipo    := SC2->C2_XTPOP
 Local nTam     := TamSX3("B1_COD")[1]
@@ -32,7 +33,7 @@ Local cLocaliz := " "
 
 cLocaliz := NGSEEK('SB1',Padr(SD4->D4_COD,nTam),1,"B1_LOCALIZ")
 
-If lAtivo == .T.
+If lAtivo == .T. .AND. cFilAnt $ cFil
     If cTipo == "1"
         aItem := StrToKArr(cLocPro1,";")
         If cLocaliz == "S"

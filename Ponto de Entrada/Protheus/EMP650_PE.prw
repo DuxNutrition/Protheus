@@ -2,7 +2,7 @@
 #INCLUDE "TOTVS.CH"
 
 /*/{Protheus.doc} EMP650
-Alteração de Itens Empenhados na Abertura da OP.
+Alteracao de Itens Empenhados na Abertura da OP.
 @type Function
 @version 12.1.23
 @author Jedielson Rodrigues
@@ -10,7 +10,7 @@ Alteração de Itens Empenhados na Abertura da OP.
 @version 12.1.2310
 @database MSSQL
 @See https://tdn.totvs.com/display/public/PROT/EMP650+-+Ponto+de+Entrada
-@Obs Realiza a troca do Armazém e o endereço Baseado no campo C2_XTPOP (Tipo de Producao)
+@Obs Realiza a troca do Armazem e o endereço Baseado no campo C2_XTPOP (Tipo de Producao)
 /*/
 
 User Function EMP650()
@@ -23,13 +23,14 @@ Local _nPosLoc	 := aScan(aHeader,{|x| AllTrim(x[2]) == "D4_LOCAL"})   //Armazena
 Local cLocPro1   := SuperGetMv("DUX_EST008",.F.,"PR01;PRODUCAO")
 Local cLocPro2   := SuperGetMv("DUX_EST009",.F.,"PR02;INDUSTRIALIZACA")
 Local lAtivo   	 := SuperGetMv("DUX_EST010",.F.,.T.)
+Local cFil    	 := SuperGetMv("DUX_EST011",.F.,"01")
 Local nTam    	 := TamSX3("B1_COD")[1]
 Local cLocaliz   := ""
 Local i		     := 0
 Local cTipo      := SC2->C2_XTPOP
 Local aItem      := {}
 
-If lAtivo == .T.
+If lAtivo == .T. .AND. cFilAnt $ cFil
                                      
 	For i:= 1 To Len(aCols)
 
