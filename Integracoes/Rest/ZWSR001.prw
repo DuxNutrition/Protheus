@@ -42,8 +42,8 @@ WSMETHOD GET WSSERVICE ZWSR001
         _cAuthorization := Self:GetHeader('Authorization')
         _cEmpFil 		:= Self:GetHeader("tenantid", .F.)
         
-        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_RES01", , "allan.rabelo"))	    // Usuario para autenticacao no WS
-        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_RES02", , "123456"	))	        // Senha para autenticao no WS*/
+        _cUserPar 	:= AllTrim( SuperGetMv( "DUX_API005", , "hom.api.impostos"))	    // Usuario para autenticacao no WS
+        _cPassPar 	:= AllTrim( SuperGetMv( "DUX_API006", , "Lw&4L6~i\l26"	))	        // Senha para autenticao no WS*/
         _cLogin     := _cUserPar+":"+_cPassPar
 
         //Verifica se o usuário de autenticação é igual ao do Parametro.
@@ -233,6 +233,7 @@ Static Function ZPROC001(_oJson, _cEmpFil)
         jBody["Item Impostos"][nLength]["Seguro"]  := aImpItem[yX][60]
         jBody["Item Impostos"][nLength]["Despesas"]  := aImpItem[yX][61]
         jBody["Item Impostos"][nLength]["Mercadoria"]  := aImpItem[yX][62]
+        jBody["Item Impostos"][nLength]["TotalItem"]  := aImpItem[yX][63]
     Next yX
 
     RestArea(aArea)
@@ -250,7 +251,7 @@ Static Function ZProcImp(cCliente,cLoja,cTipo,cProduto,cTes,nQtd,nPrc,nValor)
     local aImp  := {}
     Local i     := 0
 
-    for i := 1 to 62
+    for i := 1 to 63
         AAdd(aImp,0)
     next
 
@@ -338,6 +339,7 @@ Static Function ZProcImp(cCliente,cLoja,cTipo,cProduto,cTes,nQtd,nPrc,nValor)
     aImp[60] := MaFisRet(1,"IT_SEGURO")			//60 Valor do Seguro
     aImp[61] := MaFisRet(1,"IT_DESPESA")		//61 Valor das Despesas
     aImp[62] := MaFisRet(1,"IT_VALMERC")		//62 Valor da Mercadoria
+    aImp[63] := MaFisRet(1,"IT_TOTAL")		//63 Valor total do item com incidencia dos impostos
     /*	aImp[10] := MaFisRet(1,"IT_DESCZF")		//Valor de Desconto da Zona Franca de Manaus
 	aImp[14] := MaFisRet(1,"IT_BASESOL")	//Base do ICMS Solidario
 	aImp[15] := MaFisRet(1,"IT_ALIQSOL")	//Aliquota do ICMS Solidario
