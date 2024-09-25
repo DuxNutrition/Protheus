@@ -222,6 +222,7 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 	local aICMSgrp      := {} as array
 	local aPISgrp       := {} as array 
 	local aCOFINSgrp    := {} as array 
+	local aFCIAgrp      := {} as array 
 	default aInfoItem   := {}
 
 	for nCont := 1 to len(aProd)
@@ -356,8 +357,8 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			EndIf
 			/////////////////////////// FCI //////////////////////////////////////////////////////
 			If !Empty(aFCI[nCont])
-				aFCIAgrp[nPos,01] := aCOFINS[nCont,01]
-				aFCIAgrp[nPos,02] := aCOFINS[nCont,02]
+				aFCIAgrp[nPos,01] := aFCI[nCont,01]
+				aFCIAgrp[nPos,02] := aFCI[nCont,02]
 			EndIf
 
 			nPos := aScan(aLoteProd , {|Registro| Registro[1] == SD2->D2_COD })
