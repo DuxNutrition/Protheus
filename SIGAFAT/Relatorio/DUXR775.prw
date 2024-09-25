@@ -119,8 +119,10 @@ cQryTmp += " 		AND SF2.F2_CLIENTE = SD2.D2_CLIENTE "+CRLF
 cQryTmp += " 		AND SF2.F2_LOJA = SD2.D2_LOJA "+CRLF
 cQryTmp += " 		AND SF2.D_E_L_E_T_ = ' ' "+CRLF
 cQryTmp += "	INNER JOIN " + RetSqlName("SA1") + " SA1 "+CRLF
-cQryTmp += " 		ON SF2.F2_CLIENTE = SA1.A1_COD "+CRLF
-cQryTmp += "		AND SA1.D_E_L_E_T_ = '' "+CRLF
+cQryTmp += " 		ON SA1.A1_FILIAL = '"+FWxFilial("SA1")+"' "+CRLF
+cQryTmp += " 		AND SA1.A1_COD = SF2.F2_CLIENTE "+CRLF
+cQryTmp += " 		AND SA1.A1_LOJA = SF2.F2_LOJA "+CRLF
+cQryTmp += " 		AND SA1.D_E_L_E_T_ = ' ' "+CRLF 
 cQryTmp += " 	INNER JOIN " + RetSqlName("SB1") + " SB1 "+CRLF
 cQryTmp += " 		ON SB1.B1_FILIAL = '"+FWxFilial("SB1")+"' "+CRLF
 cQryTmp += " 		AND SB1.B1_COD = SD2.D2_COD "+CRLF
