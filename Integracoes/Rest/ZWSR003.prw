@@ -17,23 +17,17 @@
 ±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
-WSRESTFUL ZWSR003 DESCRIPTION "Cadastro de produtos" FORMAT APPLICATION_JSON
-    WSDATA page                AS INTEGER  OPTIONAL
-    WSDATA pageSize             AS INTEGER  OPTIONAL
-    WSDATA searchKey            AS STRING   OPTIONAL
-    WSDATA branch               AS STRING   OPTIONAL
-    WSDATA byId                 AS BOOLEAN  OPTIONAL
+WSRESTFUL ZWSR003 DESCRIPTION "Titulos fincanceiro a receber" FORMAT APPLICATION_JSON
 
-    WSMETHOD GET ZWS003GET DESCRIPTION "ZWSR003 GET PRODUTO" WSSYNTAX "ZWS003GET" PATH '/api/v1/ZWSR003' PRODUCES APPLICATION_JSON
+    WSDATA page         AS INTEGER  OPTIONAL
+    WSDATA pageSize     AS INTEGER  OPTIONAL
+
+    WSMETHOD GET ZWS003GET DESCRIPTION "ZWS003GET - Titulos fincanceiro a receber" WSSYNTAX "ZWS003GET" PATH '/api/v1/ZWSR003' PRODUCES APPLICATION_JSON
     //WSMETHOD GET customers DESCRIPTION 'SP Lista de Clientes' WSSYNTAX '/api/v1/spcliente' PATH '/api/v1/spcliente' PRODUCES APPLICATION_JSON
 END WSRESTFUL
 
-WSMETHOD GET ZWS003GET WSRECEIVE searchKey, page, pageSize, branch WSREST ZWSR003
-Local lRet:= .T.
-lRet := GetFin10( self )
-Return( lRet )
+WSMETHOD GET ZWS003GET WSRECEIVE page, pageSize WSREST ZWSR003
 
-Static Function GetFin10( Self )
     Local _aRet             := ""
     Local cBody             := ""
     Local _cAuthorization   := ""
@@ -46,11 +40,8 @@ Static Function GetFin10( Self )
     Local _cLogin           := ""
     Local _nPos
 
-    Default self:searchKey     := ''
-    Default self:branch        := ''
     Default self:page      := 1
     Default self:pageSize  := 1000
-    Default self:byId      :=.F.
 
     Begin Sequence
 
@@ -161,7 +152,6 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     Local nStart        := 1
     Local nReg          := 0
 
-
     aCabec          := {}
     aItens          := {}
     aImpItem        := {}
@@ -212,6 +202,7 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     cQrySE1 += "        AND SF2.F2_SERIE = SE1.E1_PREFIXO "  + CRLF
     cQrySE1 += "        AND SF2.F2_CLIENTE = SE1.E1_CLIENTE "  + CRLF
     cQrySE1 += "        AND SF2.F2_LOJA = SE1.E1_LOJA "  + CRLF
+    cQrySE1 += "        AND SF2.F2_CHVNFE <> '' "  + CRLF
     cQrySE1 += "        AND SF2.D_E_L_E_T_ = '' "  + CRLF
     cQrySE1 += "    INNER JOIN "+Retsqlname("SA1")+" SA1 WITH(NOLOCK) "  + CRLF
     cQrySE1 += "        ON SA1.A1_FILIAL = '  ' "  + CRLF
@@ -255,10 +246,12 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     DbSelectArea((cAliasTRB))
     (cAliasTRB)->(dbGoTop())
     If (cAliasTRB)->( ! Eof() )
+
         //-------------------------------------------------------------------
         // Identifica a quantidade de registro no alias temporário
         //-------------------------------------------------------------------
         COUNT TO nRecord
+ 
         //-------------------------------------------------------------------
         // nStart -> primeiro registro da pagina
         // nReg -> numero de registros do inicio da pagina ao fim do arquivo
@@ -277,15 +270,25 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
 
         //-------------------------------------------------------------------
 
+        //-------------------------------------------------------------------
+        // Valida a exitencia de mais paginas
+        //-------------------------------------------------------------------
+        If nReg > self:pageSize
+            aTitulos['hasNext'] := .T.
+        Else
+            aTitulos['hasNext'] := .F.
+        EndIf
+
     Else
         //-------------------------------------------------------------------
         // Nao encontrou registros
         //-------------------------------------------------------------------
         aTit['hasNext'] := .F.
     EndIf
+    
     aTitulos["paginaatual"] := self:page
     aTitulos["numtopage"] := self:pageSize
-    aTitulos["totalpaginas"] := Round((nReg/self:pageSize),0)
+    aTitulos["totalpaginas"] := Ceiling(nRecord/self:pageSize)
     aTitulos["Item"] := {}
 
     DbSelectArea('SE1')
@@ -304,30 +307,30 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
             If lRet
                 aTit["ctipocli"]            := AllTrim((cAliasTRB)->A1_PESSOA)
                 aTit["ccnpj"]               := AllTrim((cAliasTRB)->A1_CGC)
-                aTit["cnome"]               := AllTrim((cAliasTRB)->A1_NOME)
+                aTit["cnome"]               := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_NOME)))
                 aTit["ccontrato"]           := AllTrim((cAliasTRB)->A1_COD_LOJA)
                 aTit["ctitulo"]             := AllTrim((cAliasTRB)->E1_NUM_PARCELA)
                 aTit["cvencimento"]         := AllTrim(DToC(SToD((cAliasTRB)->E1_VENCREA)))
                 aTit["nvalor"]              := (cAliasTRB)->E1_SALDO
-                aTit["cdetalhe"]            := AllTrim((cAliasTRB)->E1_TIPO)
+                aTit["cdetalhe"]            := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->E1_TIPO)))
                 If !Empty((cAliasTRB)->A1_ZZESTAB)
-                    aTit["ccartcontrato"]   := AllTrim((cAliasTRB)->A1_ZZESTAB)
+                    aTit["ccartcontrato"]   := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_ZZESTAB)))
                 Else
                     aTit["ccartcontrato"]   := "GERAL"
                 EndIf
-                aTit["cendcob"]             := AllTrim((cAliasTRB)->A1_ENDCOB)
-                aTit["cemail"]              := AllTrim((cAliasTRB)->A1_EMAIL)
-                aTit["cendereco"]           := AllTrim((cAliasTRB)->A1_END)
-                aTit["cbairro"]             := AllTrim((cAliasTRB)->A1_BAIRRO)
-                aTit["cmunicipio"]          := AllTrim((cAliasTRB)->A1_MUN)
-                aTit["cestado"]             := AllTrim((cAliasTRB)->A1_EST)
-                aTit["ccep"]                := AllTrim((cAliasTRB)->A1_CEP)
-                aTit["cfone1"]              := AllTrim((cAliasTRB)->A1_ZZWHATS)
-                aTit["cfone2"]              := AllTrim((cAliasTRB)->A1_TEL)
+                aTit["cendcob"]             := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_ENDCOB)))
+                aTit["cemail"]              := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_EMAIL)))
+                aTit["cendereco"]           := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_END)))
+                aTit["cbairro"]             := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_BAIRRO)))
+                aTit["cmunicipio"]          := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_MUN)))
+                aTit["cestado"]             := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_EST)))
+                aTit["ccep"]                := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_CEP)))
+                aTit["cfone1"]              := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_ZZWHATS)))
+                aTit["cfone2"]              := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_TEL)))
                 aTit["cboletoapi"]          := AllTrim((cAliasTRB)->ARQ_BOLETO)
                 aTit["cchavenfe"]           := AllTrim((cAliasTRB)->F2_CHVNFE)
-                aTit["csituacao"]           := AllTrim((cAliasTRB)->E1_SITUACA)
-                aTit["ccarteira"]           := ""//AllTrim((cAliasTRB)->E1_ZZCART)
+                aTit["csituacao"]           := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->E1_SITUACA)))
+                aTit["ccarteira"]           := ""//FwNoAccent(AllTrim((cAliasTRB)->E1_ZZCART))
                 aTit["cstatusparc"]         := AllTrim((cAliasTRB)->STATUSPARC)
             EndIf
 
@@ -341,12 +344,14 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
         (cAliasTRB)->(DBSkip())
     EndDo
 
+/*
     // Valida a exitencia de mais paginas
     If nReg  > self:pageSize
         aTitulos['hasNext'] := .T.
     Else
         aTitulos['hasNext'] := .F.
     EndIf
+*/
 
     RestArea(aArea)
     (cAliasTRB)->( DBCloseArea() )
