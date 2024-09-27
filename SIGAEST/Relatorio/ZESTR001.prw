@@ -40,20 +40,21 @@ aAdd(aPergs, {1,"De Produto"			  ,cCod		,/*Pict*/,/*Valid*/,"SB1",/*When*/,60,.F
 aAdd(aPergs, {1,"Ate Produto"		      ,cCod	    ,/*Pict*/,MV_PAR02 > MV_PAR01,"SB1",/*When*/,60,.F.})   //MV_PAR02
 aAdd(aPergs, {1,"De Endereco"  			  ,cEnder	,/*Pict*/,/*Valid*/	,"SBE",/*When*/,60,.F.})            //MV_PAR03
 aAdd(aPergs, {1,"Ate Endereco"            ,cEnder	,/*Pict*/,MV_PAR03 > MV_PAR04,"SBE",/*When*/,60,.F.})   //MV_PAR04
-aAdd(aPergs, {1,"Data de Invetario"   	  ,dDtInv	,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.T.})           //MV_PAR05
-aAdd(aPergs, {1,"De Local"  			  ,cLocal	,/*Pict*/,/*Valid*/	,"NNR",/*When*/,50,.F.})            //MV_PAR06
-aAdd(aPergs, {1,"Ate Local" 			  ,cLocal	,/*Pict*/,MV_PAR07 > MV_PAR06,"NNR",/*When*/,50,.F.})   //MV_PAR07
-aAdd(aPergs, {1,"De Tipo Prod"  		  ,cTipo	,/*Pict*/,/*Valid*/	,"02",/*When*/,50,.F.})       		//MV_PAR08
-aAdd(aPergs, {1,"Ate Tipo Prod" 		  ,cTipo	,/*Pict*/,MV_PAR09 > MV_PAR08,"02",/*When*/,50,.F.})    //MV_PAR09
-aAdd(aPergs, {1,"De Grupo"  			  ,cGrupo	,/*Pict*/,/*Valid*/	,"SBM",/*When*/,50,.F.})       	    //MV_PAR10
-aAdd(aPergs, {1,"Ate Grupo" 			  ,cGrupo	,/*Pict*/,MV_PAR11 > MV_PAR10,"SBM",/*When*/,50,.F.})   //MV_PAR11
-aAdd(aPergs, {1,"De Docto"				  ,cDoc		,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.F.})           //MV_PAR12
-aAdd(aPergs, {1,"Ate Docto"				  ,cDoc		,/*Pict*/,MV_PAR13 > MV_PAR12,/*F3*/,/*When*/,50,.F.})  //MV_PAR13
-aAdd(aPergs, {1,"De Lote"				  ,cLote	,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.F.})           //MV_PAR14
-aAdd(aPergs, {1,"Ate Lote"				  ,cLote	,/*Pict*/,,/*F3*/,/*When*/,50,.F.})  					//MV_PAR15
-aAdd(aPergs, {3,"Qual moeda" 		 	  ,nMoeda  	,aMoeda   ,50 ,"" ,.F.})								//MV_PAR16
-aAdd(aPergs, {3,"Usar o Custo Medio" 	  ,nCusmed  ,aCusmed  ,60 ,"" ,.F.})								//MV_PAR17
-aAdd(aPergs, {3,"Listar Produtos" 	 	  ,nListPrd ,aListPrd ,60 ,"" ,.F.})								//MV_PAR18
+aAdd(aPergs, {1,"De Dt.Invetario"   	  ,dDtInv	,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.T.})           //MV_PAR05
+aAdd(aPergs, {1,"Ate Dt.Invetario"   	  ,dDtInv	,/*Pict*/,MV_PAR06 > MV_PAR05,/*F3*/,/*When*/,50,.T.})  //MV_PAR06
+aAdd(aPergs, {1,"De Local"  			  ,cLocal	,/*Pict*/,/*Valid*/	,"NNR",/*When*/,50,.F.})            //MV_PAR07
+aAdd(aPergs, {1,"Ate Local" 			  ,cLocal	,/*Pict*/,MV_PAR07 > MV_PAR06,"NNR",/*When*/,50,.F.})   //MV_PAR08
+aAdd(aPergs, {1,"De Tipo Prod"  		  ,cTipo	,/*Pict*/,/*Valid*/	,"02",/*When*/,50,.F.})       		//MV_PAR09
+aAdd(aPergs, {1,"Ate Tipo Prod" 		  ,cTipo	,/*Pict*/,MV_PAR09 > MV_PAR08,"02",/*When*/,50,.F.})    //MV_PAR10
+aAdd(aPergs, {1,"De Grupo"  			  ,cGrupo	,/*Pict*/,/*Valid*/	,"SBM",/*When*/,50,.F.})       	    //MV_PAR11
+aAdd(aPergs, {1,"Ate Grupo" 			  ,cGrupo	,/*Pict*/,MV_PAR11 > MV_PAR10,"SBM",/*When*/,50,.F.})   //MV_PAR12
+aAdd(aPergs, {1,"De Docto"				  ,cDoc		,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.F.})           //MV_PAR13
+aAdd(aPergs, {1,"Ate Docto"				  ,cDoc		,/*Pict*/,MV_PAR13 > MV_PAR12,/*F3*/,/*When*/,50,.F.})  //MV_PAR14
+aAdd(aPergs, {1,"De Lote"				  ,cLote	,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.F.})           //MV_PAR15
+aAdd(aPergs, {1,"Ate Lote"				  ,cLote	,/*Pict*/,,/*F3*/,/*When*/,50,.F.})  					//MV_PAR16
+aAdd(aPergs, {3,"Qual moeda" 		 	  ,nMoeda  	,aMoeda   ,50 ,"" ,.F.})								//MV_PAR17
+aAdd(aPergs, {3,"Usar o Custo Medio" 	  ,nCusmed  ,aCusmed  ,60 ,"" ,.F.})								//MV_PAR18
+aAdd(aPergs, {3,"Listar Produtos" 	 	  ,nListPrd ,aListPrd ,60 ,"" ,.F.})								//MV_PAR19
 
 If ParamBox(aPergs, "Informe os parametros do Lançamento de Inventario", , , , , , , , , .F., .F.)	
 	If cModInv == "1"
@@ -103,6 +104,7 @@ cDescrel  += "no inventario. Baseado nestas duas informacoes ele calcula a difer
 	TRCell():New( oSection  ,"B1_GRUPO"   	,cTabela ,"Grupo"						,PesqPict("SB1","B1_GRUPO") 	,TamSx3("B1_GRUPO")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"B1_UM"   		,cTabela ,"UM"							,PesqPict("SB1","B1_UM")   		,TamSx3("B1_UM")[1]			, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"B7_LOCAL" 	,cTabela ,"Amz"							,PesqPict("SB7","B7_LOCAL")   	,TamSx3("B7_LOCAL")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"B7_DATA"   	,cTabela ,"Dt.Inventario"			    ,PesqPict("SB7","B7_DATA")   	,TamSx3("B7_DATA")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"B7_DOC"   	,cTabela ,"Docto"						,PesqPict("SB7","B7_DOC")   	,TamSx3("B7_DOC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"B7_QUANT"   	,cTabela ,"Quantidade Inventariada" 	,PesqPict("SB7","B7_QUANT")   	,TamSx3("B7_QUANT")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"QUANTDATA"   	,cTabela ,"Qtd na data do Inventario" 	,cPictQFim   					,cTamQFim					, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
@@ -120,6 +122,7 @@ Static Function ReportMod1(oReport)
 	Local lContagem := SuperGetMv('MV_CONTINV',.F.,.F.)
 	Local lImprime  := .T.
 	Local _aAreaSB2 := SB2->(GetArea())
+	Local dDataInv	:= CTOD(" ")
 	Local cQry		:= ""
 	Local cProduto  := ""
 	Local cLocal 	:= ""
@@ -132,8 +135,6 @@ Static Function ReportMod1(oReport)
 	Local aSalQtd   := {}
 	Local aCM		:= {}
 	Local nX        := 0
-	Local cSeek     := ''
-	Local cCompara  := ''
 	Local cStatus   := ''
 	Local lSB7Cnt   := .T.
 	Local lFirst    := .F.
@@ -155,11 +156,11 @@ Static Function ReportMod1(oReport)
 	cQry += " LEFT JOIN " + RetSqlName("SB1") + " SB1 WITH(NOLOCK) "+ CRLF
 	cQry += " 	ON SB1.B1_FILIAL = '" + FWxFilial("SB1") + "' "+ CRLF
 	cQry += "	AND SB1.B1_COD = SB7.B7_COD "+ CRLF
-	If !Empty(MV_PAR09) // Parametro por Tipo
-		cQry += " AND SB1.B1_TIPO BETWEEN '"+MV_PAR08+"' AND '"+MV_PAR09+"' "+ CRLF
+	If !Empty(MV_PAR10) // Parametro por Tipo
+		cQry += " AND SB1.B1_TIPO BETWEEN '"+MV_PAR09+"' AND '"+MV_PAR10+"' "+ CRLF
 	EndIf
-	If !Empty(MV_PAR11) // Parametro por Grupo
-		cQry += " AND SB1.B1_GRUPO BETWEEN '"+MV_PAR10+"' AND '"+MV_PAR11+"' "+ CRLF
+	If !Empty(MV_PAR12) // Parametro por Grupo
+		cQry += " AND SB1.B1_GRUPO BETWEEN '"+MV_PAR11+"' AND '"+MV_PAR12+"' "+ CRLF
 	EndIf
 	cQry += "	AND SB1.D_E_L_E_T_ = ' ' "+ CRLF
 	cQry += " WHERE SB7.B7_FILIAL =  '" + FWxFilial("SB7") + "' "+ CRLF
@@ -169,15 +170,17 @@ Static Function ReportMod1(oReport)
 	If !Empty(MV_PAR04) // Parametro por Endereco
 		cQry += " AND SB7.B7_LOCALIZ BETWEEN '"+MV_PAR03+"' AND '"+MV_PAR04+"' "+ CRLF
 	EndIf
-	cQry += " AND SB7.B7_DATA = '"+DTOS(MV_PAR05)+"' "+ CRLF // Parametro por Data
-	If !Empty(MV_PAR07) // Parametro por Local
-		cQry += " AND SB7.B7_LOCAL BETWEEN '"+MV_PAR06+"' AND '"+MV_PAR07+"' "+ CRLF
+	If !Empty(MV_PAR06) // Parametro por Data
+		cQry += " AND SB7.B7_DATA BETWEEN '"+DTOS(MV_PAR05)+"' AND '"+DTOS(MV_PAR06)+"' "+ CRLF
 	EndIf
-	If !Empty(MV_PAR13) // Parametro por Docto
-		cQry += " AND SB7.B7_DOC BETWEEN '"+MV_PAR12+"' AND '"+MV_PAR13+"' "+ CRLF
+	If !Empty(MV_PAR08) // Parametro por Local
+		cQry += " AND SB7.B7_LOCAL BETWEEN '"+MV_PAR07+"' AND '"+MV_PAR08+"' "+ CRLF
 	EndIf
-	If !Empty(MV_PAR15) // Parametro por Lote
-		cQry += " AND SB7.B7_LOTECTL BETWEEN '"+MV_PAR14+"' AND '"+MV_PAR15+"' "+ CRLF
+	If !Empty(MV_PAR14) // Parametro por Docto
+		cQry += " AND SB7.B7_DOC BETWEEN '"+MV_PAR13+"' AND '"+MV_PAR14+"' "+ CRLF
+	EndIf
+	If !Empty(MV_PAR16) // Parametro por Lote
+		cQry += " AND SB7.B7_LOTECTL BETWEEN '"+MV_PAR15+"' AND '"+MV_PAR16+"' "+ CRLF
 	EndIf
 	If lContagem
 		cQry += " AND SB7.B7_ESCOLHA = 'S' "
@@ -206,85 +209,78 @@ Static Function ReportMod1(oReport)
 
 			oReport:IncMeter()
 
-			If cSeek <> (cTabela)->&(cCompara)
-				
-				//Incrementando a regua
-				nAtual++
+			//Incrementando a regua
+			nAtual++
 
-				nTotal     := 0
-				lSB7Cnt    := .T.
-				lImprime   := .T.
-				cSeek      := xFilial('SB7')+DTOS(MV_PAR05)+(cTabela)->B7_COD+(cTabela)->B7_LOCAL+(cTabela)->B7_LOCALIZ+(cTabela)->B7_NUMSERI+(cTabela)->B7_LOTECTL+(cTabela)->B7_NUMLOTE
-				cCompara   := "B7_FILIAL+B7_DATA+B7_COD+B7_LOCAL+B7_LOCALIZ+B7_NUMSERI+B7_LOTECTL+B7_NUMLOTE"
-				nSaldo	   := 0
-				cProduto   := (cTabela)->B7_COD
-				cLocal     := (cTabela)->B7_LOCAL
-				cLocaliz   := (cTabela)->B7_LOCALIZ
-				cNumSeri   := (cTabela)->B7_NUMSERI
-				cLotectl   := (cTabela)->B7_LOTECTL
-				cNumLote   := (cTabela)->B7_NUMLOTE
-				cStatus    := Iif((cTabela)->B7_STATUS == "1","Nao processado","Processado")
-				lFirst     := .T.
-				lEmAberto  := .F.
-				nTotal     := A285Tot(cTabela,lContagem,@lEmAberto,@lSB7Cnt,cModInv)
-			
-				dbSelectArea('SB2')
-				dbSetOrder(1)
-				If SB2->(DbSeek(xFilial("SB2")+cProduto+cLocal))
-					If (Localiza(cProduto,.T.) .And. !Empty(cLocaliz+cNumSeri)) .Or. (Rastro(cProduto) .And. !Empty(cLotectl+cNumLote))
-						If IntDl(cProduto) .and. lWmsNew
-							oSaldoWMS	:= WMSDTCEstoqueEndereco():New()
-							aSalQtd		:= oSaldoWMS:SldPrdData(cProduto,cLocal,MV_PAR05,cLoteCtl,cNumLote,cLocaliz,cNumSeri)
-						Else
-							aSalQtd   := CalcEstL(cProduto,cLocal,MV_PAR05+1,cLoteCtl,cNumLote,cLocaliz,cNumSeri)
-						EndIf
-						aSaldo    := CalcEst(cProduto,cLocal,MV_PAR05+1)
-						aSaldo[2] := (aSaldo[2] / aSaldo[1]) * aSalQtd[1]
-						aSaldo[3] := (aSaldo[3] / aSaldo[1]) * aSalQtd[1]
-						aSaldo[4] := (aSaldo[4] / aSaldo[1]) * aSalQtd[1]
-						aSaldo[5] := (aSaldo[5] / aSaldo[1]) * aSalQtd[1]
-						aSaldo[6] := (aSaldo[6] / aSaldo[1]) * aSalQtd[1]
-						aSaldo[7] := aSalQtd[7]
-						aSaldo[1] := aSalQtd[1]
+			nTotal     := 0
+			lSB7Cnt    := .T.
+			lImprime   := .T.
+			nSaldo	   := 0
+			cProduto   := (cTabela)->B7_COD
+			cLocal     := (cTabela)->B7_LOCAL
+			cLocaliz   := (cTabela)->B7_LOCALIZ
+			cNumSeri   := (cTabela)->B7_NUMSERI
+			cLotectl   := (cTabela)->B7_LOTECTL
+			cNumLote   := (cTabela)->B7_NUMLOTE
+			dDataInv   := STOD((cTabela)->B7_DATA)
+			cStatus    := Iif((cTabela)->B7_STATUS == "1","Nao processado","Processado")
+			lFirst     := .T.
+			lEmAberto  := .F.
+			nTotal     := A285Tot(cTabela,lContagem,@lEmAberto,@lSB7Cnt,cModInv)
+		
+			dbSelectArea('SB2')
+			dbSetOrder(1)
+			If SB2->(DbSeek(xFilial("SB2")+cProduto+cLocal))
+				If (Localiza(cProduto,.T.) .And. !Empty(cLocaliz+cNumSeri)) .Or. (Rastro(cProduto) .And. !Empty(cLotectl+cNumLote))
+					If IntDl(cProduto) .and. lWmsNew
+						oSaldoWMS	:= WMSDTCEstoqueEndereco():New()
+						aSalQtd		:= oSaldoWMS:SldPrdData(cProduto,cLocal,dDataInv,cLoteCtl,cNumLote,cLocaliz,cNumSeri)
 					Else
-						aSaldo := CalcEst(cProduto,cLocal,MV_PAR05+1)
+						aSalQtd   := CalcEstL(cProduto,cLocal,dDataInv+1,cLoteCtl,cNumLote,cLocaliz,cNumSeri)
 					EndIf
-					If MV_PAR17 == 1
-						aCM:={}
-						If QtdComp(aSaldo[1]) > QtdComp(0)
-							For nX:=2 to Len(aSaldo)
-								aAdd(aCM,aSaldo[nX]/aSaldo[1])
-							Next nX
-						Else
-							aCM := PegaCmAtu(cProduto,cLocal)
-						EndIf
-					Else
-						aCM := PegaCMFim(cProduto,cLocal)
-					EndIf
+					aSaldo    := CalcEst(cProduto,cLocal,dDataInv+1)
+					aSaldo[2] := (aSaldo[2] / aSaldo[1]) * aSalQtd[1]
+					aSaldo[3] := (aSaldo[3] / aSaldo[1]) * aSalQtd[1]
+					aSaldo[4] := (aSaldo[4] / aSaldo[1]) * aSalQtd[1]
+					aSaldo[5] := (aSaldo[5] / aSaldo[1]) * aSalQtd[1]
+					aSaldo[6] := (aSaldo[6] / aSaldo[1]) * aSalQtd[1]
+					aSaldo[7] := aSalQtd[7]
+					aSaldo[1] := aSalQtd[1]
 				Else
-					aSaldo := {0,0}
-					aCM    := {0,0,0,0,0}
+					aSaldo := CalcEst(cProduto,cLocal,dDataInv+1)
 				EndIf
-
-				//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-				//³ lImprime - Variavel utilizada para verificar se o usuario deseja |
-				//| Listar Produto: 1-Com Diferencas / 2-Sem Diferencas / 3-Todos    |      
-				//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-				If nTotal-aSaldo[1] == 0
-					If MV_PAR18 == 1
-						lImprime := .F.
+				If MV_PAR18 == 1
+					aCM:={}
+					If QtdComp(aSaldo[1]) > QtdComp(0)
+						For nX:=2 to Len(aSaldo)
+							aAdd(aCM,aSaldo[nX]/aSaldo[1])
+						Next nX
+					Else
+						aCM := PegaCmAtu(cProduto,cLocal)
 					EndIf
 				Else
-					If MV_PAR18 == 2
-						lImprime := .F.
-					EndIf
+					aCM := PegaCMFim(cProduto,cLocal)
 				EndIf
 			Else
-				nTotal  := A285Tot(cTabela,lContagem,@lEmAberto,@lSB7Cnt,cModInv)
-				lFirst  := .F.
-			EndIF
+				aSaldo := {0,0}
+				aCM    := {0,0,0,0,0}
+			EndIf
 
-			If lSB7Cnt .AND.(lImprime .Or. MV_PAR18 == 3)
+			//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+			//³ lImprime - Variavel utilizada para verificar se o usuario deseja |
+			//| Listar Produto: 1-Com Diferencas / 2-Sem Diferencas / 3-Todos    |      
+			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			If nTotal-aSaldo[1] == 0
+				If MV_PAR19 == 1
+					lImprime := .F.
+				EndIf
+			Else
+				If MV_PAR19 == 2
+					lImprime := .F.
+				EndIf
+			EndIf
+			
+			If lSB7Cnt .AND.(lImprime .Or. MV_PAR19 == 3)
 
 				If lFirst
 					nSaldo := aSaldo[1]
@@ -306,11 +302,12 @@ Static Function ReportMod1(oReport)
 				oSectDad:Cell("B1_GRUPO"):SetValue((cTabela)->B1_GRUPO)
 				oSectDad:Cell("B1_UM"):SetValue((cTabela)->B1_UM)
 				oSectDad:Cell("B7_LOCAL"):SetValue((cTabela)->B7_LOCAL)
+				oSectDad:Cell("B7_DATA"):SetValue(Stod((cTabela)->B7_DATA))
 				oSectDad:Cell("B7_DOC"):SetValue((cTabela)->B7_DOC)
 				oSectDad:Cell("B7_QUANT"):SetValue((cTabela)->B7_QUANT)
 				oSectDad:Cell("QUANTDATA"):SetValue(nSaldo)
 				oSectDad:Cell("DIFQUANT"):SetValue(nTotal - nSaldo )
-				oSectDad:Cell("DIFVALOR"):SetValue((nTotal - nSaldo)*aCM[MV_PAR16])
+				oSectDad:Cell("DIFVALOR"):SetValue((nTotal - nSaldo)*aCM[MV_PAR17])
 				oSectDad:Cell("STATUS"):SetValue(cStatus)
 				
 				//Imprimindo a linha atual
@@ -358,6 +355,7 @@ cDescrel  += "no inventario. Baseado nestas duas informacoes ele calcula a difer
 		TRCell():New( oSection  ,"B1_TIPO"   	,cTabela ,"TP"							,PesqPict("SB1","B1_TIPO")   	,TamSx3("B1_TIPO")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 		TRCell():New( oSection  ,"B1_GRUPO"   	,cTabela ,"Grupo"						,PesqPict("SB1","B1_GRUPO") 	,TamSx3("B1_GRUPO")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 		TRCell():New( oSection  ,"B1_UM"   		,cTabela ,"UM"							,PesqPict("SB1","B1_UM")   		,TamSx3("B1_UM")[1]			, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+		TRCell():New( oSection  ,"CBA_DATA"     ,cTabela ,"Dt.Inventario"				,PesqPict("CBA","CBA_DATA")     ,TamSx3("CBA_DATA")[1]	    , /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 		TRCell():New( oSection  ,"CBC_LOCAL" 	,cTabela ,"Amz"							,PesqPict("CBC","CBC_LOCAL")   	,TamSx3("CBC_LOCAL")[1]	    , /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 		TRCell():New( oSection  ,"CBA_CODINV"   ,cTabela ,"Docto"						,PesqPict("CBA","CBA_CODINV")   ,TamSx3("CBA_CODINV")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 		TRCell():New( oSection  ,"ULT_CONTAGEM" ,cTabela ,"Quantidade Inventariada" 	,PesqPict("CBC","CBC_QUANT")   	,TamSx3("CBC_QUANT")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
@@ -377,6 +375,7 @@ Static Function ReportMod2(oReport)
 	Local lContagem := SuperGetMv('MV_CONTINV',.F.,.F.)
 	Local lImprime  := .T.
 	Local _aAreaSB2 := SB2->(GetArea())
+	Local dDataInv	:= CTOD(" ")
 	Local cQry		:= ""
 	Local cProduto  := ""
 	Local cLocal 	:= ""
@@ -428,7 +427,7 @@ Static Function ReportMod2(oReport)
     cQry += "            ORDER BY CBCONT.R_E_C_N_O_ DESC "+ CRLF
     cQry += " ) AS ULT_CONTAGEM "+ CRLF
 	cQry += " ,CBA.CBA_CONTR
-	cQry += " ,CBA.CBA_STATUS  "+ CRLF
+	cQry += " ,CBA.CBA_STATUS "+ CRLF
 	cQry += " FROM " + RetSqlName("CBA") + " AS CBA WITH(NOLOCK) "+ CRLF 
 	cQry += " LEFT JOIN " + RetSqlName("CBC") + " AS CBC WITH(NOLOCK) "+ CRLF
 	cQry += " 	ON CBC.CBC_FILIAL = CBA.CBA_FILIAL "+ CRLF
@@ -439,11 +438,11 @@ Static Function ReportMod2(oReport)
 	If !Empty(MV_PAR04) // Parametro por Endereco
 		cQry += " AND CBC.CBC_LOCALI BETWEEN '"+MV_PAR03+"' AND '"+MV_PAR04+"' "+ CRLF
 	EndIf
-	If !Empty(MV_PAR07) // Parametro por Local
-		cQry += " AND CBC.CBC_LOCAL BETWEEN '"+MV_PAR06+"' AND '"+MV_PAR07+"' "+ CRLF
+	If !Empty(MV_PAR08) // Parametro por Local
+		cQry += " AND CBC.CBC_LOCAL BETWEEN '"+MV_PAR07+"' AND '"+MV_PAR08+"' "+ CRLF
 	EndIf
-	If !Empty(MV_PAR15) // Parametro por Lote
-		cQry += " AND CBC.CBC_LOTECT BETWEEN '"+MV_PAR14+"' AND '"+MV_PAR15+"' "+ CRLF
+	If !Empty(MV_PAR16) // Parametro por Lote
+		cQry += " AND CBC.CBC_LOTECT BETWEEN '"+MV_PAR15+"' AND '"+MV_PAR16+"' "+ CRLF
 	EndIf
     cQry += "	AND CBC.D_E_L_E_T_ = ' ' "+ CRLF
 	cQry += " LEFT JOIN " + RetSqlName("SB8") + " AS SB8 WITH (NOLOCK) "+ CRLF 
@@ -456,19 +455,21 @@ Static Function ReportMod2(oReport)
 	cQry += " LEFT JOIN " + RetSqlName("SB1") + " AS SB1 WITH(NOLOCK) "+ CRLF
     cQry += "	ON SB1.B1_FILIAL = '" + FWxFilial("SB1") + "' "+ CRLF
     cQry += "	AND SB1.B1_COD = CBC.CBC_COD "+ CRLF 
-	If !Empty(MV_PAR09) // Parametro por Tipo
-		cQry += " AND SB1.B1_TIPO BETWEEN '"+MV_PAR08+"' AND '"+MV_PAR09+"' "+ CRLF
+	If !Empty(MV_PAR10) // Parametro por Tipo
+		cQry += " AND SB1.B1_TIPO BETWEEN '"+MV_PAR09+"' AND '"+MV_PAR10+"' "+ CRLF
 	EndIf
-	If !Empty(MV_PAR11) // Parametro por Grupo
-		cQry += " AND SB1.B1_GRUPO BETWEEN '"+MV_PAR10+"' AND '"+MV_PAR11+"' "+ CRLF
+	If !Empty(MV_PAR12) // Parametro por Grupo
+		cQry += " AND SB1.B1_GRUPO BETWEEN '"+MV_PAR11+"' AND '"+MV_PAR12+"' "+ CRLF
 	EndIf
     cQry += "	AND SB1.D_E_L_E_T_ = ' ' "+ CRLF 
 	cQry += " WHERE CBA.CBA_FILIAL = '" + FWxFilial("CBA") + "' "+ CRLF
-	cQry += " AND CBA.CBA_DATA = '"+DTOS(MV_PAR05)+"' "+ CRLF // Parametro por Data
-	If !Empty(MV_PAR13) // Parametro por Docto
-		cQry += " AND CBA.CBA_CODINV BETWEEN '"+MV_PAR12+"' AND '"+MV_PAR13+"' "+ CRLF
+	If !Empty(MV_PAR06) /// Parametro por Data
+		cQry += " AND CBA.CBA_DATA BETWEEN '"+DTOS(MV_PAR05)+"' AND '"+DTOS(MV_PAR06)+"' "+ CRLF
 	EndIf 
-	cQry += " AND CBA.CBA_STATUS IN ('4','5') "+ CRLF
+	If !Empty(MV_PAR14) // Parametro por Docto
+		cQry += " AND CBA.CBA_CODINV BETWEEN '"+MV_PAR13+"' AND '"+MV_PAR14+"' "+ CRLF
+	EndIf 
+	cQry += " AND CBA.CBA_STATUS IN ('3','4','5') "+ CRLF
 	cQry += " AND CBA.D_E_L_E_T_ = ' ' "+ CRLF 
 	cQry += " GROUP BY  CBC.CBC_FILIAL, CBA.CBA_CODINV, CBC.CBC_COD, SB1.B1_DESC, SB1.B1_TIPO, SB1.B1_GRUPO, SB1.B1_UM, CBC.CBC_LOCAL, CBC.CBC_NUMLOT, CBC.CBC_LOCALI, CBC.CBC_NUMSER, CBC.CBC_LOTECT, CBA_DATA, SB8.B8_DTVALID, CBA.CBA_CONTR, CBA_STATUS "+ CRLF
 
@@ -501,10 +502,21 @@ Static Function ReportMod2(oReport)
 			cNumSeri   := (cTabela)->CBC_NUMSER
 			cLotectl   := (cTabela)->CBC_LOTECT
 			cNumLote   := (cTabela)->CBC_NUMLOTE
-			cStatus    := Iif((cTabela)->CBA_STATUS == "4","Finalizado","Processado")
+			dDataInv   := STOD((cTabela)->CBA_DATA)
 			lFirst     := .T.
 			lEmAberto  := .F.
 			nTotal     := A285Tot(cTabela,lContagem,@lEmAberto,@lSB7Cnt,cModInv)
+
+			If !EMPTY((cTabela)->CBA_STATUS)
+				Do Case
+					Case (cTabela)->CBA_STATUS == "3"
+						cStatus := "Contado"
+					Case (cTabela)->CBA_STATUS == "4"
+						cStatus := "Finalizado"
+					OtherWise
+						cStatus := "Processao"
+				EndCase
+			Endif
 
 			dbSelectArea('SB2')
 			dbSetOrder(1)
@@ -512,11 +524,11 @@ Static Function ReportMod2(oReport)
 				If (Localiza(cProduto,.T.) .And. !Empty(cLocaliz+cNumSeri)) .Or. (Rastro(cProduto) .And. !Empty(cLotectl+cNumLote))
 					If IntDl(cProduto) .and. lWmsNew
 						oSaldoWMS	:= WMSDTCEstoqueEndereco():New()
-						aSalQtd		:= oSaldoWMS:SldPrdData(cProduto,cLocal,MV_PAR05,cLoteCtl,cNumLote,cLocaliz,cNumSeri)
+						aSalQtd		:= oSaldoWMS:SldPrdData(cProduto,cLocal,dDataInv,cLoteCtl,cNumLote,cLocaliz,cNumSeri)
 					Else
-						aSalQtd   := CalcEstL(cProduto,cLocal,MV_PAR05+1,cLoteCtl,cNumLote,cLocaliz,cNumSeri)
+						aSalQtd   := CalcEstL(cProduto,cLocal,dDataInv+1,cLoteCtl,cNumLote,cLocaliz,cNumSeri)
 					EndIf
-					aSaldo    := CalcEst(cProduto,cLocal,MV_PAR05+1)
+					aSaldo    := CalcEst(cProduto,cLocal,dDataInv+1)
 					aSaldo[2] := (aSaldo[2] / aSaldo[1]) * aSalQtd[1]
 					aSaldo[3] := (aSaldo[3] / aSaldo[1]) * aSalQtd[1]
 					aSaldo[4] := (aSaldo[4] / aSaldo[1]) * aSalQtd[1]
@@ -525,13 +537,13 @@ Static Function ReportMod2(oReport)
 					aSaldo[7] := aSalQtd[7]
 					aSaldo[1] := aSalQtd[1]
 				Else
-					aSaldo := CalcEst(cProduto,cLocal,MV_PAR05+1)
+					aSaldo := CalcEst(cProduto,cLocal,dDataInv+1)
 				EndIf
-				If MV_PAR17 == 1
+				If MV_PAR18 == 1
 					aCM:={}
-					If QtdComp(aSaldo[1]) > QtdComp(0)
+					If QtdComp(ROUND(aSaldo[1],4)) > QtdComp(0)
 						For nX:=2 to Len(aSaldo)
-							aAdd(aCM,aSaldo[nX]/aSaldo[1])
+							aAdd(aCM,aSaldo[nX]/ROUND(aSaldo[1],4))
 						Next nX
 					Else
 						aCM := PegaCmAtu(cProduto,cLocal)
@@ -548,20 +560,20 @@ Static Function ReportMod2(oReport)
 			//³ lImprime - Variavel utilizada para verificar se o usuario deseja |
 			//| Listar Produto: 1-Com Diferencas / 2-Sem Diferencas / 3-Todos    |      
 			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-			If nTotal-aSaldo[1] == 0
-				If MV_PAR18 == 1
+			If nTotal-ROUND(aSaldo[1],4) == 0
+				If MV_PAR19 == 1
 					lImprime := .F.
 				EndIf
 			Else
-				If MV_PAR18 == 2
+				If MV_PAR19 == 2
 					lImprime := .F.
 				EndIf
 			EndIf
 
-			If lSB7Cnt .AND.(lImprime .Or. MV_PAR18 == 3)
+			If lSB7Cnt .AND.(lImprime .Or. MV_PAR19 == 3)
 
 				If lFirst
-					nSaldo := aSaldo[1]
+					nSaldo := ROUND(aSaldo[1],4)
 				Else
 					nSaldo := 0
 				EndIf 	
@@ -580,11 +592,12 @@ Static Function ReportMod2(oReport)
 				oSectDad:Cell("B1_GRUPO"):SetValue((cTabela)->B1_GRUPO)
 				oSectDad:Cell("B1_UM"):SetValue((cTabela)->B1_UM)
 				oSectDad:Cell("CBC_LOCAL"):SetValue((cTabela)->CBC_LOCAL)
+				oSectDad:Cell("CBA_DATA"):SetValue(Stod((cTabela)->CBA_DATA))
 				oSectDad:Cell("CBA_CODINV"):SetValue((cTabela)->CBA_CODINV)
 				oSectDad:Cell("ULT_CONTAGEM"):SetValue((cTabela)->ULT_CONTAGEM)
 				oSectDad:Cell("QUANTDATA"):SetValue(nSaldo)
 				oSectDad:Cell("DIFQUANT"):SetValue(nTotal - nSaldo )
-				oSectDad:Cell("DIFVALOR"):SetValue((nTotal - nSaldo)*aCM[MV_PAR16])
+				oSectDad:Cell("DIFVALOR"):SetValue((nTotal - nSaldo)*aCM[MV_PAR17])
 				oSectDad:Cell("CBA_CONTR"):SetValue((cTabela)->CBA_CONTR)
 				oSectDad:Cell("STATUS"):SetValue(cStatus)
 				
@@ -643,7 +656,7 @@ Else
 	If lContagem
 		nTotal += (cTabela)->ULT_CONTAGEM
 	Else
-		If !(cTabela)->CBA_STATUS $ "4,5"
+		If !(cTabela)->CBA_STATUS $ "3,4,5"
 			nTotal 	   := (cTabela)->ULT_CONTAGEM
 			lEmAberto  := .T.
 		Else
