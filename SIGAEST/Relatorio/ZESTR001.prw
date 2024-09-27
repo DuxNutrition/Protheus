@@ -36,25 +36,25 @@ Local 	nListPrd	:= 1
 Private cTabela 	:= GetNextAlias()
 Private cModInv 	:= SuperGetMv('MV_CBINVMD',.F.,"2")
 
-aAdd(aPergs, {1,"De Produto"			  ,cCod		,/*Pict*/,/*Valid*/,"SB1",/*When*/,60,.F.})             //MV_PAR01
-aAdd(aPergs, {1,"Ate Produto"		      ,cCod	    ,/*Pict*/,MV_PAR02 > MV_PAR01,"SB1",/*When*/,60,.F.})   //MV_PAR02
-aAdd(aPergs, {1,"De Endereco"  			  ,cEnder	,/*Pict*/,/*Valid*/	,"SBE",/*When*/,60,.F.})            //MV_PAR03
-aAdd(aPergs, {1,"Ate Endereco"            ,cEnder	,/*Pict*/,MV_PAR03 > MV_PAR04,"SBE",/*When*/,60,.F.})   //MV_PAR04
-aAdd(aPergs, {1,"De Dt.Invetario"   	  ,dDtInv	,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.T.})           //MV_PAR05
-aAdd(aPergs, {1,"Ate Dt.Invetario"   	  ,dDtInv	,/*Pict*/,MV_PAR06 > MV_PAR05,/*F3*/,/*When*/,50,.T.})  //MV_PAR06
-aAdd(aPergs, {1,"De Local"  			  ,cLocal	,/*Pict*/,/*Valid*/	,"NNR",/*When*/,50,.F.})            //MV_PAR07
-aAdd(aPergs, {1,"Ate Local" 			  ,cLocal	,/*Pict*/,MV_PAR07 > MV_PAR06,"NNR",/*When*/,50,.F.})   //MV_PAR08
-aAdd(aPergs, {1,"De Tipo Prod"  		  ,cTipo	,/*Pict*/,/*Valid*/	,"02",/*When*/,50,.F.})       		//MV_PAR09
-aAdd(aPergs, {1,"Ate Tipo Prod" 		  ,cTipo	,/*Pict*/,MV_PAR09 > MV_PAR08,"02",/*When*/,50,.F.})    //MV_PAR10
-aAdd(aPergs, {1,"De Grupo"  			  ,cGrupo	,/*Pict*/,/*Valid*/	,"SBM",/*When*/,50,.F.})       	    //MV_PAR11
-aAdd(aPergs, {1,"Ate Grupo" 			  ,cGrupo	,/*Pict*/,MV_PAR11 > MV_PAR10,"SBM",/*When*/,50,.F.})   //MV_PAR12
-aAdd(aPergs, {1,"De Docto"				  ,cDoc		,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.F.})           //MV_PAR13
-aAdd(aPergs, {1,"Ate Docto"				  ,cDoc		,/*Pict*/,MV_PAR13 > MV_PAR12,/*F3*/,/*When*/,50,.F.})  //MV_PAR14
-aAdd(aPergs, {1,"De Lote"				  ,cLote	,/*Pict*/,/*Valid*/	,/*F3*/,/*When*/,50,.F.})           //MV_PAR15
-aAdd(aPergs, {1,"Ate Lote"				  ,cLote	,/*Pict*/,,/*F3*/,/*When*/,50,.F.})  					//MV_PAR16
-aAdd(aPergs, {3,"Qual moeda" 		 	  ,nMoeda  	,aMoeda   ,50 ,"" ,.F.})								//MV_PAR17
-aAdd(aPergs, {3,"Usar o Custo Medio" 	  ,nCusmed  ,aCusmed  ,60 ,"" ,.F.})								//MV_PAR18
-aAdd(aPergs, {3,"Listar Produtos" 	 	  ,nListPrd ,aListPrd ,60 ,"" ,.F.})								//MV_PAR19
+aAdd(aPergs, {1,"De Produto"			  ,cCod		,/*Pict*/ ,/*Valid*/,"SB1",/*When*/,60,.F.})             //MV_PAR01
+aAdd(aPergs, {1,"Ate Produto"		      ,cCod	    ,/*Pict*/ ,MV_PAR02 > MV_PAR01,"SB1",/*When*/,60,.F.})   //MV_PAR02
+aAdd(aPergs, {1,"De Endereco"  			  ,cEnder	,/*Pict*/ ,/*Valid*/,"SBE",/*When*/,60,.F.})             //MV_PAR03
+aAdd(aPergs, {1,"Ate Endereco"            ,cEnder	,/*Pict*/ ,MV_PAR03 > MV_PAR04,"SBE",/*When*/,60,.F.})   //MV_PAR04
+aAdd(aPergs, {1,"De Dt.Invetario"   	  ,dDtInv	,/*Pict*/ ,/*Valid*/,/*F3*/,/*When*/,50,.T.})            //MV_PAR05
+aAdd(aPergs, {1,"Ate Dt.Invetario"   	  ,dDtInv	,/*Pict*/ ,MV_PAR06 > MV_PAR05,/*F3*/,/*When*/,50,.T.})  //MV_PAR06
+aAdd(aPergs, {1,"De Local"  			  ,cLocal	,/*Pict*/ ,/*Valid*/,"NNR",/*When*/,50,.F.})             //MV_PAR07
+aAdd(aPergs, {1,"Ate Local" 			  ,cLocal	,/*Pict*/ ,MV_PAR07 > MV_PAR06,"NNR",/*When*/,50,.F.})   //MV_PAR08
+aAdd(aPergs, {1,"De Tipo Prod"  		  ,cTipo	,/*Pict*/ ,/*Valid*/,"02",/*When*/,50,.F.})       		 //MV_PAR09
+aAdd(aPergs, {1,"Ate Tipo Prod" 		  ,cTipo	,/*Pict*/ ,MV_PAR09 > MV_PAR08,"02",/*When*/,50,.F.})    //MV_PAR10
+aAdd(aPergs, {1,"De Grupo"  			  ,cGrupo	,/*Pict*/ ,/*Valid*/,"SBM",/*When*/,50,.F.})       	     //MV_PAR11
+aAdd(aPergs, {1,"Ate Grupo" 			  ,cGrupo	,/*Pict*/ ,MV_PAR11 > MV_PAR10,"SBM",/*When*/,50,.F.})   //MV_PAR12
+aAdd(aPergs, {1,"De Docto"				  ,cDoc		,/*Pict*/ ,/*Valid*/,/*F3*/,/*When*/,50,.F.})            //MV_PAR13
+aAdd(aPergs, {1,"Ate Docto"				  ,cDoc		,/*Pict*/ ,MV_PAR13 > MV_PAR12,/*F3*/,/*When*/,50,.F.})  //MV_PAR14
+aAdd(aPergs, {1,"De Lote"				  ,cLote	,/*Pict*/ ,/*Valid*/,/*F3*/,/*When*/,50,.F.})            //MV_PAR15
+aAdd(aPergs, {1,"Ate Lote"				  ,cLote	,/*Pict*/ ,/*Valid*/,/*F3*/,/*When*/,50,.F.})  			 //MV_PAR16
+aAdd(aPergs, {3,"Qual moeda" 		 	  ,nMoeda  	,aMoeda   ,50 ,"",.F.})								     //MV_PAR17
+aAdd(aPergs, {3,"Usar o Custo Medio" 	  ,nCusmed  ,aCusmed  ,60 ,"",.F.})						             //MV_PAR18
+aAdd(aPergs, {3,"Listar Produtos" 	 	  ,nListPrd ,aListPrd ,60 ,"",.F.})								     //MV_PAR19
 
 If ParamBox(aPergs, "Informe os parametros do Lançamento de Inventario", , , , , , , , , .F., .F.)	
 	If cModInv == "1"
