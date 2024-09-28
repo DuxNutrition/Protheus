@@ -240,8 +240,8 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 		aadd(aProd[nCont],SD2->D2_CF)
 		
 
-		nPos := aScan(aProdAgrp , {|Registro| Registro[02]+Registro[len(aProd[nCont])]+Registro[23]+Registro[len(aProd[nCont])-1,1] ==;
-			aProd[nCont,02]+aProd[nCont,len(aProd[nCont])]+aProd[nCont,23]+aProd[nCont,len(aProd[nCont])-1,1] })
+		nPos := aScan(aProdAgrp , {|Registro| Registro[02]+Registro[len(aProd[nCont])]+Registro[23] ==;
+			aProd[nCont,02]+aProd[nCont,len(aProd[nCont])]+aProd[nCont,23] })
 
 		if(nPos == 0)
 			aadd( aProdAgrp , aProd[nCont] )
@@ -262,7 +262,7 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			if !Empty(aICMS[nCont])
 				aadd(aICMSgrp,aICMS[nCont])
 			else 
-				aadd(aICMSgrp,{"","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""})
+				aadd(aICMSgrp,{"","","","",0,"",0,"","","","","","","","","","","","","","","","","","","","","","","",""})
 			endif 
 			///////////// PIS //////////////////////
 			If !Empty(aPIS[nCont])
@@ -339,11 +339,12 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			aCSTGrp[nPos][2]   := iif(Empty(aCST[nCont]),"",aCST[nCont][2])
 			aCSTGrp[nPos][3]   := iif(Empty(aCST[nCont]),"",aCST[nCont][3])
 			/////////////////////////// ICMS ///////////////////////////////////////////////////////////
-			aICMSgrp[nPos,05] += aICMS[nCont,05]
-			aICMSgrp[nPos,07] += aICMS[nCont,07]
-			aICMSgrp[nPos,09] += aICMS[nCont,09]
-			aICMSgrp[nPos,15] += aICMS[nCont,15]
-			/////////////////////////// PIS /////////////////////////////////////////////////////////
+			If !Empty(aICMS[nCont])
+				aICMSgrp[nPos,05] += aICMS[nCont,05]
+				aICMSgrp[nPos,07] += aICMS[nCont,07]
+				aICMSgrp[nPos,09] += aICMS[nCont,09]
+				aICMSgrp[nPos,15] += aICMS[nCont,15]
+			endif /////////////////////////// PIS /////////////////////////////////////////////////////////
 			If !Empty(aPIS[nCont])					
 				aPISgrp[nPos,02] += aPIS[nCont,02]
 				aPISgrp[nPos,04] += aPIS[nCont,04]
@@ -554,11 +555,11 @@ Static Function aglutinaProdutos(cDoc,cSerie,cClifor,cLoja,;
 			endif
 		next nCont
 	endif*/
-	/*for nCont := 1 to Len(aICMSgrp)
+	for nCont := 1 to Len(aICMSgrp)
 		if aICMSgrp[nCont][05] == 0 .and. aICMSgrp[nCont][7] == 0
 			aICMSgrp[nCont] := {}
 		endif
-	next*/
+	next
 	endif 
 	if len(aICMSgrp) > 0
 		aICMS 	:= aClone(aICMSgrp)
