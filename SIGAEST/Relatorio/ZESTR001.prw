@@ -514,7 +514,7 @@ Static Function ReportMod2(oReport)
 					Case (cTabela)->CBA_STATUS == "4"
 						cStatus := "Finalizado"
 					OtherWise
-						cStatus := "Processao"
+						cStatus := "Processado"
 				EndCase
 			Endif
 
