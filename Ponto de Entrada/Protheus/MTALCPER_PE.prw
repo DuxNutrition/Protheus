@@ -16,6 +16,8 @@ User function MTALCPER()
 Local aAlc := {}
 Local cDoc := "CT"
 
-    aAdd(aAlc,{ cDoc, 'ZAD', 3, 'ZAD->ZAD_CONTRA','','',{'ZAD->ZAD_SITUACA','3',"1","4"}})
+If SCR->CR_TIPO == cDoc
+    aAdd(aAlc,{ cDoc, 'ZAD', 3, 'ZAD->ZAD_CONTRA','','',{'ZAD->ZAD_STATUS',"2","1","3"}})
+Endif
 
 Return(aAlc)

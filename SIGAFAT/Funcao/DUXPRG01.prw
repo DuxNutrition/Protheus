@@ -10,17 +10,18 @@ local aSeekTmp := {	{"Contrato"		  	,{{"",FwGetSx3Cache('ZAD_CONTRA','X3_TIPO'),
 
 	oBrowse := FWMBrowse():New()
 	
-	/*oBrowse:SetAlias("ZAD")
+	oBrowse:SetAlias("ZAD")
 	oBrowse:SetDescription("Cadastro Contratos de descontos")
-    oBrowse:AddLegend( "ZAD_SITUACA == '1' .AND. ZAD_STATUS == '1'", "GREEN", "Aprovado" )
-	oBrowse:AddLegend( "ZAD_SITUACA == '2' ", "RED", "Inativo")
-	oBrowse:AddLegend( "ZAD_STATUS == '2' ", "BR_AZUL", "Em aprovação")
-	oBrowse:AddLegend( "ZAD_STATUS == '3' ", "BR_CANCEL", "Rejeitado pelo Aprovador")
+    oBrowse:AddLegend( "ZAD_SITUACA == '1' .AND. ZAD_STATUS == '1'","GREEN","Aprovado" )
+	oBrowse:AddLegend( "ZAD_SITUACA == '2'", "RED","Inativo")
+	oBrowse:AddLegend( "ZAD_STATUS == '2'","BR_AZUL","Em aprovação")
+	oBrowse:AddLegend( "ZAD_STATUS == '3'","BR_CANCEL","Rejeitado pelo Aprovador")
 	oBrowse:SetUseFilter( .T. )
 	oBrowse:SetSeek(.T.,aSeekTmp)
 	oBrowse:Activate()
-	restarea(aArea)*/
+	Restarea(aArea)
 
+	/*
 	oBrowse:SetAlias("ZAD")
 	oBrowse:SetDescription("Cadastro Contratos de descontos")
     oBrowse:AddLegend( "ZAD_SITUACA == '1'","GREEN","Aprovado")
@@ -31,7 +32,7 @@ local aSeekTmp := {	{"Contrato"		  	,{{"",FwGetSx3Cache('ZAD_CONTRA','X3_TIPO'),
 	oBrowse:SetSeek(.T.,aSeekTmp)
 	oBrowse:Activate()
 	restarea(aArea)
-
+	*/
 
 Return 
 
@@ -51,9 +52,9 @@ Local aRotina 	:= {}
 	ADD OPTION aRotina TITLE "Visualizar"			ACTION "VIEWDEF.DUXPRG01"	OPERATION 2 ACCESS 0
 	ADD OPTION aRotina TITLE "Incluir"  			ACTION "VIEWDEF.DUXPRG01"	OPERATION 3 ACCESS 0
 	ADD OPTION aRotina TITLE "Alterar"  			ACTION "VIEWDEF.DUXPRG01"	OPERATION 4 ACCESS 0
-	ADD OPTION aRotina TITLE "Excluir"    			ACTION "VIEWDEF.DUXPRG01"    OPERATION 5 ACCESS 0
-	ADD OPTION aRotina TITLE "Copiar"    			ACTION "VIEWDEF.DUXPRG01"    OPERATION 9 ACCESS 0
-	ADD OPTION aRotina TITLE "Revisao"    			ACTION "U_DUXREVISA"    OPERATION 9 ACCESS 0
+	ADD OPTION aRotina TITLE "Excluir"    			ACTION "VIEWDEF.DUXPRG01"   OPERATION 5 ACCESS 0
+	ADD OPTION aRotina TITLE "Copiar"    			ACTION "VIEWDEF.DUXPRG01"   OPERATION 9 ACCESS 0
+	ADD OPTION aRotina TITLE "Revisao"    			ACTION "U_DUXREVISA"        OPERATION 9 ACCESS 0
 	//ADD OPTION aRotina TITLE "Gera Abatimento"      ACTION "U_DUXABAT"    OPERATION 4 ACCESS 0
 	ADD OPTION aRotina TITLE "Banco Conhecimento"   ACTION "MsDocument('ZAD', ZAD->(RecNo()), 4)"	OPERATION 4 ACCESS 0
 
@@ -68,14 +69,14 @@ Local nAtual :=  1
 
 aGatilhos:={}
  aAdd(aGatilhos, FWStruTriggger(    "ZAD_CLIENT",;                                //Campo Origem
-                                    "ZAD_NOMCLI",;                                 //Campo Destino
-                                    "u_zfGrupo()",;             //Regra de Preenchimento
-                                    .F.,;                                       //Irá Posicionar?
-                                    "",;                                        //Alias de Posicionamento
-                                    0,;                                         //Índice de Posicionamento
-                                    '',;                                        //Chave de Posicionamento
-                                    NIL,;                                       //Condição para execução do gatilho
-                                    "01");                                      //Sequência do gatilho
+                                    "ZAD_NOMCLI",;                                //Campo Destino
+                                    "u_zfGrupo()",;                               //Regra de Preenchimento
+                                    .F.,;                                         //Irá Posicionar?
+                                    "",;                                          //Alias de Posicionamento
+                                    0,;                                           //Índice de Posicionamento
+                                    '',;                                          //Chave de Posicionamento
+                                    NIL,;                                         //Condição para execução do gatilho
+                                    "01");                                        //Sequência do gatilho
     )
  
     //Percorrendo os gatilhos e adicionando na Struct
@@ -188,7 +189,12 @@ IF nOperation <> MODEL_OPERATION_DELETE
 	oMdlZAe:LoadValue('ZAE_LOJACL',oMldZad:getValue('ZAD_LOJACL'))
  next nU 
 ENDIF 
-RETURN .t.
+
+If nOperation == 3 .OR. nOperation == 4
+	GrvSCR()
+Endif
+
+RETURN .T.
 
 
 /*/{Protheus.doc} nomeStaticFunction
@@ -241,50 +247,60 @@ bMostra := { ||ZAD->ZAD_CONTRA + ZAD->ZAD_REVISA +ZAD->ZAD_CLIENT + ZAD->ZAD_LOJ
 aFields := {'ZAD_CONTRA','ZAD_REVISA','ZAD_CLIENT','ZAD_LOJACL'}                                
 // funcoes do sistema para identificar o registro
 AAdd( aRet, { cTabela, aChave, bMostra,aFields }  )
- 
- 
+
+GrvSCR()
+
 Return aRet
 
 
 Static Function GrvSCR()
 
-Local aArea    := FWRestArea() 
+Local aArea    := FwGetArea() 
+Local aAreaSAL := SCR->(FwGetArea())
+Local aAreaSCR := SCR->(FwGetArea())
 Local cFilSCR  := AllTrim(FWFilial())
-Local cDocto   :=
+Local cDocto   := "372404"                                            
 Local cTipoDoc := "CT"
 Local dDataRef := dDatabase
 Local cUserOri := RetCodUsr()
 Local cGrupo   := "000110"
 Local cItGrp   := "01"
 Local cNivel   := " "
-Local RetCodUsr()
 
-DbSelectArea("SAL")
-SAL->(dbSetOrder(1))
-If SAL->(MsSeek(xFilial("SAL") + cGrupo + cItGrp ))	
-	cGrupo    := SAL->AL_GRUPO
-	cAprovOri := SAL->AL_APROV  
-	cNivel    := SAL->AL_NIVEL
-Endif
+	DbSelectArea("SAL")
+	SAL->(dbSetOrder(1))
+	If SAL->(MsSeek(xFilial("SAL") + cGrupo + cItGrp ))	
+		cGrupo    := SAL->AL_COD
+		cAprovOri := SAL->AL_APROV  
+		cNivel    := SAL->AL_NIVEL
+	Endif
 
-Reclock("SCR",.T.)
-SCR->CR_FILIAL	:= cFilSCR
-SCR->CR_NUM		:= cDocto
-SCR->CR_TIPO	:= cTipoDoc
-SCR->CR_NIVEL	:= cNivel
-SCR->CR_USER	:= cUserOri
-SCR->CR_APROV	:= cAprovOri
-SCR->CR_STATUS	:= "01"
-SCR->CR_TOTAL	:= 0
-SCR->CR_EMISSAO	:= dDataRef
-SCR->CR_MOEDA	:= 0
-SCR->CR_TXMOEDA	:= 0
-SCR->CR_GRUPO	:= cGrupo
-SCR->CR_ITGRP 	:= cItGrp
+	Reclock("SCR",.T.)
+	SCR->CR_FILIAL	:= cFilSCR
+	SCR->CR_NUM		:= cDocto
+	SCR->CR_TIPO	:= cTipoDoc
+	SCR->CR_NIVEL	:= cNivel
+	SCR->CR_USER	:= cUserOri
+	SCR->CR_APROV	:= cAprovOri
+	SCR->CR_STATUS	:= "02"
+	SCR->CR_TOTAL	:= 0
+	SCR->CR_EMISSAO	:= dDataRef
+	SCR->CR_MOEDA	:= 0
+	SCR->CR_TXMOEDA	:= 0
+	SCR->CR_GRUPO	:= cGrupo
+	SCR->CR_ITGRP 	:= cItGrp
 
-MsUnlock()
+	SCR->(MsUnlock())
+
+	If !EMPTY(cAprovOri)
+		Reclock("ZAD",.F.)
+		ZAD->ZAD_STATUS := "2"
+		ZAD->(MsUnlock())
+	Endif
 
 FWRestArea(aArea)
+FWRestArea(aAreaSAL)
+FWRestArea(aAreaSCR)
 
 Return
 
