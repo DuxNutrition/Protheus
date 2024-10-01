@@ -248,8 +248,6 @@ aFields := {'ZAD_CONTRA','ZAD_REVISA','ZAD_CLIENT','ZAD_LOJACL'}
 // funcoes do sistema para identificar o registro
 AAdd( aRet, { cTabela, aChave, bMostra,aFields }  )
 
-GrvSCR()
-
 Return aRet
 
 
