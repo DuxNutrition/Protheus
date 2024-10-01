@@ -1,7 +1,5 @@
-
-#include 'protheus.ch'
-#Include "FwMvcDef.ch"
-
+#INCLUDE 'PROTHEUS.CH'
+#INCLUDE "FWMVCDEF.ch"
 
 User function DUXPRG01()
 
@@ -12,14 +10,29 @@ local aSeekTmp := {	{"Contrato"		  	,{{"",FwGetSx3Cache('ZAD_CONTRA','X3_TIPO'),
 
 	oBrowse := FWMBrowse():New()
 	
+	/*oBrowse:SetAlias("ZAD")
+	oBrowse:SetDescription("Cadastro Contratos de descontos")
+    oBrowse:AddLegend( "ZAD_SITUACA == '1' .AND. ZAD_STATUS == '1'", "GREEN", "Aprovado" )
+	oBrowse:AddLegend( "ZAD_SITUACA == '2' ", "RED", "Inativo")
+	oBrowse:AddLegend( "ZAD_STATUS == '2' ", "BR_AZUL", "Em aprovação")
+	oBrowse:AddLegend( "ZAD_STATUS == '3' ", "BR_CANCEL", "Rejeitado pelo Aprovador")
+	oBrowse:SetUseFilter( .T. )
+	oBrowse:SetSeek(.T.,aSeekTmp)
+	oBrowse:Activate()
+	restarea(aArea)*/
+
 	oBrowse:SetAlias("ZAD")
 	oBrowse:SetDescription("Cadastro Contratos de descontos")
-    oBrowse:AddLegend( "ZAD_SITUACA == '1' ", "GREEN", "Contrato Ativo" )
-	oBrowse:AddLegend( "ZAD_SITUACA == '2' ", "RED", "Contrato inativo")
+    oBrowse:AddLegend( "ZAD_SITUACA == '1'","GREEN","Aprovado")
+	oBrowse:AddLegend( "ZAD_SITUACA == '2'","RED","Inativo")
+	oBrowse:AddLegend( "ZAD_SITUACA == '3'","BR_AZUL","Em aprovação")
+	oBrowse:AddLegend( "ZAD_SITUACA == '4'","BR_CANCEL","Rejeitado pelo Aprovador")
 	oBrowse:SetUseFilter( .T. )
 	oBrowse:SetSeek(.T.,aSeekTmp)
 	oBrowse:Activate()
 	restarea(aArea)
+
+
 Return 
 
 /*/
@@ -231,3 +244,48 @@ AAdd( aRet, { cTabela, aChave, bMostra,aFields }  )
  
  
 Return aRet
+
+
+Static Function GrvSCR()
+
+Local aArea    := FWRestArea() 
+Local cFilSCR  := AllTrim(FWFilial())
+Local cDocto   :=
+Local cTipoDoc := "CT"
+Local dDataRef := dDatabase
+Local cUserOri := RetCodUsr()
+Local cGrupo   := "000110"
+Local cItGrp   := "01"
+Local cNivel   := " "
+Local RetCodUsr()
+
+DbSelectArea("SAL")
+SAL->(dbSetOrder(1))
+If SAL->(MsSeek(xFilial("SAL") + cGrupo + cItGrp ))	
+	cGrupo    := SAL->AL_GRUPO
+	cAprovOri := SAL->AL_APROV  
+	cNivel    := SAL->AL_NIVEL
+Endif
+
+Reclock("SCR",.T.)
+SCR->CR_FILIAL	:= cFilSCR
+SCR->CR_NUM		:= cDocto
+SCR->CR_TIPO	:= cTipoDoc
+SCR->CR_NIVEL	:= cNivel
+SCR->CR_USER	:= cUserOri
+SCR->CR_APROV	:= cAprovOri
+SCR->CR_STATUS	:= "01"
+SCR->CR_TOTAL	:= 0
+SCR->CR_EMISSAO	:= dDataRef
+SCR->CR_MOEDA	:= 0
+SCR->CR_TXMOEDA	:= 0
+SCR->CR_GRUPO	:= cGrupo
+SCR->CR_ITGRP 	:= cItGrp
+
+MsUnlock()
+
+FWRestArea(aArea)
+
+Return
+
+
