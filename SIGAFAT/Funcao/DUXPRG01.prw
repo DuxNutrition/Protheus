@@ -175,12 +175,15 @@ Return oView
 
 static Function DUXCTR( omodel )
 
-local oMldZad := omodel:GetModel('PR2MASTER')
-local oMdlZAe := omodel:GetModel('PR3DETAIL')
-local nu := 0 
+local oMldZad    := omodel:GetModel('PR2MASTER')
+local oMdlZAe    := omodel:GetModel('PR3DETAIL')
+Local cDoc       := oMldZad:getValue('ZAD_CONTRA')
+Local cRevis     := oMldZad:getValue('ZAD_REVISA')
+Local Obs        := oMldZad:getValue('ZAD_OBS')
 Local nOperation := oModel:NOPERATION
+local nu         := 0 
 
-IF nOperation <> MODEL_OPERATION_DELETE
+If nOperation <> MODEL_OPERATION_DELETE
  For nU := 1 to oMdlZAe:Length()
 	oMdlZAe:goline(nU)
 	oMdlZAe:LoadValue('ZAE_CONTRA',oMldZad:getValue('ZAD_CONTRA'))
@@ -188,10 +191,10 @@ IF nOperation <> MODEL_OPERATION_DELETE
 	oMdlZAe:LoadValue('ZAE_CLIENT',oMldZad:getValue('ZAD_CLIENT'))
 	oMdlZAe:LoadValue('ZAE_LOJACL',oMldZad:getValue('ZAD_LOJACL'))
  next nU 
-ENDIF 
+Endif
 
 If nOperation == 3 .OR. nOperation == 4
-	GrvSCR()
+	GrvSCR(cDoc,cRevis,Obs)
 Endif
 
 RETURN .T.
@@ -250,47 +253,56 @@ AAdd( aRet, { cTabela, aChave, bMostra,aFields }  )
 
 Return aRet
 
-
-Static Function GrvSCR()
+Static Function GrvSCR(cDoc,cRevis,Obs)
 
 Local aArea    := FwGetArea() 
-Local aAreaSAL := SCR->(FwGetArea())
+Local aAreaSAL := SAL->(FwGetArea())
 Local aAreaSCR := SCR->(FwGetArea())
-Local cFilSCR  := AllTrim(FWFilial())
-Local cDocto   := "372404"                                            
-Local cTipoDoc := "CT"
+Local aAreaSC7 := SC7->(FwGetArea())
+Local aAreaZAD := ZAD->(FwGetArea())
+Local cFilSCR  := AllTrim(FWFilial())                                          
+Local cTipoDoc := "Z1"
 Local dDataRef := dDatabase
 Local cUserOri := RetCodUsr()
-Local cGrupo   := "000110"
-Local cItGrp   := "01"
+Local cGrupo   := SuperGetMv("DUX_FAT001",.F.,"000110")
+Local cItGrp   := " "
 Local cNivel   := " "
 
 	DbSelectArea("SAL")
-	SAL->(dbSetOrder(1))
-	If SAL->(MsSeek(xFilial("SAL") + cGrupo + cItGrp ))	
-		cGrupo    := SAL->AL_COD
-		cAprovOri := SAL->AL_APROV  
-		cNivel    := SAL->AL_NIVEL
+	SAL->(dbSetOrder(2))
+	If !Empty(cGrupo) .And. SAL->(MsSeek(xFilial("SAL",cFilAnt)+cGrupo))
+		While !SAL->(Eof()) .And. xFilial("SAL",cFilAnt)+cGrupo == SAL->(AL_FILIAL+AL_COD)
+			cGrupo    := SAL->AL_COD
+			cAprovOri := SAL->AL_APROV  
+			cNivel    := SAL->AL_NIVEL
+			cItGrp	  := SAL->AL_ITEM
+
+			Reclock("SCR",.T.)
+				SCR->CR_FILIAL	:= cFilSCR
+				SCR->CR_NUM		:= cDoc
+				SCR->CR_TIPO	:= cTipoDoc
+				SCR->CR_NIVEL	:= cNivel
+				SCR->CR_USER	:= cUserOri
+				SCR->CR_APROV	:= cAprovOri
+				SCR->CR_STATUS	:= IIF(SAL->AL_NIVEL == cNivel  ,"02","01")
+				SCR->CR_TOTAL	:= 0
+				SCR->CR_EMISSAO	:= dDataRef
+				SCR->CR_MOEDA	:= 0
+				SCR->CR_TXMOEDA	:= 0
+				SCR->CR_GRUPO	:= cGrupo
+				SCR->CR_ITGRP 	:= cItGrp	
+				SCR->CR_OBS     := Obs
+			SCR->(MsUnlock())
+			
+			SAL->( dbSkip() )
+        
+		EndDo
+	
 	Endif
 
-	Reclock("SCR",.T.)
-	SCR->CR_FILIAL	:= cFilSCR
-	SCR->CR_NUM		:= cDocto
-	SCR->CR_TIPO	:= cTipoDoc
-	SCR->CR_NIVEL	:= cNivel
-	SCR->CR_USER	:= cUserOri
-	SCR->CR_APROV	:= cAprovOri
-	SCR->CR_STATUS	:= "02"
-	SCR->CR_TOTAL	:= 0
-	SCR->CR_EMISSAO	:= dDataRef
-	SCR->CR_MOEDA	:= 0
-	SCR->CR_TXMOEDA	:= 0
-	SCR->CR_GRUPO	:= cGrupo
-	SCR->CR_ITGRP 	:= cItGrp
-
-	SCR->(MsUnlock())
-
-	If !EMPTY(cAprovOri)
+	DbSelectArea("ZAD")
+	ZAD->(dbSetOrder(2))
+	If ZAD->(MsSeek(FwFilial("ZAD") + cDoc + cRevis ))	
 		Reclock("ZAD",.F.)
 		ZAD->ZAD_STATUS := "2"
 		ZAD->(MsUnlock())
@@ -299,6 +311,8 @@ Local cNivel   := " "
 FWRestArea(aArea)
 FWRestArea(aAreaSAL)
 FWRestArea(aAreaSCR)
+FWRestArea(aAreaSC7)
+FWRestArea(aAreaZAD)
 
 Return
 

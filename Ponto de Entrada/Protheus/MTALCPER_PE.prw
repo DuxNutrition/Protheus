@@ -13,11 +13,16 @@
  
 User function MTALCPER()
 
-Local aAlc := {}
-Local cDoc := "CT"
+Local aAlc     := {}
+Local cDoc     := "Z1"
+Local aArea    := FwGetArea()
+Local aAreaSCR := SCR->(FwGetArea())
 
 If SCR->CR_TIPO == cDoc
-    aAdd(aAlc,{ cDoc, 'ZAD', 3, 'ZAD->ZAD_CONTRA','','',{'ZAD->ZAD_STATUS',"2","1","3"}})
+    aAdd(aAlc,{SCR->CR_TIPO,'ZAD',1,'ZAD->ZAD_CONTRA','','',{'ZAD->ZAD_STATUS',"2","1","3"}})
 Endif
+
+FWRestArea(aArea)
+FWRestArea(aAreaSCR)
 
 Return(aAlc)
