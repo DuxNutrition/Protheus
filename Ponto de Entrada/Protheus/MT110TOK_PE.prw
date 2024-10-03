@@ -16,7 +16,7 @@ User Function  MT110TOK()
         If aCols[_nX][nPosDtNec] < Date()
             lRet := .F.
             If lJob
-                ConOut("DUX | MT110TOK_PE - Não é permitido informar data de necessidade menor que data atual " + FWTimeStamp())
+                ConOut("DUX | MT110TOK_PE - Não é permitido informar data de necessidade menor que data atual " + FWTimeStamp(2))
             Else
                 ApMsgInfo( "Não é permitido informar data de necessidade menor que data atual" + CRLF + CRLF +;
                                     "Item: " + AllTrim(aCols[_nX][nPosItem]) +" - Produto: " + AllTrim(aCols[_nX][nPosProd]) + CRLF + CRLF +;

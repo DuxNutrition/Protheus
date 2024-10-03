@@ -28,7 +28,7 @@ User Function MT120OK()
         If aCols[_nX][nPosDTEnt] < Date()
             lRet := .F.
             If lJob
-                ConOut("DUX | MT120OK_PE - Não é permitido informar data de entrega menor que data atual " + FWTimeStamp())
+                ConOut("DUX | MT120OK_PE - Não é permitido informar data de entrega menor que data atual " + FWTimeStamp(2))
             Else
                 ApMsgInfo( "Não é permitido informar data de entrega menor que data atual" + CRLF + CRLF +;
                                     "Item: " + AllTrim(aCols[_nX][nPosItem]) +" - Produto: " + AllTrim(aCols[_nX][nPosProd]) + CRLF + CRLF +;
