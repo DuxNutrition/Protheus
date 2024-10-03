@@ -3,10 +3,13 @@
 
 User function DUXPRG01()
 
-Local oBrowse		:= NIL
-Local aArea   := GetArea()
+Local oBrowse  := NIL
+Local aArea    := GetArea()
 local aSeekTmp := {	{"Contrato"		  	,{{"",FwGetSx3Cache('ZAD_CONTRA','X3_TIPO'), FwGetSx3Cache('ZAD_CONTRA','X3_TAMANHO'), 0, "ZAD_CONTRA"		, FwGetSx3Cache('ZAD_CONTRA','X3_PICTURE')	},{"",FwGetSx3Cache('ZAD_REVISA','X3_TIPO'), FwGetSx3Cache('ZAD_REVISA','X3_TAMANHO'), 0, "ZAD_REVISA"		, FwGetSx3Cache('ZAD_REVISA','X3_PICTURE')	}}}}
 
+Private aCols   := {}
+Private aHeader := {}
+Private N := 1
 
 	oBrowse := FWMBrowse():New()
 	
@@ -168,6 +171,7 @@ oView:CreateHorizontalBox("ITENS"   ,60)
 oView:SetOwnerView("VIEWPR2"	,"TELA")
 oView:SetOwnerView("VIEWITENS"	,"ITENS")
 //oView:SetOwnerView("VIEWRODA"	,"RODA")
+oView:AddUserButton("Aprovac.",'BUDGET', {|| U_ZGENTEL01('ZAD',ZAD->(RecNo()),2,'Z1',,.F.)}) 
 
 oView:SetCloseOnOk({||.T.})
 
@@ -263,7 +267,7 @@ Local aAreaZAD := ZAD->(FwGetArea())
 Local cFilSCR  := AllTrim(FWFilial())                                          
 Local cTipoDoc := "Z1"
 Local dDataRef := dDatabase
-Local cUserOri := RetCodUsr()
+Local cUserOri := " "
 Local cGrupo   := SuperGetMv("DUX_FAT001",.F.,"000110")
 Local cItGrp   := " "
 Local cNivel   := " "
@@ -273,6 +277,7 @@ Local cNivel   := " "
 	If !Empty(cGrupo) .And. SAL->(MsSeek(xFilial("SAL",cFilAnt)+cGrupo))
 		While !SAL->(Eof()) .And. xFilial("SAL",cFilAnt)+cGrupo == SAL->(AL_FILIAL+AL_COD)
 			cGrupo    := SAL->AL_COD
+			cUserOri  := SAL->AL_USER 
 			cAprovOri := SAL->AL_APROV  
 			cNivel    := SAL->AL_NIVEL
 			cItGrp	  := SAL->AL_ITEM
