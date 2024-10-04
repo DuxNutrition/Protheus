@@ -1,7 +1,17 @@
 #INCLUDE 'PROTHEUS.CH'
 #INCLUDE "FWMVCDEF.ch"
 
-User function DUXPRG01()
+/*/{Protheus.doc} 
+Programa que faz o controle dos Contratos de Bonificação.
+@author Totvs
+@since 30/09/2024
+@version P11,P12
+@database MSSQL
+@history 11/2023 - Dux Company - Jedielson Rodrigues - Revisão;
+@See 
+/*/
+
+User function ZFATF004()
 
 Local oBrowse  := NIL
 Local aArea    := GetArea()
@@ -9,33 +19,22 @@ local aSeekTmp := {	{"Contrato"		  	,{{"",FwGetSx3Cache('ZAD_CONTRA','X3_TIPO'),
 
 Private aCols   := {}
 Private aHeader := {}
+Private aRotina := MenuDef()
 Private N := 1
 
-	oBrowse := FWMBrowse():New()
-	
-	oBrowse:SetAlias("ZAD")
-	oBrowse:SetDescription("Cadastro Contratos de descontos")
-    oBrowse:AddLegend( "ZAD_SITUACA == '1' .AND. ZAD_STATUS == '1'","GREEN","Aprovado" )
-	oBrowse:AddLegend( "ZAD_SITUACA == '2'", "RED","Inativo")
-	oBrowse:AddLegend( "ZAD_STATUS == '2'","BR_AZUL","Em aprovação")
-	oBrowse:AddLegend( "ZAD_STATUS == '3'","BR_CANCEL","Rejeitado pelo Aprovador")
-	oBrowse:SetUseFilter( .T. )
-	oBrowse:SetSeek(.T.,aSeekTmp)
-	oBrowse:Activate()
-	Restarea(aArea)
+oBrowse := FWMBrowse():New()
 
-	/*
-	oBrowse:SetAlias("ZAD")
-	oBrowse:SetDescription("Cadastro Contratos de descontos")
-    oBrowse:AddLegend( "ZAD_SITUACA == '1'","GREEN","Aprovado")
-	oBrowse:AddLegend( "ZAD_SITUACA == '2'","RED","Inativo")
-	oBrowse:AddLegend( "ZAD_SITUACA == '3'","BR_AZUL","Em aprovação")
-	oBrowse:AddLegend( "ZAD_SITUACA == '4'","BR_CANCEL","Rejeitado pelo Aprovador")
-	oBrowse:SetUseFilter( .T. )
-	oBrowse:SetSeek(.T.,aSeekTmp)
-	oBrowse:Activate()
-	restarea(aArea)
-	*/
+oBrowse:SetAlias("ZAD")
+oBrowse:SetDescription("Cadastro Contratos de descontos")
+oBrowse:AddLegend( "ZAD_SITUACA == '1' .AND. ZAD_STATUS == '1'","GREEN","Aprovado" )
+oBrowse:AddLegend( "ZAD_SITUACA == '2'", "RED","Inativo")
+oBrowse:AddLegend( "ZAD_STATUS == '2'","BR_AZUL","Em aprovação")
+oBrowse:AddLegend( "ZAD_STATUS == '3'","BR_CANCEL","Rejeitado pelo Aprovador")
+oBrowse:SetUseFilter( .T. )
+oBrowse:SetSeek(.T.,aSeekTmp)
+oBrowse:Activate()
+
+Restarea(aArea)
 
 Return 
 
@@ -50,17 +49,16 @@ Return
 
 Static Function MenuDef()
 
-Local aRotina 	:= {}
+Local aRotina := {}
 
-	ADD OPTION aRotina TITLE "Visualizar"			ACTION "VIEWDEF.DUXPRG01"	OPERATION 2 ACCESS 0
-	ADD OPTION aRotina TITLE "Incluir"  			ACTION "VIEWDEF.DUXPRG01"	OPERATION 3 ACCESS 0
-	ADD OPTION aRotina TITLE "Alterar"  			ACTION "VIEWDEF.DUXPRG01"	OPERATION 4 ACCESS 0
-	ADD OPTION aRotina TITLE "Excluir"    			ACTION "VIEWDEF.DUXPRG01"   OPERATION 5 ACCESS 0
-	ADD OPTION aRotina TITLE "Copiar"    			ACTION "VIEWDEF.DUXPRG01"   OPERATION 9 ACCESS 0
+	ADD OPTION aRotina TITLE "Visualizar"			ACTION "VIEWDEF.ZFATF004"	OPERATION 2 ACCESS 0
+	ADD OPTION aRotina TITLE "Incluir"  			ACTION "VIEWDEF.ZFATF004"	OPERATION 3 ACCESS 0
+	ADD OPTION aRotina TITLE "Alterar"  			ACTION "VIEWDEF.ZFATF004"	OPERATION 4 ACCESS 0
+	ADD OPTION aRotina TITLE "Excluir"    			ACTION "VIEWDEF.ZFATF004"   OPERATION 5 ACCESS 0
+	ADD OPTION aRotina TITLE "Copiar"    			ACTION "VIEWDEF.ZFATF004"   OPERATION 9 ACCESS 0
 	ADD OPTION aRotina TITLE "Revisao"    			ACTION "U_DUXREVISA"        OPERATION 9 ACCESS 0
-	//ADD OPTION aRotina TITLE "Gera Abatimento"      ACTION "U_DUXABAT"    OPERATION 4 ACCESS 0
 	ADD OPTION aRotina TITLE "Banco Conhecimento"   ACTION "MsDocument('ZAD', ZAD->(RecNo()), 4)"	OPERATION 4 ACCESS 0
-
+	
 Return (aRotina)   
 
 Static Function ModelDef()
@@ -89,7 +87,7 @@ aGatilhos:={}
                             aGatilhos[nAtual][03],; //Bloco de código na validação da execução do gatilho
                             aGatilhos[nAtual][04])  //Bloco de código de execução do gatilho
     Next    
-oModel := MPFormModel():New("MDUXPRG01",,{ |oModel| DUXCTR( oModel ) })
+oModel := MPFormModel():New("MZFATF004",,{ |oModel| DUXCTR( oModel ) })
 
 // Adiciona ao modelo uma estrutura de formulario de edicao por campo
 oModel:AddFields("PR2MASTER",/*cOwner*/ ,oStruCab)
@@ -128,17 +126,6 @@ oModel:SetRelation('PR3DETAIL',{{'ZAE_FILIAL','ZAD_FILIAL'},{'ZAE_CONTRA','ZAD_C
 Return oModel
 
 /*/
-@Function:	MenuDef
-@desc:		Menu de ações da rotina.
-@author:	
-@param:     
-@version: 	1.00
-@since: 	
-/*/
-
-
-
-/*/
 @Function:	ViewDef
 @desc:		Tela de visualização do arotina.
 @author:	
@@ -149,10 +136,11 @@ Return oModel
 
 Static Function ViewDef()
 
-Local oModel		:= FWLoadModel( "DUXPRG01" )
+Local oModel		:= FWLoadModel( "ZFATF004" )
 Local oStruCab		:= FWFormStruct(2,"ZAD")
 Local oStruItens	:= FWFormStruct(2,"ZAE" , {|cField| !(AllTrim(Upper(cField)) $ "ZAE_CONTRA|ZAE_REVISA|ZAE_CLIENT|ZAE_LOJACL")})
 Local oView			:= NIL
+Local nOperation    := oModel:NOPERATION
 //Local oStTot        := FWCalcStruct(oModel:GetModel('TOT_SALDO'))
 // Cria objeto de VIEW
 oView := FWFormView():New()
@@ -171,7 +159,7 @@ oView:CreateHorizontalBox("ITENS"   ,60)
 oView:SetOwnerView("VIEWPR2"	,"TELA")
 oView:SetOwnerView("VIEWITENS"	,"ITENS")
 //oView:SetOwnerView("VIEWRODA"	,"RODA")
-oView:AddUserButton("Aprovac.",'BUDGET', {|| U_ZGENTEL01('ZAD',ZAD->(RecNo()),2,'Z1',,.F.)}) 
+oView:AddUserButton("Aprovac.",'BUDGET', {|| U_ZGENTEL01('ZAD',ZAD->(RecNo()),nOperation,'Z1',,.F.,aRotina)}) 
 
 oView:SetCloseOnOk({||.T.})
 
@@ -183,7 +171,10 @@ local oMldZad    := omodel:GetModel('PR2MASTER')
 local oMdlZAe    := omodel:GetModel('PR3DETAIL')
 Local cDoc       := oMldZad:getValue('ZAD_CONTRA')
 Local cRevis     := oMldZad:getValue('ZAD_REVISA')
+Local cTipoDoc   := SuperGetMv("DUX_FAT002",.F.,"Z1")
+Local cGrupo     := SuperGetMv("DUX_FAT001",.F.,"000110")
 Local Obs        := oMldZad:getValue('ZAD_OBS')
+Local lExcl      := .F.
 Local nOperation := oModel:NOPERATION
 local nu         := 0 
 
@@ -197,30 +188,26 @@ If nOperation <> MODEL_OPERATION_DELETE
  next nU 
 Endif
 
-If nOperation == 3 .OR. nOperation == 4
-	GrvSCR(cDoc,cRevis,Obs)
+If nOperation == 3 
+	U_ZGENSCR(cDoc,cRevis,cTipoDoc,cGrupo,Obs)
+Elseif nOperation == 4
+	lExcl := ExcSCR(cTipoDoc,cDoc)
+	If !lExcl
+		Aviso("[ZFATF004] - Atencao","Não foi possível excluir itens da alçada." + CHR(13),{"Ok"})
+	Endif
+	
+	U_ZGENSCR(cDoc,cRevis,cTipoDoc,cGrupo,Obs)
+
 Endif
 
-RETURN .T.
+Return .T.
 
-
-/*/{Protheus.doc} nomeStaticFunction
-	(long_description)
-	@type  Static Function
-	@author user
-	@since 14/11/2023
-	@version version
-	@param param_name, param_type, param_descr
-	@return return_var, return_type, return_description
-	@example
-	(examples)
-	@see (links_or_references)
-/*/
-user Function DUXREVISA()
+User Function DUXREVISA()
 
 	If MsgYesno('Deseja efetuar nova revisão, a atual sera desativada')
-		 FWExecView( 'Revisão', 'DUXPRG01', OP_COPIA,, {|| .T.} )
-	ENDIF
+		 FWExecView( 'Revisão', 'ZFATF004', OP_COPIA,, {|| .T.} )
+	Endif
+
 Return 
 
 
@@ -233,8 +220,7 @@ User Function zfGrupo()
     //FwFldPut(cCampo, cConteudo,,,, .T.)
 Return cRetorno
 
-
-User Function FtMsRel
+User Function FtMsRel()
  
 Local aRet    As Array
 Local aChave  As Array
@@ -257,68 +243,29 @@ AAdd( aRet, { cTabela, aChave, bMostra,aFields }  )
 
 Return aRet
 
-Static Function GrvSCR(cDoc,cRevis,Obs)
+Static Function ExcSCR(cTipoDoc,cDoc)
 
-Local aArea    := FwGetArea() 
-Local aAreaSAL := SAL->(FwGetArea())
 Local aAreaSCR := SCR->(FwGetArea())
-Local aAreaSC7 := SC7->(FwGetArea())
-Local aAreaZAD := ZAD->(FwGetArea())
-Local cFilSCR  := AllTrim(FWFilial())                                          
-Local cTipoDoc := "Z1"
-Local dDataRef := dDatabase
-Local cUserOri := " "
-Local cGrupo   := SuperGetMv("DUX_FAT001",.F.,"000110")
-Local cItGrp   := " "
-Local cNivel   := " "
+Local cFilSCR  := AllTrim(FWFilial())            
+Local lExcl    := .F.                              
 
-	DbSelectArea("SAL")
-	SAL->(dbSetOrder(2))
-	If !Empty(cGrupo) .And. SAL->(MsSeek(xFilial("SAL",cFilAnt)+cGrupo))
-		While !SAL->(Eof()) .And. xFilial("SAL",cFilAnt)+cGrupo == SAL->(AL_FILIAL+AL_COD)
-			cGrupo    := SAL->AL_COD
-			cUserOri  := SAL->AL_USER 
-			cAprovOri := SAL->AL_APROV  
-			cNivel    := SAL->AL_NIVEL
-			cItGrp	  := SAL->AL_ITEM
+DbSelectArea("SCR")
+SCR->(dbSetOrder(1))
+If !Empty(cTipoDoc) .And. SCR->(MsSeek(xFilial("SCR",cFilSCR)+cTipoDoc+cDoc))
+	While !SCR->(Eof()) .And. xFilial("SCR",cFilSCR)+cTipoDoc+cDoc == AllTrim(SCR->(CR_FILIAL+CR_TIPO+CR_NUM))
+		DbGoTo(SCR->(RecNo()))
+		RecLock('SCR',.F.)
+		SCR->(DbDelete())
+		SCR->(MsUnlock())
+		lExcl := .T.
+		SCR->( dbSkip() )
+	EndDo
 
-			Reclock("SCR",.T.)
-				SCR->CR_FILIAL	:= cFilSCR
-				SCR->CR_NUM		:= cDoc
-				SCR->CR_TIPO	:= cTipoDoc
-				SCR->CR_NIVEL	:= cNivel
-				SCR->CR_USER	:= cUserOri
-				SCR->CR_APROV	:= cAprovOri
-				SCR->CR_STATUS	:= IIF(SAL->AL_NIVEL == cNivel  ,"02","01")
-				SCR->CR_TOTAL	:= 0
-				SCR->CR_EMISSAO	:= dDataRef
-				SCR->CR_MOEDA	:= 0
-				SCR->CR_TXMOEDA	:= 0
-				SCR->CR_GRUPO	:= cGrupo
-				SCR->CR_ITGRP 	:= cItGrp	
-				SCR->CR_OBS     := Obs
-			SCR->(MsUnlock())
-			
-			SAL->( dbSkip() )
-        
-		EndDo
-	
-	Endif
+Endif
 
-	DbSelectArea("ZAD")
-	ZAD->(dbSetOrder(2))
-	If ZAD->(MsSeek(FwFilial("ZAD") + cDoc + cRevis ))	
-		Reclock("ZAD",.F.)
-		ZAD->ZAD_STATUS := "2"
-		ZAD->(MsUnlock())
-	Endif
-
-FWRestArea(aArea)
-FWRestArea(aAreaSAL)
 FWRestArea(aAreaSCR)
-FWRestArea(aAreaSC7)
-FWRestArea(aAreaZAD)
 
-Return
+Return(lExcl)
+
 
 
