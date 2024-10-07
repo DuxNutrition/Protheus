@@ -26,7 +26,6 @@ User function ZWSR004()
 	local aHeader := {}
 	local aJson := {}
 	Local cTeste
-	Local cHeaderGet as char
 
 	If IsBlind()
 		Conout("JOB ZWSR004 (BUSCA PEDIDOS) INICIADO NA DATA: "+Dtos(Date())+" NO HORÁRIO: "+TIME()+" ")

@@ -18,6 +18,7 @@ User function ZWSR007(cId)
 	Local cXml := ""
 	Local cNumPed := ""
 	Local cRecno := ""
+    Local cAliasFT 
 
 	Default cId := ""
 
@@ -27,8 +28,9 @@ User function ZWSR007(cId)
 	Endif
 
 	if Empty(cId)
-		if QueryFat()
-			While (cAlias2)->(!eof())
+		cAliasFT := QueryFat()
+        if !Empty(cAliasFT)
+			While (cAliasFt)->(!eof())
 				cNumId := (cAliasFt)->(IDX)
 				cNumPed := (cAliasFt)->(PED)
 				DbSelectArea("ZFR")
@@ -39,7 +41,7 @@ User function ZWSR007(cId)
 						U_DuxFatA(cXml,cNumPed,cNumId,cRecno)
 					endif
 				endif
-				(cAlias2)->(DbSkip())
+				(cAliasFt)->(DbSkip())
 			Enddo
 		endif
 	else
@@ -93,4 +95,4 @@ Static Function QueryFat()
 		lRet := .T.
 	endif
 
-Return(lRet)
+Return(cAliasFt)

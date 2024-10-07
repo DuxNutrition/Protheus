@@ -37,7 +37,8 @@ User Function DuxFatB(aXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
 	Local _aAreaSC6	:= SC6->( GetArea() )
 	Local lRet		:= .T.
 	Local nPrecVen := 0
-	Local aXmlItens :=  aXml:_NFE:_INFNFE:_DET
+	Local oXmlItens :=  aXml:_NFE:_INFNFE:_DET
+	Local aXmlItens := {}
 	Local nCont := 0
 	Local cQuery := ""
 	Local aDados := {}
@@ -51,12 +52,19 @@ User Function DuxFatB(aXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
 	Local nValMar := 0
 	Local cAliasHD := GetNextAlias()
 	Local _aPvlNfs := {}
-    Local _cNota 
-    
-    Private _DxFtC 
-    Private _DxNfc
+	Local _cNota
 
+	Private _DxFtC
+	Private _DxNfc
+	Private _DxChv := Substr(aXml:_NFE:_INFNFE:_ID:TEXT,4)
 
+	if !Empty(aXml:_NFE:_INFNFE:_DET:_IMPOSTO)
+		aadd(aXmlItens, aXml:_NFE:_INFNFE:_DET )
+	else
+		for nCont = 1 To Len (oXmlItens)
+			aadd(aXmlItens,aXml:_NFE:_INFNFE:_DET[nCont])
+		next
+	endif
 	SC5->( DBSetOrder( 1 ) )
 
 	Begin Transaction
@@ -109,11 +117,11 @@ User Function DuxFatB(aXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
 				cQuery += " AND SC6.C6_FILIAL = SB2.B2_FILIAL  AND SC6.C6_LOCAL = SB2.B2_LOCAL    "
 				cQuery += " WHERE SC9.D_E_L_E_T_ = ''  "
 				cQuery += " AND "
-				cQuery += " SC9.C9_PRODUTO = '"+Alltrim(aXml:_NFE:_INFNFE:_DET[nCont]:_PROD:_CPROD:TEXT)+"' "
+				cQuery += " SC9.C9_PRODUTO = '"+Alltrim(aXmLItens[nCont]:_prod:_cprod:text)+"' "
 				cQuery += " AND "
-				cQuery += " SC9.C9_QTDLIB = "+cValToChar(GetDToVal(aXml:_NFE:_INFNFE:_DET[nCont]:_PROD:_QCOM:TEXT))+" "
+				cQuery += " SC9.C9_QTDLIB = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))+" "
 				cQuery += " AND "
-				cQuery += " SC9.C9_PRCVEN = "+cValToChar(GetDToVal(aXml:_NFE:_INFNFE:_DET[nCont]:_PROD:_VUNCOM:TEXT))+" "
+				cQuery += " SC9.C9_PRCVEN = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))+" "
 				cQuery += " AND "
 				cQuery += " SC9.C9_BLCRED = '' "
 				cQuery += " AND "
@@ -134,17 +142,17 @@ User Function DuxFatB(aXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
 					aadd(aDados,(cAliasHD)->(SEQX))
 					aadd(aDados,(cAliasHD)->(QTDX))
 					aadd(aDados,(cAliasHD)->(PRCX))
-                    aadd(aDados,(cAliasHD)->(PRODx))
+					aadd(aDados,(cAliasHD)->(PRODx))
 					aadd(aDados,.F.)
 					aadd(aDados,(cAliasHD)->(RECSC9))
 					aadd(aDados,(cAliasHD)->(RECSC5))
-                    aadd(aDados,(cAliasHD)->(RECSC6))
+					aadd(aDados,(cAliasHD)->(RECSC6))
 					aadd(aDados,(cAliasHD)->(RECSE4))
 					aadd(aDados,(cAliasHD)->(RECSB1))
 					aadd(aDados,(cAliasHD)->(RECSB2))
 					aadd(aDados,(cAliasHD)->(RECSF4))
-                    _DxFtC := (cAliasHD)->(EMISSX)
-                    _DxNfc := (cAliasHD)->(NOTAX)
+					_DxFtC := (cAliasHD)->(EMISSX)
+					_DxNfc := (cAliasHD)->(NOTAX)
 					aadd(_aPvlNfs,aDados)
 					(cAliasHD)->(dbCloseArea())
 				else
@@ -188,14 +196,25 @@ User Function DuxFatB(aXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
 			//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 			if !Empty(_aPvlNfs) .and. lRet == .T.
-                _cNota := MaPvlNfs( _aPvlNfs, cSerie, _lMostraCtb, _lAglutCtb, _lCtbOnLine, _lCtbCusto, _lReajuste, _nCalAcrs, _nArredPrcLis, _lAtuSA7, _lECF, _cEmbExp )
-            else
+				_cNota := MaPvlNfs( _aPvlNfs, cSerie, _lMostraCtb, _lAglutCtb, _lCtbOnLine, _lCtbCusto, _lReajuste, _nCalAcrs, _nArredPrcLis, _lAtuSA7, _lECF, _cEmbExp )
+				if !empty(_cNota)
+					DbSelectArea("ZFR")
+					ZFR->( DBSetOrder( 2 ) )
+					IF  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cNumId,TamSX3("ZFR_ID")[1]))))
+						RecLock("ZFR",.F.)
+						ZFR->ZFR_STATUS := "40"
+						ZFR->(MsUnlock())
+						ZFR->(dbCloseArea())
+					endif
+				endif
+			else
 				DbSelectArea("ZFR")
 				ZFR->( DBSetOrder( 2 ) )
 				IF  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cNumId,TamSX3("ZFR_ID")[1]))))
 					RecLock("ZFR",.F.)
 					ZFR->ZFR_ERROR := "Erro ao montar estrutura de NOTA, causas possíveis, LIBERACAO DE PEDIDO "
 					ZFR->ZFR_STERRO := "40"
+					ZFR->ZFR_STATUS := "99"
 					ZFR->(MsUnlock())
 					ZFR->(dbCloseArea())
 				endif

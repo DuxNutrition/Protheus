@@ -9,6 +9,9 @@ user function M461LSF2()
 //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
     if FWIsInCallStack("U_DuxFatB")
         SF2->F2_EMISSAO := _DxFtC
+        SF2->F2_EMINFE  := _DxFtC
+        SF2->F2_CHVNFE  := _DxChv
+        SF2->F2_FIMP  := "S"
     endif 
 
 return
