@@ -38,6 +38,7 @@ Local lAprPCEC		:= SuperGetMV("MV_APRPCEC",.F.,.F.)
 Local lAprSAEC		:= SuperGetMV("MV_APRSAEC",.F.,.F.)
 Local lAprSCEC		:= SuperGetMV("MV_APRSCEC",.F.,.F.)
 Local lAprCTEC		:= SuperGetMV("MV_APRCTEC",.F.,0) <> 0
+Local cGrupo        := SuperGetMv("DUX_FAT001",.F.,"000110")
 Local lAprMDEC		:= .T.
 Local cAprIPPC		:= SuperGetMv("MV_APRIPPC",.F.,'2')
 Local lCtCorp		:= .F.
@@ -108,11 +109,16 @@ ElseIf cTipoDoc $ "CT|IC|Z1"
 	cTitle    	:= "Aprovação de Contrato" // OemToAnsi(STR0076)//"Aprovação de Contrato"
 	cTitDoc   	:= "Contratos" //OemToAnsi(STR0077)//"Contratos"
 	cHelpApv  	:= "Este contrato não possui controle de aprovação" //OemToAnsi(STR0078)//"Este contrato não possui controle de aprovação"
-	cAprovador	:= "Solicitante" //OemToAnsi(STR0079)//"Aprovadores"
-	lCtCorp	:= Empty(CN9->CN9_FILIAL)
-	cDocRevis   := ZAD->ZAD_CONTRA + " - " + ZAD->ZAD_REVISA
-	cNumDoc     := ZAD->ZAD_CONTRA
-	cComprador	:= "000745 - Jedielson.Rodrigues"
+	cAprovador	:= "Aprovadores" //OemToAnsi(STR0079)//"Aprovadores"
+	If !cTipoDoc $ "CT|IC"
+		cDocRevis   := ZAD->ZAD_CONTRA + " - " + ZAD->ZAD_REVISA
+		cNumDoc     := ZAD->ZAD_CONTRA
+		cComprador	:= cGrupo + " - " + Posicione("SAL",1,xFilial("SAL")+cGrupo, "AL_DESC")
+	Else
+		lCtCorp	   := Empty(CN9->CN9_FILIAL)
+		cNumDoc    := CN9->CN9_NUMERO + " - " + CN9->CN9_REVISA
+		cComprador := CN9->CN9_APROV + " - " + Posicione("SAL",1,xFilial("SAL")+CN9->CN9_APROV, "AL_DESC")
+	Endif
 ElseIf cTipoDoc == "SC"
 	cTitle   	:= "Aprovacao da Solicitação de Compra" //OemToAnsi(STR0064) // "Aprovacao da Solicitação de Compra"
 	cTitDoc  	:= "Solicitação" //OemToAnsi(STR0065) // "Solicitação"

@@ -6,7 +6,7 @@ O ponto de entrada MTALCPER permite utilizar o controle de alçadas de forma cust
 @See https://tdn.totvs.com/pages/releaseview.action?pageId=268571093
 @type function
 @author Jedielson Rodrigues
-@since 30/10/2024
+@since 04/10/2024
 @return aAlc
 /*/
 
@@ -26,6 +26,10 @@ FWRestArea(aAreaSCR)
 
 Return(aAlc)
 
+/*----------------------------------------------------
+	Visualiza documento de Aprovação na tabela ZAD.
+----------------------------------------------------*/
+
 Static function visuZAD(cChv)
 
 Local   aArea     := FwGetArea()
@@ -42,6 +46,10 @@ Endif
 RestArea(aArea)
 
 Return
+
+/*--------------------------------------------------------------------------------
+	Atualiza o status do documento na tabela ZAD na opção Estorno de Documento.
+--------------------------------------------------------------------------------*/
 
 User function estZAD(cChv)
 

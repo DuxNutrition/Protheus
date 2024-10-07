@@ -58,6 +58,7 @@ Local aRotina := {}
 	ADD OPTION aRotina TITLE "Copiar"    			ACTION "VIEWDEF.ZFATF004"   OPERATION 9 ACCESS 0
 	ADD OPTION aRotina TITLE "Revisao"    			ACTION "U_DUXREVISA"        OPERATION 9 ACCESS 0
 	ADD OPTION aRotina TITLE "Banco Conhecimento"   ACTION "MsDocument('ZAD', ZAD->(RecNo()), 4)"	OPERATION 4 ACCESS 0
+	ADD OPTION aRotina TITLE "Liberar Documento"    ACTION "U_ZTELAPROV()"     OPERATION 8 ACCESS 0
 	
 Return (aRotina)   
 
@@ -171,8 +172,8 @@ local oMldZad    := omodel:GetModel('PR2MASTER')
 local oMdlZAe    := omodel:GetModel('PR3DETAIL')
 Local cDoc       := oMldZad:getValue('ZAD_CONTRA')
 Local cRevis     := oMldZad:getValue('ZAD_REVISA')
-Local cTipoDoc   := SuperGetMv("DUX_FAT002",.F.,"Z1")
 Local cGrupo     := SuperGetMv("DUX_FAT001",.F.,"000110")
+Local cTipoDoc   := SuperGetMv("DUX_FAT002",.F.,"Z1")
 Local Obs        := oMldZad:getValue('ZAD_OBS')
 Local lExcl      := .F.
 Local nOperation := oModel:NOPERATION
@@ -243,6 +244,10 @@ AAdd( aRet, { cTabela, aChave, bMostra,aFields }  )
 
 Return aRet
 
+/*----------------------------------------------------
+	Função que exclui os itens da tabela SCR. 
+----------------------------------------------------*/
+
 Static Function ExcSCR(cTipoDoc,cDoc)
 
 Local aAreaSCR := SCR->(FwGetArea())
@@ -266,6 +271,106 @@ Endif
 FWRestArea(aAreaSCR)
 
 Return(lExcl)
+
+User Function ZTELAPROV()
+
+Local aAreaSCR   := SCR->(FwGetArea())
+Local oBrowse    := Nil 
+Local ca097User  := RetCodUsr()
+Local lFiltroUs1 := .T.
+Local cFiltraSCR
+LOCAL xFiltroUs	
+LOCAL nx         := 0
+LOCAL aLegenda   := {}
+LOCAL aMT094LEG  := {}	
+Local aRotina    := FwLoadMenuDef("MATA094")
+Local cCad       := "Aprovação de Documentos"
+
+	dbSelectArea("SAK")
+	dbSetOrder(2)
+	If !MsSeek(xFilial("SAK")+RetCodUsr())
+		Aviso("[A097APROV] - Atencao","Usuário não esta cadastrado como aprovador." + CHR(13),{"Ok"})
+		dbSelectArea("SCR")
+		dbSetOrder(1)
+	Else
+			
+		If Pergunte("MTA097",.T.)
+		
+			//-------------------------------------------------------------------
+			// Controle de Aprovacao : CR_STATUS                
+			// 01 - Bloqueado p/ sistema (aguardando outros niveis) 
+			// 02 - Aguardando Liberacao do usuario                 
+			// 03 - Pedido Liberado pelo usuario                    
+			// 04 - Pedido Bloqueado pelo usuario                   
+			// 05 - Pedido Liberado por outro usuario               
+			// 06 - Documento Rejeitado
+			//-------------------------------------------------------------------
+			dbSelectArea("SCR")
+			dbSetOrder(1)		
+			      
+			If cFiltraSCR == NIL
+				cFiltraSCR  := 'CR_FILIAL=="'+xFilial("SCR")+'"'+'.And.CR_USER=="'+ca097User 
+			EndIf		
+	   	    
+			Do Case
+				Case mv_par01 == 1
+					cFiltraSCR += '".And.CR_STATUS=="02"'
+				Case mv_par01 == 2
+					cFiltraSCR += '".And.(CR_STATUS=="03".OR.CR_STATUS=="05")'
+				Case mv_par01 == 3
+					cFiltraSCR += '"'
+				Case mv_par01 == 4
+					cFiltraSCR += '".And.CR_STATUS=="04"'
+				Case mv_par01 == 5
+					cFiltraSCR += '".And.CR_STATUS=="06"'
+				OtherWise
+					cFiltraSCR += '".And.(CR_STATUS=="01".OR.CR_STATUS=="04")'
+			EndCase
+
+			//Adicionar a opção no menu padrão
+			ADD OPTION aRotina TITLE "Liberar Documentos" ACTION 'MATA094'    OPERATION 8    ACCES 0
+
+			oBrowse := FWMBrowse():New()
+			oBrowse:SetAlias('SCR')       
+			                                   
+			// Definição da legenda
+			aAdd(aLegenda, { "CR_STATUS=='01'", "BR_AZUL" , "Blqueado (aguardando outros niveis)" }) //"Blqueado (aguardando outros niveis)"
+			aAdd(aLegenda, { "CR_STATUS=='02'", "DISABLE" , "Aguardando Liberacao do usuario" }) //"Aguardando Liberacao do usuario"
+			aAdd(aLegenda, { "CR_STATUS=='03'", "ENABLE"  , "Documento Liberado pelo usuario" }) //"Documento Liberado pelo usuario"
+			aAdd(aLegenda, { "CR_STATUS=='04'", "BR_PRETO", "Documento Bloqueado pelo usuario" }) //"Documento Bloqueado pelo usuario"
+			aAdd(aLegenda, { "CR_STATUS=='05'", "BR_CINZA", "Documento Liberado por outro usuario" }) //"Documento Liberado por outro usuario"
+			aAdd(aLegenda, { "CR_STATUS=='06'", "BR_CANCEL","Documento Rejeitado pelo usuário" }) //"Documento Rejeitado pelo usuário"
+			aAdd(aLegenda, { "CR_STATUS=='07'","BR_AMARELO", "Documento Rejeitado ou Bloqueado por outro usuário" }) //"Documento Rejeitado ou Bloqueado por outro usuário"
+			
+		
+			FOR nx := 1 TO LEN(aLegenda)
+				oBrowse:AddLegend(aLegenda[nx][1], aLegenda[nx][2], aLegenda[nx][3])
+			NEXT nx
+			
+			oBrowse:SetCacheView(.F.)
+			oBrowse:DisableDetails()
+			oBrowse:SetDescription(cCad)  //"Aprovação de Documentos"
+			oBrowse:SetFilterDefault(cFiltraSCR)
+			obrowse:SetChgAll(.F.)
+			obrowse:SetSeeAll(.F.)
+			
+			oBrowse:Activate()		
+		EndIf
+	EndIf
+
+FWRestArea(aAreaSCR)	
+
+Return NIL
+
+//Busca o Model da função FATA110
+Static Function ModelDefs()
+Return FWLoadModel('MATA094')
+    
+//Busca o View da função FATA110
+Static Function ViewDefs()
+Return FWLoadView('MATA094')
+
+
 
 
 

@@ -6,20 +6,25 @@ O Ponto de Entrada MTA094RO, localizado na rotina de Liberação de Documento, per
 @See https://tdn.totvs.com/display/public/PROT/TTLFI2_COM_DT_Ponto_de_Entrada_MTA094RO
 @type function 
 @author:Jedielson Rodrigues
-@since 30/09/2024
+@since 04/10/2024
 @return 
 /*/
 
 User Function MTA094RO()
 
-Local aRotina := PARAMIXB[1]
-Local aArea   := FwGetArea()
+Local aRotina  := PARAMIXB[1]
+Local aArea    := FwGetArea()
+Local cTipDoc  := SuperGetMv("DUX_FAT002",.F.,"Z1")
 
-    Aadd(aRotina,{"Rejeitar Contato", "U_ZALCREJ('Z1')", 0, 4, 0, NIL})
+    Aadd(aRotina,{"Rejeitar Contato", "U_ZALCREJ(cTipDoc)", 0, 4, 0, NIL})
    
 FWRestArea(aArea)
 
 Return (aRotina)
+
+/*----------------------------------------------------
+	Função que rejeita documentos - Tipos Z1. 
+----------------------------------------------------*/
 
 User Function ZALCREJ(cTipDoc)
 
@@ -111,6 +116,7 @@ If SCR->CR_TIPO = cTipDoc
             If !lProces
                 Aviso("[MTA094RO] - Atencao","Não foi possível atualizar o status de Rejeição do item na tabela ZAD." + CHR(13),{"Ok"})
             Endif
+            FWAlertSuccess("Documento "+AllTrim(cNumDoc)+" rejeitado.!", "Sucesso")
         Endif
     End Transaction
 Else
