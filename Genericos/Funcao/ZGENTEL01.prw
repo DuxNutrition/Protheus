@@ -4,7 +4,7 @@
 #INCLUDE 'FWLIBVERSION.CH' 
 
 /*/{Protheus.doc} 
-Tela que consulta os status das Aprovacoes dos Documentos do ipo (Z1)
+Tela que consulta os status de Aprovacoes dos Documentos.
 @author Jedielson Rodrigues
 @since 28/09/2024
 @history 

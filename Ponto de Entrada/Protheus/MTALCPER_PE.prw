@@ -66,7 +66,7 @@ Endif
 
 ZAD->(dbSetOrder(1))
 If ZAD->(dbSeek(cChv))
-	lRet:= .t.
+	lRet:= .T.
 
 	RecLock('ZAD',.F.)
 	ZAD->ZAD_STATUS := "3"

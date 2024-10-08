@@ -15,21 +15,22 @@ User function ZFATF004()
 
 Local oBrowse  := NIL
 Local aArea    := GetArea()
-local aSeekTmp := {	{"Contrato"		  	,{{"",FwGetSx3Cache('ZAD_CONTRA','X3_TIPO'), FwGetSx3Cache('ZAD_CONTRA','X3_TAMANHO'), 0, "ZAD_CONTRA"		, FwGetSx3Cache('ZAD_CONTRA','X3_PICTURE')	},{"",FwGetSx3Cache('ZAD_REVISA','X3_TIPO'), FwGetSx3Cache('ZAD_REVISA','X3_TAMANHO'), 0, "ZAD_REVISA"		, FwGetSx3Cache('ZAD_REVISA','X3_PICTURE')	}}}}
+Local aSeekTmp := {	{"Contrato"		  	,{{"",FwGetSx3Cache('ZAD_CONTRA','X3_TIPO'), FwGetSx3Cache('ZAD_CONTRA','X3_TAMANHO'), 0, "ZAD_CONTRA"		, FwGetSx3Cache('ZAD_CONTRA','X3_PICTURE')	},{"",FwGetSx3Cache('ZAD_REVISA','X3_TIPO'), FwGetSx3Cache('ZAD_REVISA','X3_TAMANHO'), 0, "ZAD_REVISA"		, FwGetSx3Cache('ZAD_REVISA','X3_PICTURE')	}}}}
 
-Private aCols   := {}
-Private aHeader := {}
-Private aRotina := MenuDef()
+Private aCols    := {}
+Private aHeader  := {}
+Private aRotina  := MenuDef()
+Private cGrupo   := SuperGetMv("DUX_FAT001",.F.,"000110")
+Private cTipoDoc := SuperGetMv("DUX_FAT002",.F.,"Z1")
 Private N := 1
 
 oBrowse := FWMBrowse():New()
-
 oBrowse:SetAlias("ZAD")
 oBrowse:SetDescription("Cadastro Contratos de descontos")
-oBrowse:AddLegend( "ZAD_SITUACA == '1' .AND. ZAD_STATUS == '1'","GREEN","Aprovado" )
+oBrowse:AddLegend( "ZAD_SITUACA == '1' .AND. ZAD_STATUS == '1'","GREEN","Ativo/ Aprovado" )
 oBrowse:AddLegend( "ZAD_SITUACA == '2'", "RED","Inativo")
 oBrowse:AddLegend( "ZAD_STATUS == '2'","BR_AZUL","Em aprovação")
-oBrowse:AddLegend( "ZAD_STATUS == '3'","BR_CANCEL","Rejeitado pelo Aprovador")
+oBrowse:AddLegend( "ZAD_STATUS == '3'","BR_CANCEL","Rejeitado pelo Aprovador/ Estornado")
 oBrowse:SetUseFilter( .T. )
 oBrowse:SetSeek(.T.,aSeekTmp)
 oBrowse:Activate()
@@ -153,7 +154,7 @@ oView:CreateHorizontalBox("ITENS"   ,60)
 oView:SetOwnerView("VIEWPR2"	,"TELA")
 oView:SetOwnerView("VIEWITENS"	,"ITENS")
 //oView:SetOwnerView("VIEWRODA"	,"RODA")
-oView:AddUserButton("Aprovac.",'BUDGET', {|| U_ZGENTEL01('ZAD',ZAD->(RecNo()),nOperation,'Z1',,.F.,aRotina)}) 
+oView:AddUserButton("Aprovac.",'BUDGET', {|| U_ZGENTEL01('ZAD',ZAD->(RecNo()),nOperation,cTipoDoc,,.F.,aRotina)}) 
 
 oView:SetCloseOnOk({||.T.})
 
@@ -165,8 +166,6 @@ local oMldZad    := omodel:GetModel('PR2MASTER')
 local oMdlZAe    := omodel:GetModel('PR3DETAIL')
 Local cDoc       := oMldZad:getValue('ZAD_CONTRA')
 Local cRevis     := oMldZad:getValue('ZAD_REVISA')
-Local cGrupo     := SuperGetMv("DUX_FAT001",.F.,"000110")
-Local cTipoDoc   := SuperGetMv("DUX_FAT002",.F.,"Z1")
 Local Obs        := oMldZad:getValue('ZAD_OBS')
 Local lExcl      := .F.
 Local nOperation := oModel:NOPERATION

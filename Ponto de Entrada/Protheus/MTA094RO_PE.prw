@@ -36,9 +36,9 @@ Local cFilScr	:= ""
 Local cQuery	:= ""
 Local cTmpAlias	:= ""
 Local lProces   := .F.
-Local cTipDoc   := SuperGetMv("DUX_FAT002",.F.,"Z1")
-Local cStatus   := SCR->CR_STATUS
 Local cDoc      := SCR->CR_NUM
+Local cStatus   := SCR->CR_STATUS
+Local cTipDoc   := SuperGetMv("DUX_FAT002",.F.,"Z1")
 
 If cStatus == "01"
     Aviso("[MTA094RO] - Atencao","Esse documento "+AllTrim(cDoc)+" esta Bloqueado (aguardando outros niveis)." + CHR(13),{"Ok"})
