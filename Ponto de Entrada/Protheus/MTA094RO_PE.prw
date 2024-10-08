@@ -14,9 +14,8 @@ User Function MTA094RO()
 
 Local aRotina  := PARAMIXB[1]
 Local aArea    := FwGetArea()
-Local cTipDoc  := SuperGetMv("DUX_FAT002",.F.,"Z1")
 
-    Aadd(aRotina,{"Rejeitar Contato", "U_ZALCREJ(cTipDoc)", 0, 4, 0, NIL})
+    Aadd(aRotina,{"Rejeitar Contrato", "U_ZALCREJ(SCR->CR_TIPO)", 0, 4, 0, NIL})
    
 FWRestArea(aArea)
 
@@ -26,7 +25,7 @@ Return (aRotina)
 	Função que rejeita documentos - Tipos Z1. 
 ----------------------------------------------------*/
 
-User Function ZALCREJ(cTipDoc)
+User Function ZALCREJ(cTpDoc)
 
 Local lRet 		:= .F.
 Local aArea 	:= GetArea()
@@ -37,8 +36,25 @@ Local cFilScr	:= ""
 Local cQuery	:= ""
 Local cTmpAlias	:= ""
 Local lProces   := .F.
+Local cTipDoc   := SuperGetMv("DUX_FAT002",.F.,"Z1")
+Local cStatus   := SCR->CR_STATUS
+Local cDoc      := SCR->CR_NUM
 
-If SCR->CR_TIPO = cTipDoc
+If cStatus == "01"
+    Aviso("[MTA094RO] - Atencao","Esse documento "+AllTrim(cDoc)+" esta Bloqueado (aguardando outros niveis)." + CHR(13),{"Ok"})
+    Return lRet
+Elseif cStatus == "03"
+     Aviso("[MTA094RO] - Atencao","Esse documento "+AllTrim(cDoc)+" ja esta Liberado pelo usuario." + CHR(13),{"Ok"})
+    Return lRet
+Elseif cStatus == "04"
+     Aviso("[MTA094RO] - Atencao","Esse documento "+AllTrim(cDoc)+" esta Bloqueado pelo usuario." + CHR(13),{"Ok"})
+    Return lRet
+Elseif cStatus $ "05|06|07"
+    Aviso("[MTA094RO] - Atencao","Esse documento "+AllTrim(cDoc)+" ja foi Rejeitado." + CHR(13),{"Ok"})
+    Return lRet
+Endif
+
+If cTpDoc = cTipDoc
     Begin Transaction
         If RecLock("SCR",.F.)
             SCR->CR_DATALIB := dDataBase
@@ -120,7 +136,7 @@ If SCR->CR_TIPO = cTipDoc
         Endif
     End Transaction
 Else
-    Aviso("[MTA094RO] - Atencao","Essa opção é apenas para Documentos do Tipo Z1 (Contratos de Bonificação)" + CHR(13),{"Ok"})
+    Aviso("[MTA094RO] - Atencao","Essa opção é apenas para Documentos do Tipo "+cTipDoc+" (Contratos de Bonificação)" + CHR(13),{"Ok"})
 Endif
 
 RestArea(aArea)

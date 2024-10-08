@@ -38,14 +38,9 @@ Restarea(aArea)
 
 Return 
 
-/*/
-@Function:	ModelDef
-@desc:		Monta model da rotina
-@author:	
-@param:     
-@version: 	1.00
-@since: 	
-/*/
+/*----------------------------------------------------
+	Monta MenuDef da rotina 
+----------------------------------------------------*/
 
 Static Function MenuDef()
 
@@ -58,9 +53,13 @@ Local aRotina := {}
 	ADD OPTION aRotina TITLE "Copiar"    			ACTION "VIEWDEF.ZFATF004"   OPERATION 9 ACCESS 0
 	ADD OPTION aRotina TITLE "Revisao"    			ACTION "U_DUXREVISA"        OPERATION 9 ACCESS 0
 	ADD OPTION aRotina TITLE "Banco Conhecimento"   ACTION "MsDocument('ZAD', ZAD->(RecNo()), 4)"	OPERATION 4 ACCESS 0
-	ADD OPTION aRotina TITLE "Liberar Documento"    ACTION "U_ZTELAPROV()"     OPERATION 8 ACCESS 0
+	ADD OPTION aRotina TITLE "Liberar Documento"    ACTION "U_ZTELAPROV()"      OPERATION 8 ACCESS 0
 	
 Return (aRotina)   
+
+/*----------------------------------------------------
+	Monta ModelDef da rotina 
+----------------------------------------------------*/
 
 Static Function ModelDef()
 
@@ -126,14 +125,9 @@ oModel:SetRelation('PR3DETAIL',{{'ZAE_FILIAL','ZAD_FILIAL'},{'ZAE_CONTRA','ZAD_C
 
 Return oModel
 
-/*/
-@Function:	ViewDef
-@desc:		Tela de visualização do arotina.
-@author:	
-@param:     
-@version: 	1.00
-@since: 	
-/*/
+/*----------------------------------------------------
+	Tela de visualização do arotina. 
+----------------------------------------------------*/
 
 Static Function ViewDef()
 
@@ -146,7 +140,6 @@ Local nOperation    := oModel:NOPERATION
 // Cria objeto de VIEW
 oView := FWFormView():New()
 oView:SetModel(oModel)
-
 
 // Adiciona controle do tipo enchoice (antiga)
 oView:AddField("VIEWPR2"	, oStruCab	    , "PR2MASTER")
@@ -211,7 +204,6 @@ User Function DUXREVISA()
 
 Return 
 
-
 User Function zfGrupo()
     Local cCampo    := "ZAD_CLIENT"
 	local cCampos2 := "ZAD_LOJACL" 
@@ -272,24 +264,36 @@ FWRestArea(aAreaSCR)
 
 Return(lExcl)
 
+/*/
+@Function: ZTELAPROV()
+@Desc: Função que chama o Menu de Lieberação de Documentos
+@Author: Jedielson Rodrigues - Dux Company   
+@version: 1.00
+@since: 08/10/2024
+/*/
+
 User Function ZTELAPROV()
 
 Local aAreaSCR   := SCR->(FwGetArea())
 Local oBrowse    := Nil 
 Local ca097User  := RetCodUsr()
-Local lFiltroUs1 := .T.
 Local cFiltraSCR
-LOCAL xFiltroUs	
-LOCAL nx         := 0
-LOCAL aLegenda   := {}
-LOCAL aMT094LEG  := {}	
-Local aRotina    := FwLoadMenuDef("MATA094")
-Local cCad       := "Aprovação de Documentos"
+Local nx         := 0
+Local aLegenda   := {}
+Local cCadastro  := "Aprovação de Documentos"
+
+	If Fwisincallstack('U_ZTELAPROV')
+		aRotina := FwLoadMenuDef("MATA094")
+	Endif
+
+	If FwModeAccess("SCR") <> FwModeAccess("DBM")
+		MsgAlert("Para o correto funcionamento da rotina o compartilhamento das tabelas SCR/DBM precisam estar iguais.")
+	Endif
 
 	dbSelectArea("SAK")
 	dbSetOrder(2)
 	If !MsSeek(xFilial("SAK")+RetCodUsr())
-		Aviso("[A097APROV] - Atencao","Usuário não esta cadastrado como aprovador." + CHR(13),{"Ok"})
+		Help(" ",1,"A097APROV")
 		dbSelectArea("SCR")
 		dbSetOrder(1)
 	Else
@@ -327,20 +331,17 @@ Local cCad       := "Aprovação de Documentos"
 					cFiltraSCR += '".And.(CR_STATUS=="01".OR.CR_STATUS=="04")'
 			EndCase
 
-			//Adicionar a opção no menu padrão
-			ADD OPTION aRotina TITLE "Liberar Documentos" ACTION 'MATA094'    OPERATION 8    ACCES 0
-
 			oBrowse := FWMBrowse():New()
 			oBrowse:SetAlias('SCR')       
 			                                   
 			// Definição da legenda
-			aAdd(aLegenda, { "CR_STATUS=='01'", "BR_AZUL" , "Blqueado (aguardando outros niveis)" }) //"Blqueado (aguardando outros niveis)"
+			aAdd(aLegenda, { "CR_STATUS=='01'", "BR_AZUL" , "Bloqueado (aguardando outros niveis)" }) //"Blqueado (aguardando outros niveis)"
 			aAdd(aLegenda, { "CR_STATUS=='02'", "DISABLE" , "Aguardando Liberacao do usuario" }) //"Aguardando Liberacao do usuario"
 			aAdd(aLegenda, { "CR_STATUS=='03'", "ENABLE"  , "Documento Liberado pelo usuario" }) //"Documento Liberado pelo usuario"
 			aAdd(aLegenda, { "CR_STATUS=='04'", "BR_PRETO", "Documento Bloqueado pelo usuario" }) //"Documento Bloqueado pelo usuario"
 			aAdd(aLegenda, { "CR_STATUS=='05'", "BR_CINZA", "Documento Liberado por outro usuario" }) //"Documento Liberado por outro usuario"
-			aAdd(aLegenda, { "CR_STATUS=='06'", "BR_CANCEL","Documento Rejeitado pelo usuário" }) //"Documento Rejeitado pelo usuário"
-			aAdd(aLegenda, { "CR_STATUS=='07'","BR_AMARELO", "Documento Rejeitado ou Bloqueado por outro usuário" }) //"Documento Rejeitado ou Bloqueado por outro usuário"
+			aAdd(aLegenda, { "CR_STATUS=='06'", "BR_CANCEL","Documento Rejeitado pelo usuario" }) //"Documento Rejeitado pelo usuário"
+			aAdd(aLegenda, { "CR_STATUS=='07'","BR_AMARELO","Documento Rejeitado ou Bloqueado por outro usuario" }) //"Documento Rejeitado ou Bloqueado por outro usuário"
 			
 		
 			FOR nx := 1 TO LEN(aLegenda)
@@ -349,7 +350,7 @@ Local cCad       := "Aprovação de Documentos"
 			
 			oBrowse:SetCacheView(.F.)
 			oBrowse:DisableDetails()
-			oBrowse:SetDescription(cCad)  //"Aprovação de Documentos"
+			oBrowse:SetDescription(cCadastro)  //"Aprovação de Documentos"
 			oBrowse:SetFilterDefault(cFiltraSCR)
 			obrowse:SetChgAll(.F.)
 			obrowse:SetSeeAll(.F.)
@@ -362,11 +363,17 @@ FWRestArea(aAreaSCR)
 
 Return NIL
 
-//Busca o Model da função FATA110
+/*----------------------------------------------------
+	Função que chama ModelDefs do programa MATA094
+----------------------------------------------------*/
+
 Static Function ModelDefs()
 Return FWLoadModel('MATA094')
+
+/*----------------------------------------------------
+	Função que chama ViewDefs do programa MATA094
+----------------------------------------------------*/
     
-//Busca o View da função FATA110
 Static Function ViewDefs()
 Return FWLoadView('MATA094')
 
