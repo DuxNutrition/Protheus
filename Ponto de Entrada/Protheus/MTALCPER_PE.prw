@@ -33,10 +33,10 @@ Return(aAlc)
 Static function visuZAD(cChv)
 
 Local   aArea     := FwGetArea()
-Private cTela	  := "Contratos de Bonificão"
-Private cCadastro := "Contratos de Bonificão"
+Private cTela	  := "Contratos de Bonificação"
+Private cCadastro := "Contratos de Bonificação"
 
-Default cChv:= ''
+Default cChv := ''
 
 ZAD->(dbSetOrder(1))
 If ZAD->(dbSeek(cChv))
@@ -58,7 +58,7 @@ Local lRet  := .F.
 
 Default cChv := " "
 
-cChv:= AllTrim(cChv)
+cChv := AllTrim(cChv)
 
 If EMPTY(cChv)
 	Return .F.

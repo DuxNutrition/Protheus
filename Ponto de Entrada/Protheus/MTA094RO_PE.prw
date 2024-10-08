@@ -12,8 +12,8 @@ O Ponto de Entrada MTA094RO, localizado na rotina de Liberação de Documento, per
 
 User Function MTA094RO()
 
-Local aRotina  := PARAMIXB[1]
-Local aArea    := FwGetArea()
+Local aRotina := PARAMIXB[1]
+Local aArea   := FwGetArea()
 
     Aadd(aRotina,{"Rejeitar Contrato", "U_ZALCREJ(SCR->CR_TIPO)", 0, 4, 0, NIL})
    
