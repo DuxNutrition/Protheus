@@ -1,7 +1,7 @@
 #INCLUDE 'PROTHEUS.CH'
 #INCLUDE "FWMVCDEF.ch"
 
-/*/{Protheus.doc} 
+/*/{Protheus.doc} ZFATF004
 Programa que faz o controle dos Contratos de Bonificação.
 @author Totvs
 @since 30/09/2024
@@ -27,10 +27,9 @@ Private N := 1
 oBrowse := FWMBrowse():New()
 oBrowse:SetAlias("ZAD")
 oBrowse:SetDescription("Cadastro Contratos de descontos")
-oBrowse:AddLegend( "ZAD_SITUACA == '1' .AND. ZAD_STATUS == '1'","GREEN","Ativo/ Aprovado" )
-oBrowse:AddLegend( "ZAD_SITUACA == '2'", "RED","Inativo")
-oBrowse:AddLegend( "ZAD_STATUS == '2'","BR_AZUL","Em aprovação")
-oBrowse:AddLegend( "ZAD_STATUS == '3'","BR_CANCEL","Rejeitado pelo Aprovador/ Estornado")
+oBrowse:AddLegend( "ZAD_STATUS == '1'","GREEN","Ativo/ Aprovado")
+oBrowse:AddLegend( "ZAD_STATUS == '2'","BR_AZUL","Inativo/ Em aprovação")
+oBrowse:AddLegend( "ZAD_STATUS == '3'","BR_CANCEL","Inativo/ Rejeitado")
 oBrowse:SetUseFilter( .T. )
 oBrowse:SetSeek(.T.,aSeekTmp)
 oBrowse:Activate()
@@ -52,9 +51,9 @@ Local aRotina := {}
 	ADD OPTION aRotina TITLE "Alterar"  			ACTION "VIEWDEF.ZFATF004"	OPERATION 4 ACCESS 0
 	ADD OPTION aRotina TITLE "Excluir"    			ACTION "VIEWDEF.ZFATF004"   OPERATION 5 ACCESS 0
 	ADD OPTION aRotina TITLE "Copiar"    			ACTION "VIEWDEF.ZFATF004"   OPERATION 9 ACCESS 0
-	ADD OPTION aRotina TITLE "Revisao"    			ACTION "U_DUXREVISA"        OPERATION 9 ACCESS 0
+	ADD OPTION aRotina TITLE "Revisao"    			ACTION "U_ZFATF04B()"       OPERATION 9 ACCESS 0
 	ADD OPTION aRotina TITLE "Banco Conhecimento"   ACTION "MsDocument('ZAD', ZAD->(RecNo()), 4)"	OPERATION 4 ACCESS 0
-	ADD OPTION aRotina TITLE "Liberar Documento"    ACTION "U_ZTELAPROV()"      OPERATION 8 ACCESS 0
+	ADD OPTION aRotina TITLE "Liberar Documento"    ACTION "U_ZFATF04A()"       OPERATION 8 ACCESS 0
 	
 Return (aRotina)   
 
@@ -72,7 +71,7 @@ Local nAtual :=  1
 aGatilhos:={}
  aAdd(aGatilhos, FWStruTriggger(    "ZAD_CLIENT",;                                //Campo Origem
                                     "ZAD_NOMCLI",;                                //Campo Destino
-                                    "u_zfGrupo()",;                               //Regra de Preenchimento
+                                    "U_ZFATF04C()",;                               //Regra de Preenchimento
                                     .F.,;                                         //Irá Posicionar?
                                     "",;                                          //Alias de Posicionamento
                                     0,;                                           //Índice de Posicionamento
@@ -92,7 +91,7 @@ oModel := MPFormModel():New("MZFATF004",,{ |oModel| DUXCTR( oModel ) })
 
 // Adiciona ao modelo uma estrutura de formulario de edicao por campo
 oModel:AddFields("PR2MASTER",/*cOwner*/ ,oStruCab)
-IF Fwisincallstack('U_DUXREVISA')
+IF Fwisincallstack('U_ZFATF04B')
 	oStruItens:SetProperty('ZAE_CONTRA',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"ZAD->ZAD_CONTRA"))
 	oStruCab:SetProperty('ZAD_CONTRA',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"ZAD->ZAD_CONTRA"))
 	
@@ -154,13 +153,13 @@ oView:CreateHorizontalBox("ITENS"   ,60)
 oView:SetOwnerView("VIEWPR2"	,"TELA")
 oView:SetOwnerView("VIEWITENS"	,"ITENS")
 //oView:SetOwnerView("VIEWRODA"	,"RODA")
-oView:AddUserButton("Aprovac.",'BUDGET', {|| U_ZGENTEL01('ZAD',ZAD->(RecNo()),nOperation,cTipoDoc,,.F.,aRotina)}) 
+oView:AddUserButton("Aprovac.",'BUDGET', {|| U_ZGENF004('ZAD',ZAD->(RecNo()),nOperation,cTipoDoc,,.F.,aRotina)}) 
 
 oView:SetCloseOnOk({||.T.})
 
 Return oView
 
-static Function DUXCTR( omodel )
+Static Function DUXCTR( omodel )
 
 local oMldZad    := omodel:GetModel('PR2MASTER')
 local oMdlZAe    := omodel:GetModel('PR3DETAIL')
@@ -195,7 +194,7 @@ Endif
 
 Return .T.
 
-User Function DUXREVISA()
+User Function ZFATF04B()
 
 	If MsgYesno('Deseja efetuar nova revisão, a atual sera desativada')
 		 FWExecView( 'Revisão', 'ZFATF004', OP_COPIA,, {|| .T.} )
@@ -203,7 +202,7 @@ User Function DUXREVISA()
 
 Return 
 
-User Function zfGrupo()
+User Function ZFATF04C()
     Local cCampo    := "ZAD_CLIENT"
 	local cCampos2 := "ZAD_LOJACL" 
     Local cRetorno  := 'Grupo Teste'
@@ -211,29 +210,6 @@ User Function zfGrupo()
     //Você pode usar o mesmo gatilho para atualizar outros campos com o FwFldPut, como
     //FwFldPut(cCampo, cConteudo,,,, .T.)
 Return cRetorno
-
-User Function FtMsRel()
- 
-Local aRet    As Array
-Local aChave  As Array
-Local bMostra As Block
-Local cTabela As Character
-Local aFields As Array
- 
-//Array
-aRet := {}
-// Tabela do usuario
-cTabela := 'ZAD'
-// Campos que compoe a chave na ordem. Nao  passar filial (automatico)
-aChave  := { 'ZAD_CONTRA','ZAD_REVISA','ZAD_CLIENT','ZAD_LOJACL'}
-// Bloco de codigo a ser exibido
-bMostra := { ||ZAD->ZAD_CONTRA + ZAD->ZAD_REVISA +ZAD->ZAD_CLIENT + ZAD->ZAD_LOJACL}       
-//Array com os campos que identificam os campos utilizados na descrição
-aFields := {'ZAD_CONTRA','ZAD_REVISA','ZAD_CLIENT','ZAD_LOJACL'}                                
-// funcoes do sistema para identificar o registro
-AAdd( aRet, { cTabela, aChave, bMostra,aFields }  )
-
-Return aRet
 
 /*----------------------------------------------------
 	Função que exclui os itens da tabela SCR. 
@@ -264,14 +240,14 @@ FWRestArea(aAreaSCR)
 Return(lExcl)
 
 /*/
-@Function: ZTELAPROV()
+@Function: ZFATF04A()
 @Desc: Função que chama o Menu de Lieberação de Documentos
 @Author: Jedielson Rodrigues - Dux Company   
 @version: 1.00
 @since: 08/10/2024
 /*/
 
-User Function ZTELAPROV()
+User Function ZFATF04A()
 
 Local aAreaSCR   := SCR->(FwGetArea())
 Local oBrowse    := Nil 
@@ -281,7 +257,7 @@ Local nx         := 0
 Local aLegenda   := {}
 Local cCadastro  := "Aprovação de Documentos"
 
-	If Fwisincallstack('U_ZTELAPROV')
+	If Fwisincallstack('U_ZFATF04A')
 		aRotina := FwLoadMenuDef("MATA094")
 	Endif
 

@@ -13,7 +13,7 @@ Tela que consulta os status de Aprovacoes dos Documentos.
 @See 
 /*/
 
-User Function ZGENTEL01(cAlias,nReg,nOpcx,cTipoDoc,lStatus,lResid,aRotina)
+User Function ZGENF004(cAlias,nReg,nOpcx,cTipoDoc,lStatus,lResid,aRotina)
 
 Local aArea			:= GetArea()
 Local aSavCols		:= {}
