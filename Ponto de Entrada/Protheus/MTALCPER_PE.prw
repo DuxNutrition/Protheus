@@ -18,7 +18,7 @@ Local aArea    := FwGetArea()
 Local aAreaSCR := SCR->(FwGetArea())
 
 If SCR->CR_TIPO == cDoc
-    aAdd(aAlc,{SCR->CR_TIPO,'ZAD',1,'ZAD->ZAD_CONTRA',{||visuZAD(AllTrim(SCR->(CR_FILIAL+CR_NUM)))},{||U_ZFATF006(AllTrim(SCR->(CR_FILIAL+CR_NUM)))},{'ZAD->ZAD_STATUS',"2","1","3"}})
+    aAdd(aAlc,{SCR->CR_TIPO,'ZAD',1,'ZAD->ZAD_CONTRA',{||visuZAD(AllTrim(SCR->(CR_FILIAL+CR_NUM)))},{||U_ZFATF006(AllTrim(SCR->(CR_FILIAL+CR_NUM)))},{'ZAD->ZAD_STATUS',,,"3"}})
 Endif
 
 FWRestArea(aArea)

@@ -13,16 +13,18 @@ Função genérica que cria registro na tabela SCR.
 
 User Function ZGENSCR(cDoc,cRevis,cTipoDoc,cGrupo,Obs)
 
-Local aArea    := FwGetArea() 
-Local aAreaSAL := SAL->(FwGetArea())
-Local aAreaSCR := SCR->(FwGetArea())
-Local aAreaSC7 := SC7->(FwGetArea())
-Local aAreaZAD := ZAD->(FwGetArea())
-Local cFilSCR  := AllTrim(FWFilial())                                          
-Local dDataRef := dDatabase
-Local cUserOri := " "
-Local cItGrp   := " "
-Local cNivel   := " "
+Local aArea     := FwGetArea() 
+Local aAreaSAL  := SAL->(FwGetArea())
+Local aAreaSCR  := SCR->(FwGetArea())
+Local aAreaSC7  := SC7->(FwGetArea())
+Local aAreaZAD  := ZAD->(FwGetArea())
+Local cFilSCR   := AllTrim(FWFilial())                                          
+Local dDataRef  := dDatabase
+Local cUserOri  := " "
+Local cItGrp    := " "
+Local cNivel    := " "
+Local cAuxNivel := " "
+Local lFirstNiv := .T.
 
 Default cDoc     := " "
 Default cRevis   := " "
@@ -40,6 +42,11 @@ Default Obs      := " "
 			cNivel    := SAL->AL_NIVEL
 			cItGrp	  := SAL->AL_ITEM
 
+            If lFirstNiv
+                cAuxNivel := SAL->AL_NIVEL
+                lFirstNiv := .F.
+			EndIf
+
 			Reclock("SCR",.T.)
 				SCR->CR_FILIAL	:= cFilSCR
 				SCR->CR_NUM		:= cDoc
@@ -47,7 +54,7 @@ Default Obs      := " "
 				SCR->CR_NIVEL	:= cNivel
 				SCR->CR_USER	:= cUserOri
 				SCR->CR_APROV	:= cAprovOri
-				SCR->CR_STATUS	:= IIF(SAL->AL_NIVEL == cNivel  ,"02","01")
+				SCR->CR_STATUS	:= IIF(SAL->AL_NIVEL == cAuxNivel  ,"02","01")
 				SCR->CR_TOTAL	:= 0
 				SCR->CR_EMISSAO	:= dDataRef
 				SCR->CR_MOEDA	:= 0
