@@ -30,17 +30,18 @@ User function ZWSR006()
 	Local cError := ""
 	Local cWarning := ""
 	Local oXml := NIL
+	Local cAlias2
 
 	If IsBlind()
 		Conout("JOB ZWSR006 (BUSCA XML) INICIADO NA DATA: "+Dtos(Date())+" NO HORÁRIO: "+TIME()+" ")
-		PREPARE ENVIRONMENT EMPRESA cEmpAnt FILIAL cFilAnt MODULO "FAT" 
+		PREPARE ENVIRONMENT EMPRESA cEmpAnt FILIAL cFilAnt MODULO "FAT"
 	Endif
 
 
 	aadd(aHeader,'Authorization: Bearer '+cBearer)
 	aadd(aHeader,'Content-Type: application/json;charset=UTF-8')
 
-	ValidSTAT("XML")
+	cAlias2 := ValidSTAT("XML")
 
 	While (cAlias2)->(!eof())
 		oRest := FWRest():new(cURL)
@@ -83,7 +84,7 @@ User function ZWSR006()
     endif 
     (cAlias2)->(DbSkip())
     
-Enddo
+	Enddo
 (cAlias2)->(dbCloseArea())
 
 If IsBlind()
@@ -128,7 +129,7 @@ if (cAlias2)->(!Eof())
     lRet := .T. 
 endif 
 
-Return(lRet) 
+Return(cAlias2) 
 
 
 Static Function pegaJson()
