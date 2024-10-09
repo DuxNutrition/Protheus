@@ -62,6 +62,14 @@ User Function DuxFatA(cXml,cNumPed,cNumId,cRecno)
 			if ValCnpj(cCnpj)
 				lRet := .T.
 				u_DuxFatB(@oXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
+			else 
+				DbSelectArea("ZFR")
+				ZFR->(dbgoto(cRecno))
+				RecLock("ZFR",.F.)
+				ZFR->ZFR_ERROR := ("Falha - CNPJ NÃO ENCONTRADO : "+cError+" / "+cWarning)
+				ZFR->ZFR_STERRO := "40"
+				ZFR->(MsUnlock())
+				Return
 			endif
 		endif
 	Endif

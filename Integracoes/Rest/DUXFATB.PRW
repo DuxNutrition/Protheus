@@ -11,14 +11,14 @@
 ฑฑบDesc.    ณ Tela de compara็ใo de SC9 com XML da ZFR                               บฑฑ
 ฑฑบ         ณ                                                                        บฑฑ
 ฑฑฬอออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบParametr.ณ @ExpC1=Numero do Banco                                                 บฑฑ
-ฑฑบ         ณ @ExpC2=Nummero da Agencia                                              บฑฑ
-ฑฑบ         ณ @ExpC2=Conta Corrente                                                  บฑฑ
+ฑฑบParametr.ณ @ExpC1=XML                         @ExpC4= Recno                       บฑฑ
+ฑฑบ         ณ @ExpC2=Numero pedido               @ExpC5= Cnpj                        บฑฑ
+ฑฑบ         ณ @ExpC3=Numero ID                   @ExpC6= Chave                       บฑฑ
 ฑฑฬอออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบRetorno  ณ Retorna as variaveis passadas por referencia @cBanco, @cAgencia e      บฑฑ
-ฑฑบ         ณ @cConta.                                                               บฑฑ
+ฑฑบRetorno  ณ Retorno l๓gico                                                         บฑฑ
+ฑฑบ         ณ                                                                        บฑฑ
 ฑฑฬอออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso      ณ Dux                                                                  บฑฑ
+ฑฑบUso      ณ Dux                                                                    บฑฑ
 ฑฑฬอออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
 ฑฑบ                 ATUALIZACOES SOFRIDAS DESDE A CONSTRUCAO INICIAL                 บฑฑ
 ฑฑฬอออออออออออออออัอออออออออัออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ

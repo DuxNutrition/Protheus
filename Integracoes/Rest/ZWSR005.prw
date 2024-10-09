@@ -71,7 +71,10 @@ User function ZWSR005(cId)
 			ZFR->(MsUnlock())
 			lRet := .T.
 		else
+			RecLock("ZFR",.F.)
 			ZFR->ZFR_ERROR := "Erro no envio de PATH para INFRACOMMERCE "
+			ZFR->ZFR_STERRO := "20"
+			ZFR->(MsUnlock())
 			lRet := .F.
 		endif
 
