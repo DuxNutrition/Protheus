@@ -10,12 +10,13 @@ Atualiza o status do documento na tabela ZAD na opção Estorno de Documento.
 @return 
 /*/
 
-User function ZFATF006(cChv)
+User function ZFATF006(cChv,cMotRej)
 
 Local aArea := FwGetArea()
 Local lRet  := .F.
 
-Default cChv := " "
+Default cChv    := " "
+Default cMotRej := " "
 
 cChv := AllTrim(cChv)
 
@@ -29,6 +30,7 @@ If ZAD->(dbSeek(cChv))
 
 	RecLock('ZAD',.F.)
 	ZAD->ZAD_STATUS := "3"
+	ZAD->ZAD_OBS    := cMotRej
 	ZAD->(msUnlock())
 Endif
 

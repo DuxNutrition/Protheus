@@ -24,6 +24,11 @@ Local lProces   := .F.
 Local cDoc      := SCR->CR_NUM
 Local cStatus   := SCR->CR_STATUS
 Local cTipDoc   := SuperGetMv("DUX_FAT002",.F.,"Z1")
+Local cMotRej   := MotRej(cTpDoc)
+
+If Empty(cMotRej)
+    Return lRet
+Endif
 
 If cStatus == "01"
     Aviso("[MTA094RO] - Atencao","Esse documento "+AllTrim(cDoc)+" esta Bloqueado (aguardando outros niveis)." + CHR(13),{"Ok"})
@@ -45,7 +50,8 @@ If cTpDoc = cTipDoc
             SCR->CR_DATALIB := dDataBase
             SCR->CR_USERLIB := SCR->CR_USER
             SCR->CR_LIBAPRO := SCR->CR_APROV
-            SCR->CR_STATUS := "06"
+            SCR->CR_STATUS  := "06"
+            SCR->CR_OBS     := cMotRej
             If SCR->(MsUnlock())
                 //- Realiza rejeição do documento originador da aprovação.
                 If cTipDoc $ "CT|IC|RV|IR|Z1"
@@ -113,7 +119,7 @@ If cTpDoc = cTipDoc
             DisarmTransaction()
             Aviso("[MTA094RO] - Atencao","Não foi possível rejeitar o Documento." + CHR(13),{"Ok"})
         Else
-            lProces := U_ZFATF006(AllTrim(SCR->(CR_FILIAL+CR_NUM)))
+            lProces := U_ZFATF006(AllTrim(SCR->(CR_FILIAL+CR_NUM)),cMotRej)
             If !lProces
                 Aviso("[MTA094RO] - Atencao","Não foi possível atualizar o status de Rejeição do item na tabela ZAD." + CHR(13),{"Ok"})
             Endif
@@ -127,3 +133,28 @@ Endif
 RestArea(aArea)
 
 Return lRet
+
+/*--------------------------------------------
+	Tela para informar o motivo de Rejeição.
+---------------------------------------------*/
+
+Static Function MotRej(cTpDoc)
+
+Local oDlg	  := Nil
+Local cMotivo := Space(150)
+Local llBtOk  := .F.
+Local olMot	  := Nil
+	
+IF cTpDoc == 'Z1'
+    DEFINE MSDIALOG oDlg FROM 150, 180 To 285, 700 TITLE "Motivo de Rejeição "PIXEL
+    
+    @ 010,007 Say "Motivo :" OF oDlg PIXEL
+    @ 020,007 MSGET olMot VAR cMotivo PICTURE "@!" SIZE 250,11 	PIXEL
+
+    DEFINE SBUTTON FROM 050, 200 TYPE 1 ENABLE ACTION {|| If(Empty(cMotivo), MsgStop("O campo 'Motivo' é obrigatório!"), oDlg:End()) } OF oDlg
+    DEFINE SBUTTON FROM 050, 230 TYPE 2 ENABLE ACTION {|| llBtOk := FWAlertNoYes("Deseja cancelar a Rejeicao", "Atencao"),If(llBtOk == .T., oDlg:End(),) } OF oDlg
+   
+    Activate Dialog oDlg Centered
+Endif
+		
+Return (cMotivo)

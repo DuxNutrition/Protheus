@@ -22,6 +22,7 @@ Local cDocSF1   := ParamIXB[4]
 Local lResiduo  := ParamIXB[5]   
 Local cDoc      := AllTrim(aDocto[1])
 Local cTipoDoc  := aDocto[2]
+Local lScr      := .F.
 Local lRet      := .T.
 Local lFirstNiv := .T.
 Local lFirstNiv2 := .T.
@@ -39,13 +40,8 @@ If cTipoDoc == 'Z1'
                 lFirstNiv := .F.
 			EndIf
            
-           Do Case
+            Do Case
                 Case SCR->CR_STATUS == "03"    
-                    DbGoTo(SCR->(RecNo()))
-                    RecLock('SCR',.F.)
-                    SCR->CR_STATUS := IIF(SCR->CR_NIVEL == cAuxNivel  ,"03","05")
-                    SCR->(MsUnlock())
-
                     DbSelectArea("ZAD")
                     ZAD->(dbSetOrder(2))
                     If ZAD->(MsSeek(FwFilial("ZAD") + cDoc))	
@@ -120,18 +116,34 @@ If cTipoDoc == 'Z1'
                         ZAD->ZAD_STATUS := "3"
                         ZAD->(MsUnlock())
                     Endif
-                OtherWise 
-                    DbGoTo(SCR->(RecNo()))
-                    RecLock('SCR',.F.)
-                    SCR->CR_STATUS	:= "02"
-                    SCR->(MsUnlock())
+                Case SCR->CR_STATUS == "02"
+                    lScr := ConSCR(cFilScr,cDoc,cTipoDoc,SCR->CR_NIVEL)
+                    If lScr == .T.
+                        DbGoTo(SCR->(RecNo()))
+                        RecLock('SCR',.F.)
+                        SCR->CR_STATUS	:= "05"
+                        SCR->(MsUnlock())
 
-                    DbSelectArea("ZAD")
-                    ZAD->(dbSetOrder(2))
-                    If ZAD->(MsSeek(FwFilial("ZAD") + cDoc))	
-                        Reclock("ZAD",.F.)
-                        ZAD->ZAD_STATUS := "2"
-                        ZAD->(MsUnlock())
+                        DbSelectArea("ZAD")
+                        ZAD->(dbSetOrder(2))
+                        If ZAD->(MsSeek(FwFilial("ZAD") + cDoc))	
+                            Reclock("ZAD",.F.)
+                            ZAD->ZAD_STATUS := "1"
+                            ZAD->(MsUnlock())
+                        Endif
+                    Else
+                        DbGoTo(SCR->(RecNo()))
+                        RecLock('SCR',.F.)
+                        SCR->CR_STATUS	:= "02"
+                        SCR->(MsUnlock())
+
+                        DbSelectArea("ZAD")
+                        ZAD->(dbSetOrder(2))
+                        If ZAD->(MsSeek(FwFilial("ZAD") + cDoc))	
+                            Reclock("ZAD",.F.)
+                            ZAD->ZAD_STATUS := "2"
+                            ZAD->(MsUnlock())
+                        Endif
                     Endif
             EndCase
 
@@ -147,4 +159,42 @@ FWRestArea(aAreaZAD)
 
 Return(lRet)
 
+/*-----------------------------------------------------------
+	Consulta se existe SCR com o mesmo nível com Status 03.
+-----------------------------------------------------------*/
+
+Static Function ConSCR(cFilScr,cNumDoc,cTipoDoc,cNivel)
+
+Local cQuery    := " "
+Local cTmpAlias := GetNextAlias()
+Local aAreaSCR  := SCR->(FwGetArea())
+Local lRet      := .F.  
+
+    If Select( cTmpAlias ) > 0
+		(cTmpAlias)->(DbCloseArea())
+	EndIf
+
+    cQuery := " SELECT "+ CRLF
+    cQuery += " SCR.R_E_C_N_O_ "+ CRLF
+    cQuery += " FROM " + RetSqlName("SCR") + " SCR WITH(NOLOCK) "+ CRLF
+    cQuery += " WHERE SCR.CR_FILIAL = '"+cFilScr+"' "+ CRLF
+    cQuery += " AND SCR.CR_NUM = '"+cNumDoc+"' "+ CRLF
+    cQuery += " AND SCR.CR_TIPO = '"+cTipoDoc+"' "+ CRLF
+    cQuery += " AND SCR.CR_STATUS = '03' "+ CRLF
+    cQuery += " AND SCR.CR_NIVEL = '"+cNivel+"' "+ CRLF
+    cQuery += " AND SCR.D_E_L_E_T_ = ' ' "+ CRLF
+
+    dbUseArea(.T.,"TOPCONN",TcGenQry(,,cQuery),cTmpAlias := GetNextAlias(),.T.,.T.)
+
+    While !(cTmpAlias)->(EOF())
+        SCR->(MsGoto((cTmpAlias)->R_E_C_N_O_))
+            lRet := .T.
+        (cTmpAlias)->(DbSkip())
+    EndDo
+
+    (cTmpAlias)->(DbCloseArea())
+
+    RestArea(aAreaSCR )
+
+Return lRet
 
