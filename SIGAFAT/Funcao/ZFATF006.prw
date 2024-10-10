@@ -1,7 +1,7 @@
 #INCLUDE 'TOTVS.CH'
 #INCLUDE 'PROTHEUS.CH'
 
-/*/	{Protheus.doc} FATF006
+/*/	{Protheus.doc} ZFATF006
 Atualiza o status do documento na tabela ZAD na opção Estorno de Documento. 
 @See 
 @type function
@@ -10,7 +10,7 @@ Atualiza o status do documento na tabela ZAD na opção Estorno de Documento.
 @return 
 /*/
 
-User function FATF006(cChv)
+User function ZFATF006(cChv)
 
 Local aArea := FwGetArea()
 Local lRet  := .F.

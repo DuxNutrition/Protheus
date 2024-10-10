@@ -35,7 +35,7 @@ Elseif cStatus == "04"
      Aviso("[MTA094RO] - Atencao","Esse documento "+AllTrim(cDoc)+" esta Bloqueado pelo usuario." + CHR(13),{"Ok"})
     Return lRet
 Elseif cStatus $ "05|06|07"
-    Aviso("[MTA094RO] - Atencao","Esse documento "+AllTrim(cDoc)+" ja foi Rejeitado." + CHR(13),{"Ok"})
+    Aviso("[MTA094RO] - Atencao","Esse documento "+AllTrim(cDoc)+"  esta Aprovado/rejeitado pelo nível." + CHR(13),{"Ok"})
     Return lRet
 Endif
 
@@ -113,7 +113,7 @@ If cTpDoc = cTipDoc
             DisarmTransaction()
             Aviso("[MTA094RO] - Atencao","Não foi possível rejeitar o Documento." + CHR(13),{"Ok"})
         Else
-            lProces := U_FATF006(AllTrim(SCR->(CR_FILIAL+CR_NUM)))
+            lProces := U_ZFATF006(AllTrim(SCR->(CR_FILIAL+CR_NUM)))
             If !lProces
                 Aviso("[MTA094RO] - Atencao","Não foi possível atualizar o status de Rejeição do item na tabela ZAD." + CHR(13),{"Ok"})
             Endif
