@@ -24,11 +24,7 @@ Local lProces   := .F.
 Local cDoc      := SCR->CR_NUM
 Local cStatus   := SCR->CR_STATUS
 Local cTipDoc   := SuperGetMv("DUX_FAT002",.F.,"Z1")
-Local cMotRej   := MotRej(cTpDoc)
-
-If Empty(cMotRej)
-    Return lRet
-Endif
+Local cMotRej   := " "
 
 If cStatus == "01"
     Aviso("[MTA094RO] - Atencao","Esse documento "+AllTrim(cDoc)+" esta Bloqueado (aguardando outros niveis)." + CHR(13),{"Ok"})
@@ -45,6 +41,10 @@ Elseif cStatus $ "05|06|07"
 Endif
 
 If cTpDoc = cTipDoc
+    cMotRej := MotRej(cTpDoc)
+    If Empty(cMotRej)
+        Return lRet
+    Endif
     Begin Transaction
         If RecLock("SCR",.F.)
             SCR->CR_DATALIB := dDataBase

@@ -1,7 +1,7 @@
 #INCLUDE 'TOTVS.CH'
 #INCLUDE 'PROTHEUS.CH'
 
-/*/	{Protheus.doc} MTA094RO
+/*/	{Protheus.doc} MTALCFIM
 Ponto de Entrada MTALCFIM no final da função MaAlcDoc - Controla a alçada dos documentos.
 @See https://tdn.totvs.com/display/public/PROT/MTALCFIM
 @type Function
