@@ -101,7 +101,7 @@ IF Fwisincallstack('U_ZFATF04B')
 ENDIF
 //Adiciona grid de itens
 oModel:AddGrid("PR3DETAIL", "PR2MASTER" ,oStruItens )
-oModel:SetPrimaryKey( {"ZAD_FILIAL","ZAD_CONTRA","ZAD_REVISA","ZAD_CLIENT","ZAD_LOJA"} )
+oModel:SetPrimaryKey( {'ZAD_FILIAL','ZAD_CONTRA','ZAD_REVISA','ZAD_CLIENT','ZAD_LOJA'} )
 //Seta chave unica do grid de itens.
                                                 // [04] Bloco de codigo de execução do gatilho
 		
@@ -122,7 +122,6 @@ oModel:SetRelation('PR3DETAIL',{{'ZAE_FILIAL','ZAD_FILIAL'},{'ZAE_CONTRA','ZAD_C
 //oModel:AddCalc('TOT_SALDO', 'PR2MASTER', 'PR3DETAIL', 'ZAE_VLDESC', 'XX_TOTA', 'SUM', , , 'Vl Descont Total:' )
 
 // Criar uma chave primaria
-
 
 Return oModel
 
@@ -167,6 +166,7 @@ local oMdlZAe    := omodel:GetModel('PR3DETAIL')
 Local cDoc       := oMldZad:getValue('ZAD_CONTRA')
 Local cRevis     := oMldZad:getValue('ZAD_REVISA')
 Local Obs        := oMldZad:getValue('ZAD_OBS')
+Local cFilSCR    := AllTrim(FWFilial())
 Local lExcl      := .F.
 Local nOperation := oModel:NOPERATION
 local nu         := 0 
@@ -174,7 +174,7 @@ local nu         := 0
 If nOperation <> MODEL_OPERATION_DELETE
  For nU := 1 to oMdlZAe:Length()
 	oMdlZAe:goline(nU)
-	oMdlZAe:LoadValue('ZAE_FILIAL',oMldZad:getValue('ZAD_FILIAL'))
+	oMdlZAe:LoadValue('ZAE_FILIAL',cFilSCR)
 	oMdlZAe:LoadValue('ZAE_CONTRA',oMldZad:getValue('ZAD_CONTRA'))
 	oMdlZAe:LoadValue('ZAE_REVISA',oMldZad:getValue('ZAD_REVISA'))
 	oMdlZAe:LoadValue('ZAE_CLIENT',oMldZad:getValue('ZAD_CLIENT'))
