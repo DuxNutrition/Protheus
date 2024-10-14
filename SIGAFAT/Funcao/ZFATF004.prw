@@ -166,7 +166,6 @@ local oMdlZAe    := omodel:GetModel('PR3DETAIL')
 Local cDoc       := oMldZad:getValue('ZAD_CONTRA')
 Local cRevis     := oMldZad:getValue('ZAD_REVISA')
 Local Obs        := oMldZad:getValue('ZAD_OBS')
-Local cFilSCR    := AllTrim(FWFilial())
 Local lExcl      := .F.
 Local nOperation := oModel:NOPERATION
 local nu         := 0 
@@ -174,7 +173,7 @@ local nu         := 0
 If nOperation <> MODEL_OPERATION_DELETE
  For nU := 1 to oMdlZAe:Length()
 	oMdlZAe:goline(nU)
-	oMdlZAe:LoadValue('ZAE_FILIAL',cFilSCR)
+	oMdlZAe:LoadValue('ZAE_FILIAL',oMldZad:getValue('ZAD_CONTRA'))
 	oMdlZAe:LoadValue('ZAE_CONTRA',oMldZad:getValue('ZAD_CONTRA'))
 	oMdlZAe:LoadValue('ZAE_REVISA',oMldZad:getValue('ZAD_REVISA'))
 	oMdlZAe:LoadValue('ZAE_CLIENT',oMldZad:getValue('ZAD_CLIENT'))
