@@ -92,6 +92,7 @@ oModel := MPFormModel():New("MZFATF004",,{ |oModel| DUXCTR( oModel ) })
 // Adiciona ao modelo uma estrutura de formulario de edicao por campo
 oModel:AddFields("PR2MASTER",/*cOwner*/ ,oStruCab)
 IF Fwisincallstack('U_ZFATF04B')
+	oStruItens:SetProperty('ZAE_FILIAL',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"ZAD->ZAD_FILIAL"))
 	oStruItens:SetProperty('ZAE_CONTRA',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"ZAD->ZAD_CONTRA"))
 	oStruCab:SetProperty('ZAD_CONTRA',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"ZAD->ZAD_CONTRA"))
 	
@@ -100,7 +101,7 @@ IF Fwisincallstack('U_ZFATF04B')
 ENDIF
 //Adiciona grid de itens
 oModel:AddGrid("PR3DETAIL", "PR2MASTER" ,oStruItens )
-oModel:SetPrimaryKey( {"ZAD_FILIAL","ZAD_CONTRA","ZAD_REVISA","ZAE_CLIENT"} )
+oModel:SetPrimaryKey( {"ZAD_FILIAL","ZAD_CONTRA","ZAD_REVISA","ZAD_CLIENT","ZAD_LOJA"} )
 //Seta chave unica do grid de itens.
                                                 // [04] Bloco de codigo de execução do gatilho
 		
@@ -133,7 +134,7 @@ Static Function ViewDef()
 
 Local oModel		:= FWLoadModel( "ZFATF004" )
 Local oStruCab		:= FWFormStruct(2,"ZAD")
-Local oStruItens	:= FWFormStruct(2,"ZAE" , {|cField| !(AllTrim(Upper(cField)) $ "ZAE_CONTRA|ZAE_REVISA|ZAE_CLIENT|ZAE_LOJACL")})
+Local oStruItens	:= FWFormStruct(2,"ZAE" , {|cField| !(AllTrim(Upper(cField)) $ "ZAE_FILIAL|ZAE_CONTRA|ZAE_REVISA|ZAE_CLIENT|ZAE_LOJACL")})
 Local oView			:= NIL
 Local nOperation    := oModel:NOPERATION
 //Local oStTot        := FWCalcStruct(oModel:GetModel('TOT_SALDO'))
@@ -173,6 +174,7 @@ local nu         := 0
 If nOperation <> MODEL_OPERATION_DELETE
  For nU := 1 to oMdlZAe:Length()
 	oMdlZAe:goline(nU)
+	oMdlZAe:LoadValue('ZAE_FILIAL',oMldZad:getValue('ZAD_FILIAL'))
 	oMdlZAe:LoadValue('ZAE_CONTRA',oMldZad:getValue('ZAD_CONTRA'))
 	oMdlZAe:LoadValue('ZAE_REVISA',oMldZad:getValue('ZAD_REVISA'))
 	oMdlZAe:LoadValue('ZAE_CLIENT',oMldZad:getValue('ZAD_CLIENT'))
