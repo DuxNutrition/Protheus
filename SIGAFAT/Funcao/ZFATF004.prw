@@ -1,5 +1,5 @@
-#INCLUDE 'PROTHEUS.CH'
-#INCLUDE "FWMVCDEF.ch"
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "FWMVCDEF.CH" 
 
 /*/{Protheus.doc} ZFATF004
 Programa que faz o controle dos Contratos de Bonificação.
@@ -14,7 +14,7 @@ Programa que faz o controle dos Contratos de Bonificação.
 User function ZFATF004()
 
 Local oBrowse  := NIL
-Local aArea    := GetArea()
+Local aAreaZAD := ZAD->(FwGetArea())
 Local aSeekTmp := {	{"Contrato"		  	,{{"",FwGetSx3Cache('ZAD_CONTRA','X3_TIPO'), FwGetSx3Cache('ZAD_CONTRA','X3_TAMANHO'), 0, "ZAD_CONTRA"		, FwGetSx3Cache('ZAD_CONTRA','X3_PICTURE')	},{"",FwGetSx3Cache('ZAD_REVISA','X3_TIPO'), FwGetSx3Cache('ZAD_REVISA','X3_TAMANHO'), 0, "ZAD_REVISA"		, FwGetSx3Cache('ZAD_REVISA','X3_PICTURE')	}}}}
 
 Private aCols    := {}
@@ -34,7 +34,7 @@ oBrowse:SetUseFilter( .T. )
 oBrowse:SetSeek(.T.,aSeekTmp)
 oBrowse:Activate()
 
-Restarea(aArea)
+FWRestArea(aAreaZAD)
 
 Return 
 
@@ -43,17 +43,16 @@ Return
 ----------------------------------------------------*/
 
 Static Function MenuDef()
-
 Local aRotina := {}
 
-	ADD OPTION aRotina TITLE "Visualizar"			ACTION "VIEWDEF.ZFATF004"	OPERATION 2 ACCESS 0
-	ADD OPTION aRotina TITLE "Incluir"  			ACTION "VIEWDEF.ZFATF004"	OPERATION 3 ACCESS 0
-	ADD OPTION aRotina TITLE "Alterar"  			ACTION "VIEWDEF.ZFATF004"	OPERATION 4 ACCESS 0
-	ADD OPTION aRotina TITLE "Excluir"    			ACTION "VIEWDEF.ZFATF004"   OPERATION 5 ACCESS 0
-	ADD OPTION aRotina TITLE "Copiar"    			ACTION "VIEWDEF.ZFATF004"   OPERATION 9 ACCESS 0
-	ADD OPTION aRotina TITLE "Revisao"    			ACTION "U_ZFATF04B()"       OPERATION 9 ACCESS 0
-	ADD OPTION aRotina TITLE "Banco Conhecimento"   ACTION "MsDocument('ZAD', ZAD->(RecNo()), 4)"	OPERATION 4 ACCESS 0
-	ADD OPTION aRotina TITLE "Liberar Documento"    ACTION "U_ZFATF04A()"       OPERATION 8 ACCESS 0
+	ADD OPTION aRotina TITLE "Visualizar"			ACTION "VIEWDEF.ZFATF004"	                   		OPERATION 2 ACCESS 0
+	ADD OPTION aRotina TITLE "Incluir"  			ACTION "VIEWDEF.ZFATF004"					   		OPERATION 3 ACCESS 0
+	ADD OPTION aRotina TITLE "Alterar"  			ACTION "VIEWDEF.ZFATF004"					   		OPERATION 4 ACCESS 0
+	ADD OPTION aRotina TITLE "Excluir"    			ACTION "VIEWDEF.ZFATF004"   				   		OPERATION 5 ACCESS 0 
+	ADD OPTION aRotina TITLE "Copiar"    			ACTION "VIEWDEF.ZFATF004"   				   		OPERATION 9 ACCESS 0
+	ADD OPTION aRotina TITLE "Revisao"    			ACTION "U_ZFATF04B()"       				   		OPERATION 9 ACCESS 0
+	ADD OPTION aRotina TITLE "Banco Conhecimento"   ACTION "MsDocument('ZAD',ZAD->(RecNo()), 4)"	    OPERATION 4 ACCESS 0
+	ADD OPTION aRotina TITLE "Liberar Documento"    ACTION "U_ZFATF04A()"                           	OPERATION 8 ACCESS 0
 	
 Return (aRotina)   
 
@@ -82,26 +81,29 @@ aGatilhos:={}
  
     //Percorrendo os gatilhos e adicionando na Struct
     For nAtual := 1 To Len(aGatilhos)
-        oStruCab:AddTrigger(    aGatilhos[nAtual][01],; //Campo Origem
-                            aGatilhos[nAtual][02]	,; //Campo Destino
-                            aGatilhos[nAtual][03],; //Bloco de código na validação da execução do gatilho
-                            aGatilhos[nAtual][04])  //Bloco de código de execução do gatilho
-    Next    
+        oStruCab:AddTrigger( aGatilhos[nAtual][01],; //Campo Origem
+                             aGatilhos[nAtual][02],; //Campo Destino
+                             aGatilhos[nAtual][03],; //Bloco de código na validação da execução do gatilho
+                             aGatilhos[nAtual][04])  //Bloco de código de execução do gatilho
+    Next nAtual    
 oModel := MPFormModel():New("MZFATF004",,{ |oModel| DUXCTR( oModel ) })
 
 // Adiciona ao modelo uma estrutura de formulario de edicao por campo
 oModel:AddFields("PR2MASTER",/*cOwner*/ ,oStruCab)
 IF Fwisincallstack('U_ZFATF04B')
+
+	oStruCab:SetProperty('ZAD_FILIAL',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"ZAD->ZAD_FILIAL"))
 	oStruItens:SetProperty('ZAE_FILIAL',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"ZAD->ZAD_FILIAL"))
-	oStruItens:SetProperty('ZAE_CONTRA',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"ZAD->ZAD_CONTRA"))
+
 	oStruCab:SetProperty('ZAD_CONTRA',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"ZAD->ZAD_CONTRA"))
-	
+	oStruItens:SetProperty('ZAE_CONTRA',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"ZA->ZAD_CONTRA"))
+
 	oStruCab:SetProperty('ZAD_REVISA',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"SOMA1(ZAD->ZAD_REVISA)"))
 	oStruItens:SetProperty('ZAE_REVISA',MODEL_FIELD_INIT,FwBuildFeature(STRUCT_FEATURE_INIPAD,"SOMA1(ZAD->ZAD_REVISA)"))
 ENDIF
 //Adiciona grid de itens
 oModel:AddGrid("PR3DETAIL", "PR2MASTER" ,oStruItens )
-oModel:SetPrimaryKey( {'ZAD_FILIAL','ZAD_CONTRA','ZAD_REVISA','ZAD_CLIENT','ZAD_LOJA'} )
+oModel:SetPrimaryKey( {'ZAD_FILIAL','ZAD_CONTRA','ZAD_REVISA','ZAD_CLIENT','ZAD_LOJACL'} )
 //Seta chave unica do grid de itens.
                                                 // [04] Bloco de codigo de execução do gatilho
 		
@@ -171,14 +173,14 @@ Local nOperation := oModel:NOPERATION
 local nu         := 0 
 
 If nOperation <> MODEL_OPERATION_DELETE
- For nU := 1 to oMdlZAe:Length()
-	oMdlZAe:goline(nU)
-	oMdlZAe:LoadValue('ZAE_FILIAL',oMldZad:getValue('ZAD_CONTRA'))
-	oMdlZAe:LoadValue('ZAE_CONTRA',oMldZad:getValue('ZAD_CONTRA'))
-	oMdlZAe:LoadValue('ZAE_REVISA',oMldZad:getValue('ZAD_REVISA'))
-	oMdlZAe:LoadValue('ZAE_CLIENT',oMldZad:getValue('ZAD_CLIENT'))
-	oMdlZAe:LoadValue('ZAE_LOJACL',oMldZad:getValue('ZAD_LOJACL'))
- next nU 
+	For nU := 1 to oMdlZAe:Length()
+		oMdlZAe:goline(nU)
+		oMdlZAe:LoadValue('ZAE_FILIAL',oMldZad:getValue('ZAD_FILIAL'))
+		oMdlZAe:LoadValue('ZAE_CONTRA',oMldZad:getValue('ZAD_CONTRA'))
+		oMdlZAe:LoadValue('ZAE_REVISA',oMldZad:getValue('ZAD_REVISA'))
+		oMdlZAe:LoadValue('ZAE_CLIENT',oMldZad:getValue('ZAD_CLIENT'))
+		oMdlZAe:LoadValue('ZAE_LOJACL',oMldZad:getValue('ZAD_LOJACL'))
+	Next nU 
 Endif
 
 If nOperation == 3 
@@ -188,9 +190,12 @@ Elseif nOperation == 4
 	If !lExcl
 		Aviso("[ZFATF004] - Atencao","Não foi possível excluir itens da alçada." + CHR(13),{"Ok"})
 	Endif
-	
 	U_ZGENSCR(cDoc,cRevis,cTipoDoc,cGrupo,Obs)
-
+Elseif nOperation == 5
+	lExcl := ExcSCR(cTipoDoc,cDoc)
+	If !lExcl
+		Aviso("[ZFATF004] - Atencao","Não foi possível excluir itens da alçada." + CHR(13),{"Ok"})
+	Endif
 Endif
 
 Return .T.
