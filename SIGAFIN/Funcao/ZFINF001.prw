@@ -99,8 +99,11 @@ Static Function ZFINS001(aTitulos,cTipoImp,cCaminho)
 
 	While nX <= Len(aBoletos)
 		
+		cPrefixo 	:= aBoletos[nX, 01]
 		cNumero 	:= aBoletos[nX, 02]
 		cParcela 	:= aBoletos[nX, 03]
+		cCliente 	:= aBoletos[nX, 05]
+		cLoja 		:= aBoletos[nX, 06]
 
 		aAdd(aPrint, {	aBoletos[nX, 01],; //Prefixo
 						aBoletos[nX, 02],; //Numero

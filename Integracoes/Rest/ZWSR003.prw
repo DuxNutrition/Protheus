@@ -176,7 +176,10 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     cQrySE1 += "            ,IsNull(TRIM(SA1.A1_ZZESTAB)+'-'+TRIM(SX5B.X5_DESCRI),'')	            AS A1_ZZESTAB "  + CRLF
     cQrySE1 += "            ,SA1.A1_ENDCOB												            AS A1_ENDCOB "  + CRLF
     cQrySE1 += "            ,SA1.A1_ZZWHATS									     	                AS A1_ZZWHATS "  + CRLF
+    cQrySE1 += "            ,SA1.A1_XWHATS									     	                AS A1_XWHATS "  + CRLF
     cQrySE1 += "            ,SA1.A1_EMAIL											   	            AS A1_EMAIL "  + CRLF
+    cQrySE1 += "            ,SA1.A1_XMAILEV											   	            AS A1_XMAILEV "  + CRLF
+    cQrySE1 += "            ,SA1.A1_XEMAIL											   	            AS A1_XEMAIL "  + CRLF
     cQrySE1 += "            ,SA1.A1_END												                AS A1_END "  + CRLF
     cQrySE1 += "            ,SA1.A1_BAIRRO												            AS A1_BAIRRO "  + CRLF
     cQrySE1 += "            ,SA1.A1_MUN													            AS A1_MUN "  + CRLF
@@ -194,7 +197,7 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     cQrySE1 += "                ELSE 'SEM STATUS' "  + CRLF
     cQrySE1 += "            END 														            AS STATUSPARC "  + CRLF
     cQrySE1 += "            ,IsNull(SE1.E1_SITUACA+'-'+TRIM(FRV.FRV_DESCRI),'') 		            AS E1_SITUACA "  + CRLF
-    //cQrySE1 += "            ,IsNull(SE1.E1_ZZCART+'-'+TRIM(SX5C.X5_DESCRI),'') 			            AS E1_ZZCART "  + CRLF
+    cQrySE1 += "            ,IsNull(SE1.E1_ZZCART+'-'+TRIM(SX5C.X5_DESCRI),'') 			            AS E1_ZZCART "  + CRLF
     cQrySE1 += " FROM "+Retsqlname("SE1")+" SE1 WITH(NOLOCK) "  + CRLF
     cQrySE1 += "    INNER JOIN "+Retsqlname("SF2")+" AS SF2 WITH(NOLOCK) "  + CRLF
     cQrySE1 += "        ON SF2.F2_FILIAL = SE1.E1_FILIAL "  + CRLF
@@ -223,14 +226,12 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
     cQrySE1 += "        ON SX5B.X5_FILIAL = '  ' "  + CRLF
     cQrySE1 += "        AND SX5B.X5_TABELA = 'ES' "  + CRLF
     cQrySE1 += "        AND SX5B.X5_CHAVE = SA1.A1_ZZESTAB "  + CRLF
-    cQrySE1 += "        AND SX5B.D_E_L_E_T_ = '' "  + CRLF
-    /*  
+    cQrySE1 += "        AND SX5B.D_E_L_E_T_ = '' "  + CRLF  
     cQrySE1 += "    LEFT JOIN "+Retsqlname("SX5")+" SX5C WITH(NOLOCK) "  + CRLF
     cQrySE1 += "        ON SX5C.X5_FILIAL = '  ' "  + CRLF
     cQrySE1 += "        AND SX5C.X5_TABELA = 'Z1' "  + CRLF
     cQrySE1 += "        AND SX5C.X5_CHAVE = SE1.E1_ZZCART "  + CRLF
     cQrySE1 += "        AND SX5C.D_E_L_E_T_ = '' "  + CRLF
-    */ 
     cQrySE1 += " WHERE SE1.E1_FILIAL IN "+cFilTit+" "  + CRLF
     cQrySE1 += " AND SE1.E1_TIPO IN "+cTipoTit+" "  + CRLF
     cQrySE1 += " AND ( SE1.E1_BAIXA >= '"+Dtos(DaySub(Date(),nDiasbx))+"' OR SE1.E1_BAIXA = '' ) "  + CRLF
@@ -320,6 +321,8 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
                 EndIf
                 aTit["cendcob"]             := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_ENDCOB)))
                 aTit["cemail"]              := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_EMAIL)))
+                aTit["cemail2"]              := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_XMAILEV)))
+                aTit["cemail3"]              := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_XEMAIL)))
                 aTit["cendereco"]           := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_END)))
                 aTit["cbairro"]             := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_BAIRRO)))
                 aTit["cmunicipio"]          := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_MUN)))
@@ -327,10 +330,11 @@ Static Function ZTITGET(_oJson, _cEmpFil , self )
                 aTit["ccep"]                := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_CEP)))
                 aTit["cfone1"]              := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_ZZWHATS)))
                 aTit["cfone2"]              := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_TEL)))
+                aTit["cwhats"]              := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->A1_XWHATS)))
                 aTit["cboletoapi"]          := AllTrim((cAliasTRB)->ARQ_BOLETO)
                 aTit["cchavenfe"]           := AllTrim((cAliasTRB)->F2_CHVNFE)
                 aTit["csituacao"]           := FwNoAccent(DecodeUTF8(AllTrim((cAliasTRB)->E1_SITUACA)))
-                aTit["ccarteira"]           := ""//FwNoAccent(AllTrim((cAliasTRB)->E1_ZZCART))
+                aTit["ccarteira"]           := FwNoAccent(AllTrim((cAliasTRB)->E1_ZZCART))
                 aTit["cstatusparc"]         := AllTrim((cAliasTRB)->STATUSPARC)
             EndIf
 
