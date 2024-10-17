@@ -9,41 +9,52 @@
 
 User Function MTA650I()
 
-    Local aArea     := GetArea()
-    Local aAreaSC2  := SC2->(GetArea())
-    Local cAliasSC2 := ""
+Local aArea     := GetArea()
+Local aAreaSC2  := SC2->(GetArea())
+Local cAliasSC2 := ""
+Local cProdRb   := SC2->C2_XRBD  
+Local cTpInd    := SC2->C2_XTPIND 
 
-    If SC2->C2_SEQUEN <> '001'
+If ExistFunc("U_ZPCPF001")
+    cLotectl := U_ZPCPF001(cProdRb,cTpInd)
+Endif
 
-        cAliasSC2 := GetNextAlias()
+If SC2->C2_SEQUEN == '001'
+    RECLOCK("SC2", .F. )
+    SC2->C2_LOTECTL := cLotectl    
+    SC2->(MSUNLOCK())
+Else
+    cAliasSC2 := GetNextAlias()
 
-        BeginSQL Alias cAliasSC2 
+    BeginSQL Alias cAliasSC2 
 
-            SELECT  C2_TPPR,
-                    C2_ZZFORN,
-                    C2_ZZLOJA
-                FROM %TABLE:SC2% SC2 
-                WHERE   SC2.%NOTDEL% 
-                        AND C2_FILIAL   = %EXP:SC2->C2_FILIAL%
-                        AND C2_NUM      = %EXP:SC2->C2_NUM%
-                        AND C2_ITEM     = %EXP:SC2->C2_ITEM%
-                        AND C2_SEQUEN   = '001'
+        SELECT  C2_TPPR,
+                C2_ZZFORN,
+                C2_ZZLOJA
+            FROM %TABLE:SC2% SC2 
+            WHERE   SC2.%NOTDEL% 
+                    AND C2_FILIAL   = %EXP:SC2->C2_FILIAL%
+                    AND C2_NUM      = %EXP:SC2->C2_NUM%
+                    AND C2_ITEM     = %EXP:SC2->C2_ITEM%
+                    AND C2_SEQUEN   = '001'
 
-        EndSQL
+    EndSQL
 
-        If (cAliasSC2)->(!EOF())
+    If (cAliasSC2)->(!EOF())
 
-            RECLOCK("SC2", .F. )
-            SC2->C2_TPPR    := (cAliasSC2)->C2_TPPR      
-            SC2->C2_ZZFORN  := (cAliasSC2)->C2_ZZFORN
-            SC2->C2_ZZLOJA  := (cAliasSC2)->C2_ZZLOJA
-            SC2->(MSUNLOCK())
-        EndIf 
-
-        (cAliasSC2)->(DbCloseArea())
+        RECLOCK("SC2", .F. )
+        SC2->C2_TPPR    := (cAliasSC2)->C2_TPPR      
+        SC2->C2_ZZFORN  := (cAliasSC2)->C2_ZZFORN
+        SC2->C2_ZZLOJA  := (cAliasSC2)->C2_ZZLOJA
+        SC2->(MSUNLOCK())
     EndIf 
+
+(cAliasSC2)->(DbCloseArea())
+
+Endif
     
     RestArea(aArea)
     RestArea(aAreaSC2)
 
 Return
+
