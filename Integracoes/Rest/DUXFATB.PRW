@@ -37,7 +37,7 @@ User Function DuxFatB(aXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
 	Local _aAreaSC6	:= SC6->( GetArea() )
 	Local lRet		:= .T.
 	Local nPrecVen := 0
-	Local oXmlItens :=  aXml:_NFE:_INFNFE:_DET
+	Local oXmlItens :=  aXml:_NFEPROC:_NFE:_INFNFE:_DET
 	Local aXmlItens := {}
 	Local nCont := 0
 	Local cQuery := ""
@@ -55,14 +55,14 @@ User Function DuxFatB(aXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
 	Local _cNota
 
 	Private _DxFtC
-	Private _DxNfc
-	Private _DxChv := Substr(aXml:_NFE:_INFNFE:_ID:TEXT,4)
+	Private _DxNfc 
+	Private _DxChv := Substr(aXml:_NFEPROC:_NFE:_INFNFE:_ID:TEXT,4)
 
-	if !Empty(aXml:_NFE:_INFNFE:_DET:_IMPOSTO)
-		aadd(aXmlItens, aXml:_NFE:_INFNFE:_DET )
+	if (Valtype(aXml:_NFEPROC:_NFE:_INFNFE:_DET) <> "A")
+		aadd(aXmlItens, aXml:_NFEPROC:_NFE:_INFNFE:_DET )
 	else
 		for nCont = 1 To Len (oXmlItens)
-			aadd(aXmlItens,aXml:_NFE:_INFNFE:_DET[nCont])
+			aadd(aXmlItens,aXml:_NFEPROC:_NFE:_INFNFE:_DET[nCont])
 		next
 	endif
 	SC5->( DBSetOrder( 1 ) )
@@ -99,19 +99,16 @@ User Function DuxFatB(aXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
 				cQuery += " SE4.R_E_C_N_O_  AS                  RECSE4,  "
 				cQuery += " SC9.C9_SEQUEN   AS                  SEQX     "
 				cQuery += " FROM "+RetSqlName("SC9")+" AS SC9 "
-				cQuery += " LEFT JOIN "+RetSqlName("SC5")+" AS SC5 ON SC5.C5_NUM = SC9.C9_PEDIDO "
-				cQuery += " AND SC5.C5_FILIAL = SC9.C9_FILIAL AND SC5.D_E_L_E_T_ = ''  "
-				cQuery += " LEFT JOIN "+RetSqlName("SC6")+" AS SC6 ON SC9.C9_PEDIDO = SC6.C6_NUM "
-				cQuery += " AND SC9.C9_FILIAL = SC6.C6_FILIAL AND SC6.D_E_L_E_T_ = ''  "
-				cQuery += " AND SC9.C9_PRODUTO = SC6.C6_PRODUTO "
-				cQuery += " LEFT JOIN "+RetSqlName("SF4")+" AS SF4 ON SF4.F4_CODIGO = SC6.C6_TES "
-				cQuery += " AND SF4.D_E_L_E_T_ = ''  "
+				cQuery += " LEFT JOIN "+RetSqlName("SC5")+" AS SC5 ON SC5.C5_FILIAL = SC9.C9_FILIAL AND  SC5.C5_NUM = SC9.C9_PEDIDO AND SC5.D_E_L_E_T_ = ''  "
+				cQuery += " LEFT JOIN "+RetSqlName("SC6")+" AS SC6 ON SC9.C9_FILIAL = SC6.C6_FILIAL AND  SC9.C9_PEDIDO = SC6.C6_NUM AND SC9.C9_PRODUTO = SC6.C6_PRODUTO  "
+				cQuery += " AND  SC6.D_E_L_E_T_ = '' "
+				cQuery += " LEFT JOIN "+RetSqlName("SF4")+" AS SF4 ON SF4.F4_CODIGO = SC6.C6_TES AND SF4.D_E_L_E_T_ = ''  "
 				cQuery += " LEFT JOIN "+RetSqlName("ZFR")+" AS ZFR ON ZFR.ZFR_PEDIDO  = SC6.C6_NUM "
-				cQuery += " AND ZFR.ZFR_FILIAL = SC6.C6_FILIAL "
-				cQuery += " LEFT JOIN "+RetSqlName("SA1")+" AS SA1 ON SA1.A1_COD = SC6.C6_CLI "
-				cQuery += " AND SA1.A1_LOJA = SC6.C6_LOJA  "
-				cQuery += " LEFT JOIN "+RetSqlName("SB1")+" AS SB1 ON SB1.B1_COD = SC6.C6_PRODUTO "
-				cQuery += " LEFT JOIN "+RetSqlName("SE4")+" AS SE4 ON SE4.E4_CODIGO = SC5.C5_CONDPAG "
+				cQuery += " AND ZFR.ZFR_FILIAL = SC6.C6_FILIAL  AND ZFR.D_E_L_E_T_ = '' "
+				cQuery += " LEFT JOIN "+RetSqlName("SA1")+" AS SA1 ON SA1.A1_FILIAL = SC6.C6_FILIAL AND  SA1.A1_COD = SC6.C6_CLI "
+				cQuery += " AND SA1.A1_LOJA = SC6.C6_LOJA  AND SA1.D_E_L_E_T_ = '' "
+				cQuery += " LEFT JOIN "+RetSqlName("SB1")+" AS SB1 ON SB1.B1_COD = SC6.C6_PRODUTO AND SB1.D_E_L_E_T_ = ''  "
+				cQuery += " LEFT JOIN "+RetSqlName("SE4")+" AS SE4 ON SE4.E4_CODIGO = SC5.C5_CONDPAG AND SE4.D_E_L_E_T_ = '' "
 				cQuery += " AND SE4.D_E_L_E_T_ = ''   "
 				cQuery += " LEFT JOIN "+RetSqlName("SB2")+" AS SB2 ON SB2.B2_COD = SC6.C6_PRODUTO "
 				cQuery += " AND SC6.C6_FILIAL = SB2.B2_FILIAL  AND SC6.C6_LOCAL = SB2.B2_LOCAL    "
@@ -128,8 +125,10 @@ User Function DuxFatB(aXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
 				cQuery += " SC9.C9_BLEST = ''  "
 				cQuery += " AND "
 				cQuery += " SC9.C9_FILIAL = '"+cFilAnt+"'  "
+				cQuery += " AND "
+				cQuery += " SB1.B1_MSBLQL = '2' " //1 = SIM, BLOQUEADO | 2= NцO BLOQUEADO
 				cQuery += " ORDER BY SC9.C9_PRODUTO "
-
+				
 				TcQuery cQuery New Alias (cAliasHD)
 
 				if (cAliasHD)->(!Eof())
@@ -152,14 +151,16 @@ User Function DuxFatB(aXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
 					aadd(aDados,(cAliasHD)->(RECSB2))
 					aadd(aDados,(cAliasHD)->(RECSF4))
 					_DxFtC := (cAliasHD)->(EMISSX)
-					_DxNfc := (cAliasHD)->(NOTAX)
+					_DxNfc := PadL(aXml:_NFEPROC:_NFE:_INFNFE:_IDE:_NNF:TEXT,9, '0')
 					aadd(_aPvlNfs,aDados)
 					(cAliasHD)->(dbCloseArea())
 				else
 					lRet := .F.
+					
 				endif
-
 			next
+			
+
 			//зддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд©
 			//Ё Prepara ambiente para geracao da Nota Fiscal                              Ё
 			//юддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды

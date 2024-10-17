@@ -56,9 +56,9 @@ User Function DuxFatA(cXml,cNumPed,cNumId,cRecno)
     //зддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд©
     //Ё  Envio para validaГЦo de CNPj e para FATURAMENTO                          Ё
     //юддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды
-		if !Empty(oXml:_NFE:_INFNFE:_DEST:_CNPJ:Text)
-			cCnpj :=  oXml:_NFE:_INFNFE:_DEST:_CNPJ:Text
-			cChave :=  oXml:_NFE:_INFNFE:_ID:Text
+		if !Empty(oXml:_NFEPROC:_NFE:_INFNFE:_DEST:_CPF:Text)
+			cCnpj :=  oXml:_NFEPROC:_NFE:_INFNFE:_DEST:_CPF:Text
+			cChave :=  oXml:_NFEPROC:_NFE:_INFNFE:_ID:Text
 			if ValCnpj(cCnpj)
 				lRet := .T.
 				u_DuxFatB(@oXml,cNumPed,cNumId,cRecno,cCnpj,cChave)

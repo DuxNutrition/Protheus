@@ -48,8 +48,8 @@ User function ZWSR007(cId)
 		DbSelectArea("ZFR")
 		DbSetOrder(2)
 		if (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
-			if (ZFR->ZFR_STATUS) == "30"
-				cNumId := ZFR->ZFR_IDX
+			if (alltrim(ZFR->ZFR_STATUS)) == "30"
+				cNumId := ZFR->ZFR_ID
 				cNumPed:= ZFR->ZFR_PEDIDO
 				cXml := ZFR->ZFR_XML
 				if !Empty(cXml)

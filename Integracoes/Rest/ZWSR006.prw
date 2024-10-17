@@ -13,12 +13,12 @@
 //±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 //ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 
-User function ZWSR006()
-	local cURL      := GetMV("DX_URL",.F.,"localhost:3000/")
-	local cEnd      := GetMV("DX_ENDX",.F.,"conteudo")
-	local cApiKey   := GetMV("DX_APIKEY",.F.,"Zqc8nwZxI2v4IoKDpTQxXnwKEjQug8GNwiBEnxSuO2dSkgSpYsJ1lDfKjo5V")
-	local cBearer   := GetMv("DX_BEARE",.F.,"Zqc8nwZxI2v4IoKDpTQxXnwKEjQug8GNwiBEnxSuO2dSkgSpYsJ1lDfKjo5V")
-	local cKeynam   := GetMv("DX_KEYNAM",.F.,"Api-Key=")
+User function ZWSR006(cId)
+	local cURL      := GetMV("DX_URL",.F.,"https://api.stage.ifctech.com.br/ihub/")
+	local cEnd      := GetMV("DX_ENDX",.F.,"invoices/")
+	local cApiKey   := GetMV("DX_APIKEY",.F.,"67JvuGlf3PvuNueA14fsSD3B7GgH6E1u")
+	local cBearer   := GetMv("DX_BEARE",.F.,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaW50ZWdyYXRpb24iLCJzdWIiOiIwIiwibmFtZSI6IkR1eCBOdXRyaXRpb24iLCJpc3MiOiJNV2d2ZGp2VHVvbm12WlFZeDBjbUV2RlBmY2lDcDFaciIsIm5iZiI6MTcyNjc2NDQ3MCwiZXhwIjoyMjAwMDYzNjcwLCJpYXQiOjE3MjY3NjQ0NzB9.m3yRVKAPGHhiqCKZCb1LkRSJl8Ypu7namsb-KPaDJZw")
+	local cKeynam   := GetMv("DX_KEYNAM",.F.,"Api-Key:")
 	local oRest as object
 	Local oOBj
 	local cPar  := cKeynam+cApiKey
@@ -27,8 +27,8 @@ User function ZWSR006()
 	Local cTeste
 	Local cXmlD := ""
 	Local cIntCom := ""
-	Local cError := ""
-	Local cWarning := ""
+	Local cResponse
+	Local cHeaderRet as char
 	Local oXml := NIL
 	Local cAlias2
 
@@ -37,33 +37,29 @@ User function ZWSR006()
 		PREPARE ENVIRONMENT EMPRESA cEmpAnt FILIAL cFilAnt MODULO "FAT"
 	Endif
 
-
 	aadd(aHeader,'Authorization: Bearer '+cBearer)
 	aadd(aHeader,'Content-Type: application/json;charset=UTF-8')
+	aadd(aHeader,cPar)
 
-	cAlias2 := ValidSTAT("XML")
-
+	if Empty(cId)
+		cAlias2 := ValidSTAT("XML")
+	else 
+		cAlias2 := ValidSTAT("XML",cId)
+	endif 
+	
 	While (cAlias2)->(!eof())
-		oRest := FWRest():new(cURL)
-		oRest:setPath(cEnd)
-		oRest:SetGetParams(cPar)
-		oRest:GET(aHeader)
-		cTeste := oRest:GetResult()
-		FwJsonDeserialize(oRest:GetResult(),@oOBj)
-		aJson := oObj
+		cResponse := HTTPQuote(cURL+cEnd+alltrim((cAlias2)->(IDX))+"/xml", "GET",,,120,aHeader,@cHeaderRet)
+		if !Empty(cResponse) 
+			FwJsonDeserialize(cResponse,@oOBj)
+		endif 
 
-        /*
-    ||||||/////////RETIRAR//////////||||| */
-    if Empty(aJson)
-        aJson := pegaJson() //--> FUNÇÃO PARA PEGAR JSON TESTE <-- 
-    endif 
-    /*|||||/////////////////////////||||*/
+	aJson := oObj
 
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 	//³ Pega o JSON e decode64 nele para gravar na ZFR                           ³
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
     if !Empty(aJson)
-        cXmlD := aJson["conteudo"][1]["XML"]
+        cXmlD := aJson:CONTENT
         cXmlD := Decode64(cXmlD)
         DbSelectArea("ZFR")
 		ZFR->(DbGoTo((cAlias2)->(RECNO)))
@@ -105,7 +101,7 @@ Return()
 //±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 //ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 
-Static Function ValidSTAT(cOper)
+Static Function ValidSTAT(cOper,cId)
 Local cQuery := ""
 Local lRet := .F.
 Local cAlias2 := GetNextAlias()
@@ -121,6 +117,9 @@ elseif (cOper == "OK")
     cQuery += " ZFR_STATUS = '30' "
 elseif (cOper == "ERRO")
     cQuery += " ZFR_STATUS = '99' "
+endif 
+if !Empty(cId)
+	 cQuery += " AND ZFR_ID = '"+cId+"' "
 endif 
 
 TcQuery cQuery New Alias (cAlias2)
