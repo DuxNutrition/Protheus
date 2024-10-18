@@ -12,11 +12,14 @@ User Function MTA650I()
 Local aArea     := GetArea()
 Local aAreaSC2  := SC2->(GetArea())
 Local cAliasSC2 := ""
+Local cNum      := SC2->C2_NUM
+Local cProduto  := SC2->C2_PRODUTO
+Local cEmissao  := SC2->C2_EMISSAO
 Local cProdRb   := SC2->C2_XRBD  
 Local cTpInd    := SC2->C2_XTPIND 
 
 If ExistFunc("U_ZPCPF001")
-    cLotectl := U_ZPCPF001(cProdRb,cTpInd)
+    cLotectl := U_ZPCPF001(cNum,cProduto,cEmissao,cProdRb,cTpInd)
 Endif
 
 If SC2->C2_SEQUEN == '001'
