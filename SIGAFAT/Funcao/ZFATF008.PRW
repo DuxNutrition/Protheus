@@ -171,7 +171,7 @@ User Function ZFATF008(aXml,cId, cNumPed)
 						cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Preco divergente entre Pedido Protheus ( R$ " + AllTrim(cValToChar((cAliasHD)->PRCX)) + " ) e XML InfraCommerce ( R$ " + AllTrim(cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))) + " )" + CRLF
 						lRet := .F.
 					EndIf
-	
+
 					If lRet
 						//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 						//³ Monta Array de itens com base na query acima                              ³
@@ -197,14 +197,14 @@ User Function ZFATF008(aXml,cId, cNumPed)
 						
 						aadd(_aPvlNfs,aDados)
 					EndIf
-
-					(cAliasHD)->(dbCloseArea())
 				Else
+					cMsgErro += "Item: " + Alltrim(aXmLItens[nCont]:_prod:_cprod:text) + " | Nao encontrado o item para liberado nos Pedidos de Venda do Protheus" + CRLF
 					lRet := .F.
 				EndIf
 			Next
-			
-			If lRet
+							
+			If lRet .And. !Empty(_aPvlNfs)
+
 				//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 				//³ Prepara ambiente para geracao da Nota Fiscal                              ³
 				//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
@@ -240,38 +240,27 @@ User Function ZFATF008(aXml,cId, cNumPed)
 				//³  Envio para execauto de inclusão de pedidos                               ³
 				//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-				If !Empty(_aPvlNfs)
-					_cNota := MaPvlNfs( _aPvlNfs, cSerie, _lMostraCtb, _lAglutCtb, _lCtbOnLine, _lCtbCusto, _lReajuste, _nCalAcrs, _nArredPrcLis, _lAtuSA7, _lECF, _cEmbExp )
-					If !Empty(_cNota)
-						DbSelectArea("ZFR")
-						ZFR->( DBSetOrder( 2 ) )
-						If  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
-							RecLock("ZFR",.F.)
-								ZFR->ZFR_STATUS	:= "40"
-								ZFR->ZFR_DTERP	:= Date()
-								ZFR->ZFR_HRERP	:= Time()
-								ZFR->ZFR_NFERP	:= _cNota
-								ZFR->ZFR_SERERP	:= cSerie
-							ZFR->(MsUnlock())
-							ZFR->(dbCloseArea())
-						EndIf
-					Else
-						DbSelectArea("ZFR")
-						ZFR->( DBSetOrder( 2 ) )
-						IF  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
-							RecLock("ZFR",.F.)
-								ZFR->ZFR_ERROR := "Erro para escriturar a nota fiscal"
-								ZFR->ZFR_STERRO := "40"
-								ZFR->ZFR_STATUS := "99"
-							ZFR->(MsUnlock())
-						EndIf
+				
+				_cNota := MaPvlNfs( _aPvlNfs, cSerie, _lMostraCtb, _lAglutCtb, _lCtbOnLine, _lCtbCusto, _lReajuste, _nCalAcrs, _nArredPrcLis, _lAtuSA7, _lECF, _cEmbExp )
+				If !Empty(_cNota)
+					DbSelectArea("ZFR")
+					ZFR->( DBSetOrder( 2 ) )
+					If  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
+						RecLock("ZFR",.F.)
+							ZFR->ZFR_STATUS	:= "40"
+							ZFR->ZFR_DTERP	:= Date()
+							ZFR->ZFR_HRERP	:= Time()
+							ZFR->ZFR_NFERP	:= _cNota
+							ZFR->ZFR_SERERP	:= cSerie
+						ZFR->(MsUnlock())
+						ZFR->(dbCloseArea())
 					EndIf
 				Else
 					DbSelectArea("ZFR")
 					ZFR->( DBSetOrder( 2 ) )
 					IF  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
 						RecLock("ZFR",.F.)
-							ZFR->ZFR_ERROR := "Erro ao montar estrutura de NOTA, causas possíveis, LIBERACAO DE PEDIDO "
+							ZFR->ZFR_ERROR 	:= "Erro na rotina automatica de geracao da nota fiscal no Protheus"
 							ZFR->ZFR_STERRO := "40"
 							ZFR->ZFR_STATUS := "99"
 						ZFR->(MsUnlock())
