@@ -6,7 +6,7 @@
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±…ÕÕÕÕÕÕÕÕÕ—ÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÀÕÕÕÕÕ—ÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÀÕÕÕÕÕÕ—ÕÕÕÕÕÕÕÕÕÕÕÕª±±
-±±∫Programa ≥ DuxFatA       ∫Autor≥ Allan Rabelo    ∫ Data ≥ 01/10/2024             ∫±±
+±±∫Programa ≥ ZFATF007       ∫Autor≥ Allan Rabelo    ∫ Data ≥ 01/10/2024             ∫±±
 ±±ÃÕÕÕÕÕÕÕÕÕÿÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕ ÕÕÕÕÕœÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕ ÕÕÕÕÕÕœÕÕÕÕÕÕÕÕÕÕÕÕπ±±
 ±±∫Desc.    ≥ DenominaÁ„o de XML PARCE e ValidaÁ„o de SA1                            ∫±±
 ±±∫         ≥                                                                        ∫±±
@@ -30,51 +30,70 @@
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ
 */ 
+User Function ZFATF007(cId, cNumPed, lJob)
 
+	Local cError   	:= ""
+	Local cWarning 	:= ""
+	Local oXml     	:= NIL
+	Local cCnpj    	:= ""
+	Local cChave   	:= ""
 
-User Function DuxFatA(cXml,cNumPed,cNumId,cRecno)
-	Local cError   := ""
-	Local cWarning := ""
-	Local oXml     := NIL
-	Local lRet     := .F.
-	Local cCnpj    := ""
-	Local cChave   := ""
-    
-    //⁄ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒø
-    //≥  Quebro XML                                                              ≥
-    //¿ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒŸ
-	oXml := XmlParser( cXml, "_", @cError, @cWarning )
-	If (oXml == NIL )
-		DbSelectArea("ZFR")
-		ZFR->(dbgoto(cRecno))
-		RecLock("ZFR",.F.)
-		ZFR->ZFR_ERROR := ("Falha ao gerar Objeto XML : "+cError+" / "+cWarning)
-		ZFR->ZFR_STERRO := "40"
-		ZFR->(MsUnlock())
-		Return
-	else
-    //⁄ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒø
-    //≥  Envio para validaÁ„o de CNPj e para FATURAMENTO                          ≥
-    //¿ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒŸ
-		if !Empty(oXml:_NFEPROC:_NFE:_INFNFE:_DEST:_CPF:Text)
-			cCnpj :=  oXml:_NFEPROC:_NFE:_INFNFE:_DEST:_CPF:Text
-			cChave :=  oXml:_NFEPROC:_NFE:_INFNFE:_ID:Text
-			if ValCnpj(cCnpj)
-				lRet := .T.
-				u_DuxFatB(@oXml,cNumPed,cNumId,cRecno,cCnpj,cChave)
-			else 
-				DbSelectArea("ZFR")
-				ZFR->(dbgoto(cRecno))
+	Default cId 	:= ""
+	Default cNumPed	:= ""
+	Default lJob	:= .F.
+
+	If lJob
+		ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR007] - Inicio Processamento")
+		PREPARE ENVIRONMENT EMPRESA cEmpAnt FILIAL cFilAnt MODULO "FAT"
+	EndIf
+
+	DbSelectArea("ZFR")
+	ZFR->(DBSetOrder(2))
+	If ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1])))
+		If AllTrim(ZFR->ZFR_STATUS) == "30"
+
+			oXml := XmlParser( ZFR->ZFR_XML, "_", @cError, @cWarning )
+			If (oXml == NIL )
 				RecLock("ZFR",.F.)
-				ZFR->ZFR_ERROR := ("Falha - CNPJ N√O ENCONTRADO : "+cError+" / "+cWarning)
-				ZFR->ZFR_STERRO := "40"
+					ZFR->ZFR_ERROR := ("Falha ao gerar Objeto XML : "+cError+" / "+cWarning)
+					ZFR->ZFR_STERRO := "40"
 				ZFR->(MsUnlock())
-				Return
-			endif
-		endif
+			Else
+   				If !Empty(oXml:_NFEPROC:_NFE:_INFNFE:_DEST:_CPF:Text)
+					cCnpj :=  oXml:_NFEPROC:_NFE:_INFNFE:_DEST:_CPF:Text
+					cChave :=  oXml:_NFEPROC:_NFE:_INFNFE:_ID:Text
+					
+					If ValCnpj(cCnpj)
+						If lJob
+							ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZFATF007] - Processando a escrituracao da invoice: " + Alltrim(ZFR->ZFR_INVOIC))
+							u_ZFATF008(@oXml, ZFR->ZFR_ID, ZFR->ZFR_PEDIDO)
+						Else
+							FWMsgRun(,{|| U_ZFATF008(@oXml, ZFR->ZFR_ID, ZFR->ZFR_PEDIDO) },,"Processando a escrituracao da invoice: " + AllTrim(ZFR->ZFR_INVOIC) + ", aguarde...")
+						EndIf
+					Else 
+						RecLock("ZFR",.F.)
+							ZFR->ZFR_ERROR := ("Falha - CNPJ N√O ENCONTRADO : "+cError+" / "+cWarning)
+							ZFR->ZFR_STERRO := "40"
+						ZFR->(MsUnlock())
+			
+					EndIf
+				EndIf
+			EndIf
+		EndIf
+	Else
+		If lJob
+			ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR007] - Nao encontrado registro par gravaÁ„o R_E_C_N_O_: " + Alltrim(cRecZFR))
+		Else
+			ApMsgInfo( "N„o encontrado registro par gravaÁ„o R_E_C_N_O_: " + Alltrim(cRecZFR), '[ZWSR006]' )
+		EndIf
+	EndIf
+	
+	If lJob
+		ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR007] - Fim Processamento")
+		RESET ENVIRONMENT
 	Endif
 
-Return(lRet)
+Return()
 
 //‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
 //±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
@@ -89,21 +108,27 @@ Return(lRet)
 
 
 Static Function ValCnpj(cCnpj)
-	Local cQuery := ""
-	Local lRet := .F.
-    Local cAlias := GetNextAlias()
 
-	cQuery := " SELECT SA1.R_E_C_N_O_ AS RECNO "
-	cQuery += " FROM "+RetSqlName("SA1")+" AS SA1 "
-	cQuery += " WHERE SA1.D_E_L_E_T_ = ''  "
-	cQuery += " AND "
-	cQuery += " SA1.A1_CGC = '"+cCnpj+"' "
+	Local cQrySA1	:= ""
+	Local cAlsSA1 	:= GetNextAlias()
+	Local lRet		:= .F.
 
+	cQrySA1 := " SELECT * FROM "+RetSqlName("SA1")+" AS SA1 " 	+ CRLF
+	cQrySA1 += " WHERE SA1.A1_FILIAL = '  '  "					+ CRLF
+	cQrySA1 += " AND SA1.A1_CGC = '"+cCnpj+"' "					+ CRLF
+	cQrySA1 += " AND SA1.D_E_L_E_T_ <> '*'  "					+ CRLF
 
-	TcQuery cQuery New Alias (cAlias)
+	If Select( (cAlsSA1) ) > 0
+		(cAlsSA1)->(DbCloseArea())
+	EndIf
 
-	if (cAlias)->(!Eof())
+	// Executa a consulta.
+	DbUseArea( .T., "TOPCONN", TcGenQry(,,cQrySA1), cAlsSA1, .T., .T. )
+	
+	DbSelectArea((cAlsSA1))
+	(cAlsSA1)->(dbGoTop())
+	If (cAlsSA1)->(!Eof())
 		lRet := .T.
-	endif
+	EndIf
 
 Return(lRet)

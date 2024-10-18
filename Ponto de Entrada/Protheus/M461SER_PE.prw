@@ -26,9 +26,9 @@ User Function M461SER()
 		EndIf
 	endif 
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Customização com variavel private para alteração de DOC DUXFATB       ³
+	//³ Customização com variavel private para alteração de DOC ZFATF008       ³
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	if FWIsInCallStack("U_DuxFatB")
+	if FWIsInCallStack("U_ZFATF008")
         cNumero := _DxNfc
     endif 
 

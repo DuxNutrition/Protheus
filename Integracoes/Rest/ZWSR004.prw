@@ -14,53 +14,67 @@
 //±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 //ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 
-User function ZWSR004()
-	local cURL      := GetMV("DX_URL"   ,.F.,"https://api.stage.ifctech.com.br/ihub/")
-	local cEnd      := GetMV("DX_ENDP"  ,.F.,"invoices/list")
-	local cApiKey   := GetMV("DX_APIKEY",.F.,"67JvuGlf3PvuNueA14fsSD3B7GgH6E1u")
-	local cBearer   := GetMv("DX_BEARE" ,.F.,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaW50ZWdyYXRpb24iLCJzdWIiOiIwIiwibmFtZSI6IkR1eCBOdXRyaXRpb24iLCJpc3MiOiJNV2d2ZGp2VHVvbm12WlFZeDBjbUV2RlBmY2lDcDFaciIsIm5iZiI6MTcyNjc2NDQ3MCwiZXhwIjoyMjAwMDYzNjcwLCJpYXQiOjE3MjY3NjQ0NzB9.m3yRVKAPGHhiqCKZCb1LkRSJl8Ypu7namsb-KPaDJZw")
-	local cKeynam   := GetMv("DX_KEYNAM",.F.,"Api-Key: ")
-	local oRest as object
+User Function ZWSR004(lJob)
+	
+	Local cUrlRest		:= AllTrim( SuperGetMv("DUX_API007"		,.F.	,"https://api.stage.ifctech.com.br/ihub/"))
+	Local cEndPoint     := AllTrim( SuperGetMv("DUX_API008"  	,.F.	,"invoices/list"))
+	Local cApiKey   	:= "Api-Key: " + AllTrim( SuperGetMv("DUX_API009"	,.F.	,"67JvuGlf3PvuNueA14fsSD3B7GgH6E1u"))
+	Local cBearer  		:= AllTrim( SuperGetMv("DUX_API010" 	,.F.	,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaW50ZWdyYXRpb24iLCJzdWIiOiIwIiwibmFtZSI6IkR1eCBOdXRyaXRpb24iLCJpc3MiOiJNV2d2ZGp2VHVvbm12WlFZeDBjbUV2RlBmY2lDcDFaciIsIm5iZiI6MTcyNjc2NDQ3MCwiZXhwIjoyMjAwMDYzNjcwLCJpYXQiOjE3MjY3NjQ0NzB9.m3yRVKAPGHhiqCKZCb1LkRSJl8Ypu7namsb-KPaDJZw"))
+	Local oRest as object
 	Local oOBj
-	local cPar  := cKeynam+cApiKey
-	local aHeader := {}
-	local aJson := {}
-	Local cTeste
+	Local aHeader 		:= {}
+	Local aJson 		:= {}
+	Local _cFil  		:= FWCodFil()
 
-	If IsBlind()
-		Conout("JOB ZWSR004 (BUSCA PEDIDOS) INICIADO NA DATA: "+Dtos(Date())+" NO HORÁRIO: "+TIME()+" ")
+	Default lJob		:= .F.
+
+	If lJob
+		ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Inicio Processamento")
 		PREPARE ENVIRONMENT EMPRESA cEmpAnt FILIAL cFilAnt MODULO "FAT"
 	Endif
 
-	aadd(aHeader,'Authorization: Bearer '+cBearer)
-	aadd(aHeader,'Content-Type: application/json;charset=UTF-8')
-	aadd(aHeader,cPar)
+	If AllTrim(_cFil) == "04" //Executa somente na filial 04
 
-	oRest := FWRest():new(cURL)
-	oRest:setPath(cEnd)
-	//oRest:SetGetParams(cPar)
-	oRest:GET(aHeader)
-	cTeste := oRest:GetResult()
-	FwJsonDeserialize(oRest:GetResult(),@oOBj)
-	aJson := oObj
-/*
-||||||/////////RETIRAR//////////||||| */
-//aJson := pegaJson() //--> FUNÇÃO PARA PEGAR JSON TESTE <-- 
-/*|||||/////////////////////////||||*/
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³  Chamada função para pegar todos os dados do GET                         ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-if !Empty(aJson)
-    GetPedZFR(@aJson)
-endif 
-Conout("JOB ZWSR004 (BUSCA PEDIDOS) FINALIZADO NA DATA: "+Dtos(Date())+" NO HORÁRIO: "+TIME()+" ")
-RESET ENVIRONMENT
+		Aadd(aHeader	, 'Authorization: Bearer '+ cBearer)
+		Aadd(aHeader	, 'Content-Type: application/json;charset=UTF-8')
+		Aadd(aHeader	, cApiKey)
+
+		oRest := FWRest():New(cUrlRest)
+		oRest:SetPath(cEndPoint)
+		oRest:Get(aHeader)
+
+		FwJsonDeserialize(oRest:GetResult(),@oOBj)
+		
+		aJson := oObj
+		
+		If !Empty(aJson)
+			If lJob
+				ZF01R004(@aJson, lJob)
+			Else
+				Processa({|| ZF01R004(@aJson, lJob) }, "[ZWSR004] - Buscando notas faturadas na InfraCommerce", "Aguarde ...." )
+			EndIf
+		EndIf 
+
+		If lJob
+			ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Fim Processamento")
+			RESET ENVIRONMENT
+		Else
+			ApMsgInfo( 'Processamento Concluido com Sucesso.', '[ZWSR004]' )
+		Endif
+	Else
+		If lJob
+			ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Permitido executar a rotina somente na Filial 04")
+		Else
+			ApMsgInfo( 'Permitido executar a rotina somente na Filial 04', '[ZWSR004]' )
+		Endif
+	EndIf
+
 Return()
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±ÉÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma ³ GetPedZFR          ºAutor³ Allan Rabelo            º Data ³ 25/09/2024 º±±
+±±ºPrograma ³ ZF01R004          ºAutor³ Allan Rabelo            º Data ³ 25/09/2024 º±±
 ±±ÌÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
 ±±ºDesc.    ³ Get trazendo todas as invoice alimentando a tabela ZFR com base no     º±±
 ±±º         ³ Resultado                                                              º±±
@@ -85,19 +99,30 @@ Return()
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 
-Static Function GetPedZFR(aJson)
-	Local nCont := 0
-	Local aDados := {}
-	Local aContd := {}
-	local cOper   := GetMV("DX_OPER",.F.,"COMERCIALIZACAO DE MERCADORIAS")
-	Local lRet := .F.
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-    //³  Monto array com base no que estou RECEBENDO JSON                         ³
-    //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Static Function ZF01R004(aJson, lJob)
 
-//// Trocar para INVOICE quando liberar a API//////////
+	Local nCont 	:= 0
+	Local nTotReg	:= 0
+	Local aDados 	:= {}
+	Local aInvoices	:= {}
+	Local cOper   	:= AllTrim( SuperGetMv("DUX_API011"	,.F.	,"COMERCIALIZACAO DE MERCADORIAS"))
+	
+	Default lJob		:= .F.
+	
+	If !(lJob)
+        nTotReg := Len(aJson["invoices"])
+        ProcRegua( nTotReg )
+    EndIf
+
 	For nCont := 1 to Len(aJson["invoices"])
-		if (aJson["invoices"][nCont]["operationType"] == cOper)
+
+		If lJob
+			ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Processando Invoice: " + Alltrim(aJson["invoices"][nCont]["invoiceNumber"]) + " | ID: " + Alltrim(aJson["invoices"][nCont]["_id"] ))
+		Else
+			IncProc( "Processando Invoice: " + Alltrim(aJson["invoices"][nCont]["invoiceNumber"]) + " | ID: " + Alltrim(aJson["invoices"][nCont]["_id"] ))
+		EndIf
+
+		If (aJson["invoices"][nCont]["operationType"] == cOper)
 			aadd(aDados,aJson["invoices"][nCont]["_id"])
 			aadd(aDados,aJson["invoices"][nCont]["status"])
 			aadd(aDados,aJson["invoices"][nCont]["invoiceNumber"])
@@ -121,22 +146,22 @@ Static Function GetPedZFR(aJson)
 			aadd(aDados,SubStr(aJson["invoices"][nCont]["order"]["platformNumber"],3))
 			aadd(aDados,aJson["invoices"][nCont]["storeId"])
 
-			aadd(aContd,aDados)
+			aadd(aInvoices,aDados)
 		endif 
 		aDados := {}
 	Next
-	if !Empty(aContd)
-		if GrvContd(aContd)
-			lRet := .T.
-		endif
-	endif
-Return(lRet)
+
+	If !Empty(aInvoices)
+		ZF02R004(aInvoices, lJob)
+	EndIf
+
+Return()
 
 /*
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±ÉÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma ³ GrvContd           ºAutor³ Allan Rabelo            º Data ³ 25/09/2024 º±±
+±±ºPrograma ³ ZF02R004           ºAutor³ Allan Rabelo            º Data ³ 25/09/2024 º±±
 ±±ÌÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
 ±±ºDesc.    ³ Recklock na tabela ponte ZFR                                           º±±
 ±±º         ³                                                                        º±±
@@ -160,100 +185,56 @@ Return(lRet)
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
-Static Function GrvContd(aContd)
+Static Function ZF02R004(aInvoices, lJob)
 
 	Local nCont := 0
-	Local lRet := .T.
+
+	Default lJob		:= .F.
 
 	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
     //³  Gravo Conteudo na tabela PONTE                                           ³
     //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
-	For nCont := 1 to Len(aContd)
+	For nCont := 1 to Len(aInvoices)
+		
 		DbSelectArea("ZFR")
 		ZFR->(DBSetOrder(1))
-		ZFR->(DbGoTop())
-		if !(ZFR->(DbSeek(xFilial("ZFR")+PADR(aContd[nCont][16],TamSX3("ZFR_PEDIDO")[1]))))
+		If !(ZFR->(DbSeek(xFilial("ZFR") + PADR(aInvoices[nCont][16], TamSX3("ZFR_PEDIDO")[1]))))
+
 			RecLock("ZFR",.T.)
-			ZFR->ZFR_FILIAL := cFilAnt
-			ZFR->ZFR_ID     := aContd[nCont][1]
-			ZFR->ZFR_STATIN := aContd[nCont][2]
-			ZFR->ZFR_INVOIC := aContd[nCont][3]
-			ZFR->ZFR_OPER   := aContd[nCont][4]
-			ZFR->ZFR_EMISSA := aContd[nCont][5]
-			ZFR->ZFR_ITOUTS  := aContd[nCont][6]
-			ZFR->ZFR_CODSEL := aContd[nCont][7]
-			ZFR->ZFR_IDSELL := aContd[nCont][8]
-			ZFR->ZFR_UPDAT  := aContd[nCont][9]
-			ZFR->ZFR_CHAVE  := aContd[nCont][10]
-			ZFR->ZFR_DOC    := Upper(aContd[nCont][11])
-			ZFR->ZFR_DOCTIP := aContd[nCont][12]
-			ZFR->ZFR_NOME   := aContd[nCont][13]
-			//ZFR->ZFR_PDINT  := aContd[nCont][14]
-			ZFR->ZFR_PEDIDO := aContd[nCont][16]
-			ZFR->ZFR_PLATNU := aContd[nCont][16]
-			ZFR->ZFR_STOREI := aContd[nCont][17]
-			ZFR->ZFR_STATUS := "1"
-			ZFR->ZFR_DATAPD := Date()
-			ZFR->ZFR_HORAPD := Time()
+				ZFR->ZFR_FILIAL 	:= cFilAnt
+				ZFR->ZFR_ID     	:= aInvoices[nCont][01]
+				ZFR->ZFR_STATIN 	:= aInvoices[nCont][02]
+				ZFR->ZFR_INVOIC 	:= aInvoices[nCont][03]
+				ZFR->ZFR_OPER   	:= aInvoices[nCont][04]
+				ZFR->ZFR_EMISSA 	:= aInvoices[nCont][05]
+				ZFR->ZFR_ITOUTS 	:= aInvoices[nCont][06]
+				ZFR->ZFR_CODSEL 	:= aInvoices[nCont][07]
+				ZFR->ZFR_IDSELL 	:= aInvoices[nCont][08]
+				ZFR->ZFR_UPDAT  	:= aInvoices[nCont][9]
+				ZFR->ZFR_CHAVE  	:= aInvoices[nCont][10]
+				ZFR->ZFR_DOC    	:= Upper(aInvoices[nCont][11])
+				ZFR->ZFR_DOCTIP 	:= Upper(aInvoices[nCont][12])
+				ZFR->ZFR_NOME   	:= aInvoices[nCont][13]
+				//ZFR->ZFR_PDINT	  := aContd[nCont][14]
+				ZFR->ZFR_PEDIDO 	:= aInvoices[nCont][16]
+				ZFR->ZFR_PLATNU 	:= aInvoices[nCont][16]
+				ZFR->ZFR_STOREI 	:= aInvoices[nCont][17]
+				ZFR->ZFR_STATUS 	:= "01"
+				ZFR->ZFR_DATAPD 	:= Date()
+				ZFR->ZFR_HORAPD 	:= Time()
 			ZFR->(MsUnlock())
 
-        /* -->Execução parte dois -> Envio de aviso de recebimento <--*/
-			if !Empty(ZFR->ZFR_ID)
-				lRet :=  U_ZWSR005(ZFR->ZFR_ID)
-			endif
-		endif
+			//Apos gravar, envia a confirmação da nota fiscal para a infracommerce
+			If !Empty(ZFR->ZFR_ID)
+				If lJob
+					ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Enviando a confirmacao de Recebimento da Invoice: " + Alltrim(ZFR->ZFR_INVOIC))
+					U_ZWSR005(ZFR->ZFR_ID, ZFR->ZFR_PEDIDO, lJob)
+				Else
+					FWMsgRun(,{|| U_ZWSR005(ZFR->ZFR_ID, ZFR->ZFR_PEDIDO, lJob) },,"Enviando a confirmação de Recebimento da Invoice: " + AllTrim(ZFR->ZFR_INVOIC) + ", aguarde...")
+				EndIf				
+			Endif
+		Endif
 	Next
-Return(lRet)
 
-
-
-/*/{Protheus.doc} PEGAJSON
-    (long_description)
-    @type  Static Function
-    @author user
-    @since date
-    @version version
-    @param param, param_type, param_descr
-    @return return, return_type, return_description
-    @example
-    (examples)
-    @see (links_or_references)
-    /*/
-Static Function pegaJson()
-	local cFile := 'C:\temp\db1.json'
-	local cJsonStr,oJson
-	Local cCount
-	Local aJson
-	Local oJsonB
-
-	cJsonStr := readfile(cFile)
-	oJson := JsonObject():New()
-	cErr := oJson:fromJson(cJsonStr)
-	aJson := FWJsonDeserialize(cJsonStr,@oJsonB)
-	aJson := @oJsonB
-	If !empty(cErr)
-		MsgStop(cErr,"JSON PARSE ERROR")
-		Return
-	Endif
-	//FreeObj(oJsonB)
-
-
-Return(@aJson)
-
-
-STATIC Function ReadFile(cFile)
-	Local cBuffer := ''
-	Local nH , nTam
-	nH := Fopen(cFile)
-	IF nH != -1
-		nTam := fSeek(nH,0,2)
-		fSeek(nH,0)
-		cBuffer := space(nTam)
-		fRead(nH,@cBuffer,nTam)
-		fClose(nH)
-	Else
-		MsgStop("Falha na abertura do arquivo ["+cFile+"]","FERROR "+cValToChar(Ferror()))
-	Endif
-
-Return cBuffer
+Return()
