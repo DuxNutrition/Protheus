@@ -1,11 +1,13 @@
-#INCLUDE 'Protheus.ch'
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE 'TOTVS.CH'
 
 /*/{Protheus.doc} MTA650I 
-	@description    - Geração de Ordens de Produção 
-	@author Daniel Neumann - CI Result
-    @history Dux | Jedielson Rodrigues
-	@since 12/04/2023
-	@version 1.0
+@description - Geração de Ordens de Produção 
+@author Daniel Neumann - CI Result
+@history Dux | Jedielson Rodrigues
+@since 12/04/2023
+@version 1.0
+@See https://tdn.totvs.com/pages/releaseview.action;jsessionid=19F8795DFB06DE77D5C94BA940E27BB3?pageId=6089303
 /*/
 
 User Function MTA650I()
@@ -18,6 +20,7 @@ Local cProduto  := SC2->C2_PRODUTO
 Local cEmissao  := SC2->C2_EMISSAO
 Local cProdRb   := SC2->C2_XRBD  
 Local cTpInd    := SC2->C2_XTPIND 
+Local cLotectl  := ""
 
 If ExistFunc("U_ZPCPF001")
     cLotectl := U_ZPCPF001(cNum,cProduto,cEmissao,cProdRb,cTpInd)
