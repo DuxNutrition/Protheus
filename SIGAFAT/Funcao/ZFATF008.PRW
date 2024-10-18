@@ -235,7 +235,11 @@ User Function ZFATF008(aXml,cId, cNumPed)
 						ZFR->( DBSetOrder( 2 ) )
 						If  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
 							RecLock("ZFR",.F.)
-								ZFR->ZFR_STATUS := "40"
+								ZFR->ZFR_STATUS	:= "40"
+								ZFR->ZFR_DTERP	:= Date()
+								ZFR->ZFR_HRERP	:= Time()
+								ZFR->ZFR_NFERP	:= _cNota
+								ZFR->ZFR_SERERP	:= cSerie
 							ZFR->(MsUnlock())
 							ZFR->(dbCloseArea())
 						EndIf
