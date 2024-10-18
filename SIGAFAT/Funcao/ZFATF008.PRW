@@ -101,48 +101,48 @@ User Function ZFATF008(aXml,cId, cNumPed)
 				cQuery += " 	LEFT JOIN "+RetSqlName("SC5")+" AS SC5 "										+ CRLF 
 				cQuery += " 		ON 	SC5.C5_FILIAL = SC9.C9_FILIAL " 										+ CRLF
 				cQuery += " 		AND SC5.C5_NUM = SC9.C9_PEDIDO " 											+ CRLF
-				cQuery += " 		AND SC5.D_E_L_E_T_ = ''  "													+ CRLF
+				cQuery += " 		AND SC5.D_E_L_E_T_ <> '*'  "												+ CRLF
 				cQuery += " 	LEFT JOIN "+RetSqlName("SC6")+" AS SC6 "										+ CRLF
 				cQuery += " 		ON 	SC6.C6_FILIAL = SC9.C9_FILIAL " 										+ CRLF
 				cQuery += " 		AND SC6.C6_NUM = SC9.C9_PEDIDO "											+ CRLF
 				cQuery += " 		AND SC6.C6_ITEM = SC9.C9_ITEM "												+ CRLF
 				cQuery += " 		AND SC6.C6_PRODUTO = SC9.C9_PRODUTO  "										+ CRLF
-				cQuery += " 		AND SC6.D_E_L_E_T_ = '' "													+ CRLF
+				cQuery += " 		AND SC6.D_E_L_E_T_ <> '*' "													+ CRLF
 				cQuery += " 	LEFT JOIN "+RetSqlName("SF4")+" AS SF4 "										+ CRLF
 				cQuery += "			ON SF4.F4_FILIAL = '" + FWxFilial('SF4') + "' "								+ CRLF
 				cQuery += "			AND SF4.F4_CODIGO = SC6.C6_TES "											+ CRLF
-				cQuery += "			AND SF4.D_E_L_E_T_ = ''  "													+ CRLF
+				cQuery += "			AND SF4.D_E_L_E_T_ <> '*'  "												+ CRLF
 				cQuery += " 	LEFT JOIN "+RetSqlName("ZFR")+" AS ZFR "										+ CRLF
 				cQuery += " 		ON ZFR.ZFR_FILIAL = '" + FWxFilial('ZFR') + "' "							+ CRLF
 				cQuery += " 		AND ZFR.ZFR_PEDIDO  = SC6.C6_NUM "											+ CRLF
-				cQuery += " 		AND ZFR.D_E_L_E_T_ = '' "													+ CRLF
+				cQuery += " 		AND ZFR.D_E_L_E_T_ <> '*' "													+ CRLF
 				cQuery += " 	LEFT JOIN "+RetSqlName("SA1")+" AS SA1 "										+ CRLF
 				cQuery += "			ON SA1.A1_FILIAL = '" + FWxFilial('SA1') + "' "								+ CRLF	
 				cQuery += " 		AND  SA1.A1_COD = SC6.C6_CLI "												+ CRLF
 				cQuery += " 		AND SA1.A1_LOJA = SC6.C6_LOJA "  											+ CRLF
-				cQuery += "			AND SA1.D_E_L_E_T_ = '' "													+ CRLF
+				cQuery += "			AND SA1.D_E_L_E_T_ <> '*' "													+ CRLF
 				cQuery += " 	LEFT JOIN "+RetSqlName("SB1")+" AS SB1 "										+ CRLF
 				cQuery += "			ON SB1.B1_FILIAL = '" + FWxFilial('SB1') + "' "								+ CRLF
 				cQuery += "			AND SB1.B1_COD = SC6.C6_PRODUTO " 											+ CRLF
 				cQuery += " 		AND SB1.B1_MSBLQL = '2' "													+ CRLF
-				cQuery += "			AND SB1.D_E_L_E_T_ = ''  "													+ CRLF
+				cQuery += "			AND SB1.D_E_L_E_T_ <> '*'  "												+ CRLF
 				cQuery += " 	LEFT JOIN "+RetSqlName("SE4")+" AS SE4 "										+ CRLF
 				cQuery += "			ON SE4.E4_FILIAL = '" + FWxFilial('SE4') + "' "								+ CRLF
 				cQuery += "			AND SE4.E4_CODIGO = SC5.C5_CONDPAG "										+ CRLF
-				cQuery += "			AND SE4.D_E_L_E_T_ = '' "													+ CRLF
+				cQuery += "			AND SE4.D_E_L_E_T_ <> '*' "													+ CRLF
 				cQuery += " 	LEFT JOIN "+RetSqlName("SB2")+" AS SB2 "										+ CRLF
 				cQuery += "			ON SB2.B2_FILIAL = '" + FWxFilial('SB2') + "' "								+ CRLF
 				cQuery += "			AND SB2.B2_COD = SC6.C6_PRODUTO "											+ CRLF
 				cQuery += "			AND SB2.B2_LOCAL = SC6.C6_LOCAL "											+ CRLF
-				cQuery += "			AND SB2.D_E_L_E_T_ = '' "													+ CRLF
+				cQuery += "			AND SB2.D_E_L_E_T_ <> '*' "													+ CRLF
 				cQuery += " WHERE SC9.C9_FILIAL = '" + FWxFilial('SC9') + "' "									+ CRLF
 				cQuery += " AND SC9.C9_PEDIDO = '"+SC5->C5_NUM+"' "												+ CRLF
 				cQuery += " AND SC9.C9_PRODUTO = '"+Alltrim(aXmLItens[nCont]:_prod:_cprod:text)+"' "			+ CRLF
-				cQuery += " AND SC9.C9_QTDLIB = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))+" "	+ CRLF
-				cQuery += " AND SC9.C9_PRCVEN = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))+""	+ CRLF
+				//cQuery += " AND SC9.C9_QTDLIB = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))+" "	+ CRLF
+				//cQuery += " AND SC9.C9_PRCVEN = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))+""	+ CRLF
 				//cQuery += " AND SC9.C9_BLCRED = '' "															+ CRLF
 				//cQuery += " AND SC9.C9_BLEST = ''  "															+ CRLF
-				cQuery += " AND SC9.D_E_L_E_T_ = ''  "															+ CRLF
+				cQuery += " AND SC9.D_E_L_E_T_ <> '*' "															+ CRLF
 				cQuery += " ORDER BY SC9.C9_PRODUTO "															+ CRLF
 				
 				// Executa a consulta.
@@ -153,14 +153,26 @@ User Function ZFATF008(aXml,cId, cNumPed)
 				If (cAliasHD)->(!Eof())
 
 					If !Empty((cAliasHD)->ESTSC9)
-						cMsgErro := "Item: " + AllTrim((cAliasHD)->PRODX) + " com problema de estoque"
-						lRet := .F.
-					ElseIf !Empty((cAliasHD)->CRESC9)
-						cMsgErro := "Item: " + AllTrim((cAliasHD)->PRODX) + " com problema de crédito"
-						lRet := .F.
-					Else
+						cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Problema de estoque na liberacao do Pedido de Venda" + CRLF
+						lRet 	:= .F.
+					EndIf
 
-					
+					If !Empty((cAliasHD)->CRESC9)
+						cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Problema de credito na liberacao do Pedido de Venda" + CRLF
+						lRet := .F.
+					EndIf
+
+					If (cAliasHD)->QTDX <> GetDToVal(aXmLItens[nCont]:_prod:_qcom:text)
+						cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Quantidade divergente entre Pedido Protheus ( " + AllTrim(cValToChar((cAliasHD)->QTDX)) + " ) e XML InfraCommerce ( " + AllTrim(cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))) + " )" + CRLF
+						lRet := .F.
+					EndIf
+
+					If (cAliasHD)->PRCX <> GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
+						cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Preco divergente entre Pedido Protheus ( R$ " + AllTrim(cValToChar((cAliasHD)->PRCX)) + " ) e XML InfraCommerce ( R$ " + AllTrim(cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))) + " )" + CRLF
+						lRet := .F.
+					EndIf
+	
+					If lRet
 						//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 						//³ Monta Array de itens com base na query acima                              ³
 						//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
@@ -184,9 +196,9 @@ User Function ZFATF008(aXml,cId, cNumPed)
 						_DxNfc := PadL(aXml:_NFEPROC:_NFE:_INFNFE:_IDE:_NNF:TEXT,9, '0')
 						
 						aadd(_aPvlNfs,aDados)
-
-						(cAliasHD)->(dbCloseArea())
 					EndIf
+
+					(cAliasHD)->(dbCloseArea())
 				Else
 					lRet := .F.
 				EndIf
