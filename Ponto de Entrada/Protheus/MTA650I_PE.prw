@@ -3,6 +3,7 @@
 /*/{Protheus.doc} MTA650I 
 	@description    - Geração de Ordens de Produção 
 	@author Daniel Neumann - CI Result
+    @history Dux | Jedielson Rodrigues
 	@since 12/04/2023
 	@version 1.0
 /*/

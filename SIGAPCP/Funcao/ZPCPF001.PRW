@@ -3,16 +3,18 @@
 /*/{Protheus.doc} ZPCPF001
 Geração automatica do numero de lote
 @type function
-@version 12.1.2310
+@version 1.0
 @author Dux | Allan Rabelo
+@history Dux | Jedielson Rodrigues
 @since 05/08/2024
 @return cRet
 /*/
 
 User Function ZPCPF001(cNum,cProduto,cEmissao,cProdRb,cTpInd)
 
-Local cRet    := SPACE(10)
+Local cRet    := Space(TamSX3('C2_LOTECTL')[1])
 Local lRastro := .F.
+Local cLetra  := " "
 
 Default cNum     := M->C2_NUM
 Default cProduto := M->C2_PRODUTO
@@ -23,10 +25,14 @@ Default cTpInd   := M->C2_XTPIND
 lRastro := Rastro(cProduto)
 
 If lRastro == .T.
+	cLetra := Chr(64+Month(M->C2_EMISSAO))
+	If cLetra $ "I|O"
+		cLetra := Chr(Asc(cLetra) + 1)
+	Endif
 	IF cProdRb == 'S'
-		cRet := "R"+Chr(64+Month(M->C2_EMISSAO))+Right(DToC(M->C2_EMISSAO),1)+Substr(M->C2_NUM,3,4)+cTpInd
+		cRet := "R"+cLetra+Right(DToC(cEmissao),1)+Substr(cNum,3,4)+cTpInd
 	Else
-		cRet := Chr(64+Month(M->C2_EMISSAO))+Right(DToC(M->C2_EMISSAO),1)+Substr(M->C2_NUM,3,4)+cTpInd
+		cRet := cLetra+Right(DToC(cEmissao),1)+Substr(cNum,3,4)+cTpInd
 	Endif
 Endif
 
