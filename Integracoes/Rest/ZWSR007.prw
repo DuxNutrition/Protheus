@@ -6,7 +6,7 @@
 Methodo POST para envio para VTEX de notas fiscais
 @type function
 @version 12.1.2310
-@author Dux | Allan Rabel
+@author Dux | Allan Rabelo
 @since 21/10/2024
 @param cIdSeek, character, Id Infra
 @param cPedSeek, character, Pedido Protheus
@@ -94,7 +94,7 @@ User Function ZWSR007(cIdSeek, cPedSeek, lJob)
                     cQuery += " AND ZFR_PEDIDO = '"+cPedSeek+"' "                       + CRLF
                 EndIf
                 cQuery += " AND ZFR_XML <> ' ' "                                        + CRLF    
-                //cQuery += " AND ZFR_PEDIDO = '002002'  "                                + CRLF
+                cQuery += " AND ZFR_PEDIDO = '002002'  "                                + CRLF
                 cQuery += " AND ZFR.D_E_L_E_T_ <> '*'  "                                + CRLF
                 cQuery += " ORDER BY ZFR_ID, ZFR_STATUS , ZFR_PEDIDO "                  + CRLF    
 
@@ -276,10 +276,10 @@ Envia o post para a VTex
 /*/
 Static Function zEnvPost(jBody,cPedLv,cIdIc)
 
-	Local cURL      := SuperGetMV("DUX_API013"  ,.F.,"https://duxnutrition.vtexcommercestable.com.br/api/oms/pvt/orders/")
-	Local cEnd      := SuperGetMV("DUX_API014"  ,.F.,"/invoice")
-	Local cApiKey   := "X-VTEX-API-AppKey: "    + AllTrim(SuperGetMV("DUX_API015"  ,.F.,"vtexappkey-duxnutrition-ANSENB"))
-	Local cToken    := "X-VTEX-API-AppToken: "  + AllTrim(SuperGetMv("DUX_API016"  ,.F.,"NWMCEYASEVOEVRBYGCVTNQOZMBPWIPAGVLOFMVYZNUHHXCODMDTZQUBEABTKTLDLVPKUJZGYXUWNRTDMJTHZTJEOLPINEAWURSEWWEQCUORHHBRLSAKDAKJFDSNTBLLL"))
+	Local cURL      := AllTrim(SuperGetMV("DUX_API013"  ,.F.,""))
+	Local cEnd      := AllTrim(SuperGetMV("DUX_API014"  ,.F.,""))
+	Local cApiKey   := "X-VTEX-API-AppKey: "    + AllTrim(SuperGetMV("DUX_API015"  ,.F.,""))
+	Local cToken    := "X-VTEX-API-AppToken: "  + AllTrim(SuperGetMv("DUX_API016"  ,.F.,""))
 	Local oOBj
 	Local aHeader   := {}
 	Local cResponse
