@@ -94,7 +94,7 @@ User Function ZWSR007(cIdSeek, cPedSeek, lJob)
                     cQuery += " AND ZFR_PEDIDO = '"+cPedSeek+"' "                       + CRLF
                 EndIf
                 cQuery += " AND ZFR_XML <> ' ' "                                        + CRLF    
-                cQuery += " AND ZFR_PEDIDO = '002002'  "                                + CRLF
+                //cQuery += " AND ZFR_PEDIDO = '002002'  "                                + CRLF
                 cQuery += " AND ZFR.D_E_L_E_T_ <> '*'  "                                + CRLF
                 cQuery += " ORDER BY ZFR_ID, ZFR_STATUS , ZFR_PEDIDO "                  + CRLF    
 
