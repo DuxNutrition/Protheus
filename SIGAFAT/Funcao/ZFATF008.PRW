@@ -41,9 +41,12 @@ User Function ZFATF008(aXml,cId, cNumPed)
 	Local aDados 		:= {}
 	Local cSerie  		:= AllTrim( SuperGetMv("DUX_FAT003"	,.F.	,"DUX"))
 	//Local cTipoNF 		:= AllTrim( SuperGetMv("DUX_FAT004"	,.F.	,"SPED"))
+	Local lVldImp		:= SuperGetMV("DUX_FAT005",.F.,.T.) 
 	Local cAliasHD 		:= GetNextAlias()
 	Local _aPvlNfs 		:= {}
 	Local cMsgErro		:= ""
+	Local cXPedLv		:= ""
+	Local cMsgImp		:= ""
 	Local _cNota
 
 	Private _DxFtC
@@ -59,152 +62,156 @@ User Function ZFATF008(aXml,cId, cNumPed)
 	EndIf
 
 	SC5->( DBSetOrder( 1 ) )
-	nCont := 0
+	nCont 	:= 0
+	cXPedLv := ""
 
-	Begin Transaction
-		If SC5->( DBSeek( xFilial( "SC5" ) + cNumPed ) )
-			For nCont := 1 To Len(aXmlItens)
-				
-				If Select( (cAliasHD) ) > 0
-					(cAliasHD)->(DbCloseArea())
+	If SC5->( DBSeek( xFilial( "SC5" ) + cNumPed ) )
+
+		cXPedLv := SC5->C5_XPEDLV
+
+		For nCont := 1 To Len(aXmlItens)
+			
+			If Select( (cAliasHD) ) > 0
+				(cAliasHD)->(DbCloseArea())
+			EndIf
+
+			cQuery := " "
+			cQuery := " SELECT "																			+ CRLF
+			cQuery += " 	 SC9.R_E_C_N_O_                   								AS RECSC9 " 	+ CRLF
+			cQuery += " 	,SUBSTRING(ZFR.ZFR_CHAVE,25,9)    								AS NOTAX "		+ CRLF
+			cQuery += " 	,SA1.A1_COD      												AS CODCLIX "	+ CRLF	
+			cQuery += " 	,SA1.A1_LOJA     												AS LOJACLIX "	+ CRLF
+			cQuery += " 	,CONVERT(DATE,SUBSTRING(ZFR.ZFR_EMISSA,1,10),23) 				AS EMISSX "		+ CRLF
+			cQuery += " 	,SC9.C9_ITEM     												AS ITEMX "		+ CRLF
+			cQuery += " 	,SC6.C6_CF       												AS CFOPX "		+ CRLF
+			cQuery += " 	,SC9.C9_PRODUTO  												AS PRODX "		+ CRLF
+			cQuery += " 	,SB1.B1_UM       												AS UMX "		+ CRLF
+			cQuery += " 	,SC9.C9_PEDIDO   												AS PEDSC9 "		+ CRLF
+			cQuery += " 	,SC9.C9_QTDLIB   												AS QTDX "		+ CRLF
+			cQuery += " 	,SC9.C9_PRCVEN   												AS PRCX "		+ CRLF
+			cQuery += " 	,SC9.C9_QTDLIB * SC9.C9_PRCVEN  								AS TOTALX "		+ CRLF
+			cQuery += " 	,SC9.C9_BLEST   												AS ESTSC9 "		+ CRLF
+			cQuery += " 	,SC9.C9_BLCRED   												AS CRESC9 "		+ CRLF
+			cQuery += " 	,SC6.C6_PRUNIT   												AS PRCUNX "		+ CRLF
+			cQuery += " 	,SC6.C6_LOCAL    												AS LOCALX "		+ CRLF
+			cQuery += " 	,SC6.C6_TES      												AS TESX "		+ CRLF
+			cQuery += " 	,SC5.R_E_C_N_O_  												AS RECSC5 "		+ CRLF
+			cQuery += " 	,SC6.R_E_C_N_O_  												AS RECSC6 "		+ CRLF
+			cQuery += " 	,SB1.R_E_C_N_O_  												AS RECSB1 "		+ CRLF
+			cQuery += " 	,SC5.R_E_C_N_O_  												AS RECSC5 "		+ CRLF
+			cQuery += " 	,SF4.R_E_C_N_O_  												AS RECSF4 "		+ CRLF
+			cQuery += " 	,SB2.R_E_C_N_O_  												AS RECSB2 "		+ CRLF
+			cQuery += " 	,SE4.R_E_C_N_O_  												AS RECSE4 "		+ CRLF
+			cQuery += " 	,SC9.C9_SEQUEN   												AS SEQX "		+ CRLF
+			cQuery += " FROM "+RetSqlName("SC9")+" AS SC9 "													+ CRLF			
+			cQuery += " 	LEFT JOIN "+RetSqlName("SC5")+" AS SC5 "										+ CRLF 
+			cQuery += " 		ON 	SC5.C5_FILIAL = SC9.C9_FILIAL " 										+ CRLF
+			cQuery += " 		AND SC5.C5_NUM = SC9.C9_PEDIDO " 											+ CRLF
+			cQuery += " 		AND SC5.D_E_L_E_T_ <> '*'  "												+ CRLF
+			cQuery += " 	LEFT JOIN "+RetSqlName("SC6")+" AS SC6 "										+ CRLF
+			cQuery += " 		ON 	SC6.C6_FILIAL = SC9.C9_FILIAL " 										+ CRLF
+			cQuery += " 		AND SC6.C6_NUM = SC9.C9_PEDIDO "											+ CRLF
+			cQuery += " 		AND SC6.C6_ITEM = SC9.C9_ITEM "												+ CRLF
+			cQuery += " 		AND SC6.C6_PRODUTO = SC9.C9_PRODUTO  "										+ CRLF
+			cQuery += " 		AND SC6.D_E_L_E_T_ <> '*' "													+ CRLF
+			cQuery += " 	LEFT JOIN "+RetSqlName("SF4")+" AS SF4 "										+ CRLF
+			cQuery += "			ON SF4.F4_FILIAL = '" + FWxFilial('SF4') + "' "								+ CRLF
+			cQuery += "			AND SF4.F4_CODIGO = SC6.C6_TES "											+ CRLF
+			cQuery += "			AND SF4.D_E_L_E_T_ <> '*'  "												+ CRLF
+			cQuery += " 	LEFT JOIN "+RetSqlName("ZFR")+" AS ZFR "										+ CRLF
+			cQuery += " 		ON ZFR.ZFR_FILIAL = '" + FWxFilial('ZFR') + "' "							+ CRLF
+			cQuery += " 		AND ZFR.ZFR_PEDIDO  = SC6.C6_NUM "											+ CRLF
+			cQuery += " 		AND ZFR.D_E_L_E_T_ <> '*' "													+ CRLF
+			cQuery += " 	LEFT JOIN "+RetSqlName("SA1")+" AS SA1 "										+ CRLF
+			cQuery += "			ON SA1.A1_FILIAL = '" + FWxFilial('SA1') + "' "								+ CRLF	
+			cQuery += " 		AND  SA1.A1_COD = SC6.C6_CLI "												+ CRLF
+			cQuery += " 		AND SA1.A1_LOJA = SC6.C6_LOJA "  											+ CRLF
+			cQuery += "			AND SA1.D_E_L_E_T_ <> '*' "													+ CRLF
+			cQuery += " 	LEFT JOIN "+RetSqlName("SB1")+" AS SB1 "										+ CRLF
+			cQuery += "			ON SB1.B1_FILIAL = '" + FWxFilial('SB1') + "' "								+ CRLF
+			cQuery += "			AND SB1.B1_COD = SC6.C6_PRODUTO " 											+ CRLF
+			cQuery += " 		AND SB1.B1_MSBLQL = '2' "													+ CRLF
+			cQuery += "			AND SB1.D_E_L_E_T_ <> '*'  "												+ CRLF
+			cQuery += " 	LEFT JOIN "+RetSqlName("SE4")+" AS SE4 "										+ CRLF
+			cQuery += "			ON SE4.E4_FILIAL = '" + FWxFilial('SE4') + "' "								+ CRLF
+			cQuery += "			AND SE4.E4_CODIGO = SC5.C5_CONDPAG "										+ CRLF
+			cQuery += "			AND SE4.D_E_L_E_T_ <> '*' "													+ CRLF
+			cQuery += " 	LEFT JOIN "+RetSqlName("SB2")+" AS SB2 "										+ CRLF
+			cQuery += "			ON SB2.B2_FILIAL = '" + FWxFilial('SB2') + "' "								+ CRLF
+			cQuery += "			AND SB2.B2_COD = SC6.C6_PRODUTO "											+ CRLF
+			cQuery += "			AND SB2.B2_LOCAL = SC6.C6_LOCAL "											+ CRLF
+			cQuery += "			AND SB2.D_E_L_E_T_ <> '*' "													+ CRLF
+			cQuery += " WHERE SC9.C9_FILIAL = '" + FWxFilial('SC9') + "' "									+ CRLF
+			cQuery += " AND SC9.C9_PEDIDO = '"+SC5->C5_NUM+"' "												+ CRLF
+			cQuery += " AND SC9.C9_PRODUTO = '"+Alltrim(aXmLItens[nCont]:_prod:_cprod:text)+"' "			+ CRLF
+			//cQuery += " AND SC9.C9_QTDLIB = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))+" "	+ CRLF
+			//cQuery += " AND SC9.C9_PRCVEN = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))+""	+ CRLF
+			//cQuery += " AND SC9.C9_BLCRED = '' "															+ CRLF
+			//cQuery += " AND SC9.C9_BLEST = ''  "															+ CRLF
+			cQuery += " AND SC9.D_E_L_E_T_ <> '*' "															+ CRLF
+			cQuery += " ORDER BY SC9.C9_PRODUTO "															+ CRLF
+			
+			// Executa a consulta.
+			DbUseArea( .T., "TOPCONN", TcGenQry(,,cQuery), cAliasHD, .T., .T. )
+			
+			DbSelectArea((cAliasHD))
+			(cAliasHD)->(dbGoTop())
+			If (cAliasHD)->(!Eof())
+
+				If !Empty((cAliasHD)->ESTSC9)
+					cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Problema de estoque na liberacao do Pedido de Venda" + CRLF
+					lRet 	:= .F.
 				EndIf
 
-				cQuery := " "
-				cQuery := " SELECT "																			+ CRLF
-				cQuery += " 	 SC9.R_E_C_N_O_                   								AS RECSC9 " 	+ CRLF
-				cQuery += " 	,SUBSTRING(ZFR.ZFR_CHAVE,25,9)    								AS NOTAX "		+ CRLF
-				cQuery += " 	,SA1.A1_COD      												AS CODCLIX "	+ CRLF	
-				cQuery += " 	,SA1.A1_LOJA     												AS LOJACLIX "	+ CRLF
-				cQuery += " 	,CONVERT(DATE,SUBSTRING(ZFR.ZFR_EMISSA,1,10),23) 				AS EMISSX "		+ CRLF
-				cQuery += " 	,SC9.C9_ITEM     												AS ITEMX "		+ CRLF
-				cQuery += " 	,SC6.C6_CF       												AS CFOPX "		+ CRLF
-				cQuery += " 	,SC9.C9_PRODUTO  												AS PRODX "		+ CRLF
-				cQuery += " 	,SB1.B1_UM       												AS UMX "		+ CRLF
-				cQuery += " 	,SC9.C9_PEDIDO   												AS PEDSC9 "		+ CRLF
-				cQuery += " 	,SC9.C9_QTDLIB   												AS QTDX "		+ CRLF
-				cQuery += " 	,SC9.C9_PRCVEN   												AS PRCX "		+ CRLF
-				cQuery += " 	,SC9.C9_QTDLIB * SC9.C9_PRCVEN  								AS TOTALX "		+ CRLF
-				cQuery += " 	,SC9.C9_BLEST   												AS ESTSC9 "		+ CRLF
-				cQuery += " 	,SC9.C9_BLCRED   												AS CRESC9 "		+ CRLF
-				cQuery += " 	,SC6.C6_PRUNIT   												AS PRCUNX "		+ CRLF
-				cQuery += " 	,SC6.C6_LOCAL    												AS LOCALX "		+ CRLF
-				cQuery += " 	,SC6.C6_TES      												AS TESX "		+ CRLF
-				cQuery += " 	,SC5.R_E_C_N_O_  												AS RECSC5 "		+ CRLF
-				cQuery += " 	,SC6.R_E_C_N_O_  												AS RECSC6 "		+ CRLF
-				cQuery += " 	,SB1.R_E_C_N_O_  												AS RECSB1 "		+ CRLF
-				cQuery += " 	,SC5.R_E_C_N_O_  												AS RECSC5 "		+ CRLF
-				cQuery += " 	,SF4.R_E_C_N_O_  												AS RECSF4 "		+ CRLF
-				cQuery += " 	,SB2.R_E_C_N_O_  												AS RECSB2 "		+ CRLF
-				cQuery += " 	,SE4.R_E_C_N_O_  												AS RECSE4 "		+ CRLF
-				cQuery += " 	,SC9.C9_SEQUEN   												AS SEQX "		+ CRLF
-				cQuery += " FROM "+RetSqlName("SC9")+" AS SC9 "													+ CRLF			
-				cQuery += " 	LEFT JOIN "+RetSqlName("SC5")+" AS SC5 "										+ CRLF 
-				cQuery += " 		ON 	SC5.C5_FILIAL = SC9.C9_FILIAL " 										+ CRLF
-				cQuery += " 		AND SC5.C5_NUM = SC9.C9_PEDIDO " 											+ CRLF
-				cQuery += " 		AND SC5.D_E_L_E_T_ <> '*'  "												+ CRLF
-				cQuery += " 	LEFT JOIN "+RetSqlName("SC6")+" AS SC6 "										+ CRLF
-				cQuery += " 		ON 	SC6.C6_FILIAL = SC9.C9_FILIAL " 										+ CRLF
-				cQuery += " 		AND SC6.C6_NUM = SC9.C9_PEDIDO "											+ CRLF
-				cQuery += " 		AND SC6.C6_ITEM = SC9.C9_ITEM "												+ CRLF
-				cQuery += " 		AND SC6.C6_PRODUTO = SC9.C9_PRODUTO  "										+ CRLF
-				cQuery += " 		AND SC6.D_E_L_E_T_ <> '*' "													+ CRLF
-				cQuery += " 	LEFT JOIN "+RetSqlName("SF4")+" AS SF4 "										+ CRLF
-				cQuery += "			ON SF4.F4_FILIAL = '" + FWxFilial('SF4') + "' "								+ CRLF
-				cQuery += "			AND SF4.F4_CODIGO = SC6.C6_TES "											+ CRLF
-				cQuery += "			AND SF4.D_E_L_E_T_ <> '*'  "												+ CRLF
-				cQuery += " 	LEFT JOIN "+RetSqlName("ZFR")+" AS ZFR "										+ CRLF
-				cQuery += " 		ON ZFR.ZFR_FILIAL = '" + FWxFilial('ZFR') + "' "							+ CRLF
-				cQuery += " 		AND ZFR.ZFR_PEDIDO  = SC6.C6_NUM "											+ CRLF
-				cQuery += " 		AND ZFR.D_E_L_E_T_ <> '*' "													+ CRLF
-				cQuery += " 	LEFT JOIN "+RetSqlName("SA1")+" AS SA1 "										+ CRLF
-				cQuery += "			ON SA1.A1_FILIAL = '" + FWxFilial('SA1') + "' "								+ CRLF	
-				cQuery += " 		AND  SA1.A1_COD = SC6.C6_CLI "												+ CRLF
-				cQuery += " 		AND SA1.A1_LOJA = SC6.C6_LOJA "  											+ CRLF
-				cQuery += "			AND SA1.D_E_L_E_T_ <> '*' "													+ CRLF
-				cQuery += " 	LEFT JOIN "+RetSqlName("SB1")+" AS SB1 "										+ CRLF
-				cQuery += "			ON SB1.B1_FILIAL = '" + FWxFilial('SB1') + "' "								+ CRLF
-				cQuery += "			AND SB1.B1_COD = SC6.C6_PRODUTO " 											+ CRLF
-				cQuery += " 		AND SB1.B1_MSBLQL = '2' "													+ CRLF
-				cQuery += "			AND SB1.D_E_L_E_T_ <> '*'  "												+ CRLF
-				cQuery += " 	LEFT JOIN "+RetSqlName("SE4")+" AS SE4 "										+ CRLF
-				cQuery += "			ON SE4.E4_FILIAL = '" + FWxFilial('SE4') + "' "								+ CRLF
-				cQuery += "			AND SE4.E4_CODIGO = SC5.C5_CONDPAG "										+ CRLF
-				cQuery += "			AND SE4.D_E_L_E_T_ <> '*' "													+ CRLF
-				cQuery += " 	LEFT JOIN "+RetSqlName("SB2")+" AS SB2 "										+ CRLF
-				cQuery += "			ON SB2.B2_FILIAL = '" + FWxFilial('SB2') + "' "								+ CRLF
-				cQuery += "			AND SB2.B2_COD = SC6.C6_PRODUTO "											+ CRLF
-				cQuery += "			AND SB2.B2_LOCAL = SC6.C6_LOCAL "											+ CRLF
-				cQuery += "			AND SB2.D_E_L_E_T_ <> '*' "													+ CRLF
-				cQuery += " WHERE SC9.C9_FILIAL = '" + FWxFilial('SC9') + "' "									+ CRLF
-				cQuery += " AND SC9.C9_PEDIDO = '"+SC5->C5_NUM+"' "												+ CRLF
-				cQuery += " AND SC9.C9_PRODUTO = '"+Alltrim(aXmLItens[nCont]:_prod:_cprod:text)+"' "			+ CRLF
-				//cQuery += " AND SC9.C9_QTDLIB = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))+" "	+ CRLF
-				//cQuery += " AND SC9.C9_PRCVEN = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))+""	+ CRLF
-				//cQuery += " AND SC9.C9_BLCRED = '' "															+ CRLF
-				//cQuery += " AND SC9.C9_BLEST = ''  "															+ CRLF
-				cQuery += " AND SC9.D_E_L_E_T_ <> '*' "															+ CRLF
-				cQuery += " ORDER BY SC9.C9_PRODUTO "															+ CRLF
-				
-				// Executa a consulta.
-				DbUseArea( .T., "TOPCONN", TcGenQry(,,cQuery), cAliasHD, .T., .T. )
-				
-				DbSelectArea((cAliasHD))
-				(cAliasHD)->(dbGoTop())
-				If (cAliasHD)->(!Eof())
-
-					If !Empty((cAliasHD)->ESTSC9)
-						cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Problema de estoque na liberacao do Pedido de Venda" + CRLF
-						lRet 	:= .F.
-					EndIf
-
-					If !Empty((cAliasHD)->CRESC9)
-						cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Problema de credito na liberacao do Pedido de Venda" + CRLF
-						lRet := .F.
-					EndIf
-
-					If (cAliasHD)->QTDX <> GetDToVal(aXmLItens[nCont]:_prod:_qcom:text)
-						cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Quantidade divergente entre Pedido Protheus ( " + AllTrim(cValToChar((cAliasHD)->QTDX)) + " ) e XML InfraCommerce ( " + AllTrim(cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))) + " )" + CRLF
-						lRet := .F.
-					EndIf
-
-					If (cAliasHD)->PRCX <> GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
-						cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Preco divergente entre Pedido Protheus ( R$ " + AllTrim(cValToChar((cAliasHD)->PRCX)) + " ) e XML InfraCommerce ( R$ " + AllTrim(cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))) + " )" + CRLF
-						lRet := .F.
-					EndIf
-
-					If lRet
-						//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-						//³ Monta Array de itens com base na query acima                              ³
-						//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-						aDados := {}
-						aadd(aDados,(cAliasHD)->(PEDSC9))
-						aadd(aDados,(cAliasHD)->(ITEMX))
-						aadd(aDados,(cAliasHD)->(SEQX))
-						aadd(aDados,(cAliasHD)->(QTDX))
-						aadd(aDados,(cAliasHD)->(PRCX))
-						aadd(aDados,(cAliasHD)->(PRODx))
-						aadd(aDados,.F.)
-						aadd(aDados,(cAliasHD)->(RECSC9))
-						aadd(aDados,(cAliasHD)->(RECSC5))
-						aadd(aDados,(cAliasHD)->(RECSC6))
-						aadd(aDados,(cAliasHD)->(RECSE4))
-						aadd(aDados,(cAliasHD)->(RECSB1))
-						aadd(aDados,(cAliasHD)->(RECSB2))
-						aadd(aDados,(cAliasHD)->(RECSF4))
-
-						_DxFtC := (cAliasHD)->(EMISSX)
-						_DxNfc := PadL(aXml:_NFEPROC:_NFE:_INFNFE:_IDE:_NNF:TEXT,9, '0')
-						
-						aadd(_aPvlNfs,aDados)
-					EndIf
-				Else
-					cMsgErro += "Item: " + Alltrim(aXmLItens[nCont]:_prod:_cprod:text) + " | Nao encontrado o item para liberado nos Pedidos de Venda do Protheus" + CRLF
+				If !Empty((cAliasHD)->CRESC9)
+					cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Problema de credito na liberacao do Pedido de Venda" + CRLF
 					lRet := .F.
 				EndIf
-			Next
-							
-			If lRet .And. !Empty(_aPvlNfs)
 
+				If (cAliasHD)->QTDX <> GetDToVal(aXmLItens[nCont]:_prod:_qcom:text)
+					cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Quantidade divergente entre Pedido Protheus ( " + AllTrim(cValToChar((cAliasHD)->QTDX)) + " ) e XML InfraCommerce ( " + AllTrim(cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))) + " )" + CRLF
+					lRet := .F.
+				EndIf
+
+				If (cAliasHD)->PRCX <> GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
+					cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Preco divergente entre Pedido Protheus ( R$ " + AllTrim(cValToChar((cAliasHD)->PRCX)) + " ) e XML InfraCommerce ( R$ " + AllTrim(cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))) + " )" + CRLF
+					lRet := .F.
+				EndIf
+
+				If lRet
+					//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+					//³ Monta Array de itens com base na query acima                              ³
+					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					aDados := {}
+					aadd(aDados,(cAliasHD)->(PEDSC9))
+					aadd(aDados,(cAliasHD)->(ITEMX))
+					aadd(aDados,(cAliasHD)->(SEQX))
+					aadd(aDados,(cAliasHD)->(QTDX))
+					aadd(aDados,(cAliasHD)->(PRCX))
+					aadd(aDados,(cAliasHD)->(PRODx))
+					aadd(aDados,.F.)
+					aadd(aDados,(cAliasHD)->(RECSC9))
+					aadd(aDados,(cAliasHD)->(RECSC5))
+					aadd(aDados,(cAliasHD)->(RECSC6))
+					aadd(aDados,(cAliasHD)->(RECSE4))
+					aadd(aDados,(cAliasHD)->(RECSB1))
+					aadd(aDados,(cAliasHD)->(RECSB2))
+					aadd(aDados,(cAliasHD)->(RECSF4))
+
+					_DxFtC := (cAliasHD)->(EMISSX)
+					_DxNfc := PadL(aXml:_NFEPROC:_NFE:_INFNFE:_IDE:_NNF:TEXT,9, '0')
+					
+					aadd(_aPvlNfs,aDados)
+				EndIf
+			Else
+				cMsgErro += "Item: " + Alltrim(aXmLItens[nCont]:_prod:_cprod:text) + " | Nao encontrado o item para liberado nos Pedidos de Venda do Protheus" + CRLF
+				lRet := .F.
+			EndIf
+		Next
+						
+		If lRet .And. !Empty(_aPvlNfs)
+
+			Begin Transaction
 				//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 				//³ Prepara ambiente para geracao da Nota Fiscal                              ³
 				//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
@@ -236,48 +243,75 @@ User Function ZFATF008(aXml,cId, cNumPed)
 				_lECF        	:= .F.
 				_cEmbExp		:= " "
 
-				//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-				//³  Envio para execauto de inclusão de pedidos                               ³
-				//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-
-				
+				//Gera nota Fiscal.
 				_cNota := MaPvlNfs( _aPvlNfs, cSerie, _lMostraCtb, _lAglutCtb, _lCtbOnLine, _lCtbCusto, _lReajuste, _nCalAcrs, _nArredPrcLis, _lAtuSA7, _lECF, _cEmbExp )
-				If !Empty(_cNota)
-					DbSelectArea("ZFR")
-					ZFR->( DBSetOrder( 2 ) )
-					If  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
-						RecLock("ZFR",.F.)
-							ZFR->ZFR_STATUS	:= "40"
-							ZFR->ZFR_DTERP	:= Date()
-							ZFR->ZFR_HRERP	:= Time()
-							ZFR->ZFR_NFERP	:= _cNota
-							ZFR->ZFR_SERERP	:= cSerie
-						ZFR->(MsUnlock())
-						ZFR->(dbCloseArea())
-					EndIf
-				Else
+
+				//Valida os impostos.
+				If lVldImp
+					cMsgImp	:= ""
+					cMsgImp := ZValidaImp(_cNota, cSerie, aXml )
+				EndIf
+
+				If !Empty(cMsgImp) //Erro no calculo de impostos
+					
+					Disarmtransaction()
+
 					DbSelectArea("ZFR")
 					ZFR->( DBSetOrder( 2 ) )
 					IF  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
 						RecLock("ZFR",.F.)
-							ZFR->ZFR_ERROR 	:= "Erro na rotina automatica de geracao da nota fiscal no Protheus"
+							ZFR->ZFR_ERROR := cMsgImp
 							ZFR->ZFR_STERRO := "40"
 							ZFR->ZFR_STATUS := "99"
 						ZFR->(MsUnlock())
 					EndIf
+				Else
+					If !Empty(_cNota)
+						DbSelectArea("ZFR")
+						ZFR->( DBSetOrder( 2 ) )
+						If  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
+							RecLock("ZFR",.F.)
+								ZFR->ZFR_STATUS	:= "40"
+								ZFR->ZFR_DTERP	:= Date()
+								ZFR->ZFR_HRERP	:= Time()
+								ZFR->ZFR_NFERP	:= _cNota
+								ZFR->ZFR_SERERP	:= cSerie
+								ZFR->ZFR_XPEDLV := cXPedLv
+							ZFR->(MsUnlock())
+							ZFR->(dbCloseArea())
+						EndIf
+					Else
+						DbSelectArea("ZFR")
+						ZFR->( DBSetOrder( 2 ) )
+						IF  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
+							RecLock("ZFR",.F.)
+								ZFR->ZFR_ERROR 	:= "Erro na rotina automatica de geracao da nota fiscal no Protheus"
+								ZFR->ZFR_STERRO := "40"
+								ZFR->ZFR_STATUS := "99"
+							ZFR->(MsUnlock())
+						EndIf
+					EndIf
 				EndIf
-			Else
-				DbSelectArea("ZFR")
-				ZFR->( DBSetOrder( 2 ) )
-				IF  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
-					RecLock("ZFR",.F.)
-						ZFR->ZFR_ERROR := cMsgErro
-						ZFR->ZFR_STERRO := "40"
-						ZFR->ZFR_STATUS := "99"
-					ZFR->(MsUnlock())
-				EndIf
+			End Transaction
+		Else
+			DbSelectArea("ZFR")
+			ZFR->( DBSetOrder( 2 ) )
+			IF  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
+				RecLock("ZFR",.F.)
+					ZFR->ZFR_ERROR := cMsgErro
+					ZFR->ZFR_STERRO := "40"
+					ZFR->ZFR_STATUS := "99"
+				ZFR->(MsUnlock())
 			EndIf
 		EndIf
-	End Transaction
+	EndIf
+	
 Return()
+
+Static Function ZValidaImp(_cNota, cSerie, aXml )
+
+Local cMsgn	:= ""
+
+
+Return(cMsgn)
 
