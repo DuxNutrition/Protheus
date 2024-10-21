@@ -40,7 +40,7 @@ Local _nPos
 		ElseIf Type("cFilAnt") <> "C"
 
 			_cEmpresa	:=	"01"
-			_cFilial	:=  "02"
+			_cFilial	:=  "04"
 
 			CONOUT("----------- [ ZFATS002 ] - INICIANDO EMPRESA "+_cEmpresa)
 			CONOUT("----------- [ ZFATS002 ] - INICIANDO FILIAL  "+_cFilial)
