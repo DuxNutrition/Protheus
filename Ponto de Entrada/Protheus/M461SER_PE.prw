@@ -1,23 +1,18 @@
 #INCLUDE 'PROTHEUS.CH'
 
 
-//------------------------------------------------------------------------------------------
 /*/{Protheus.doc} M461SER
-Ponto de Entrada para Mudar Nmero da Nota Fiscal e Srie
-
-@author    Douglas Ferreira Martins
-@version   1.xx
-@since     01/02/2023
+Ponto de Entrada para Mudar Numero da Nota Fiscal e Serie
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 21/10/2024
 /*/
-//------------------------------------------------------------------------------------------
-//Descrio : Ponto de Entrada Criado para Trocar Srie e Nmero da Nota Fiscal no momento
-//do Faturamento de Notas  Fiscais de Sada  no Projeto Mercado Livre FULL
-//------------------------------------------------------------------------------------------
-
 User Function M461SER()
 
 	Local aDados	:= {}
-	//// incluido uma validação de chamada, pois ele entrava mesmo sem ser solicitado.
+
+	// Incluido uma validação de chamada, pois ele entrava mesmo sem ser solicitado.
 	if FWIsInCallStack("ADM461SER")
 		If ( ExistBlock("ADM461SER") )
 			aDados  := ExecBlock("ADM461SER",.T.,.T.)
@@ -25,11 +20,10 @@ User Function M461SER()
 			cNumero := aDados[2]
 		EndIf
 	endif 
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Customização com variavel private para alteração de DOC ZFATF008       ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-	if FWIsInCallStack("U_ZFATF008")
+	
+	//Customização com variavel private para alteração de DOC ZFATF008
+	If FWIsInCallStack("U_ZFATF008")
         cNumero := _DxNfc
-    endif 
+    EndIf 
 
 Return

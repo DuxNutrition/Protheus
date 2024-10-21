@@ -2,17 +2,16 @@
 #INCLUDE "topconn.ch"
 #INCLUDE "tbiconn.ch"
 
-//ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-//ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-//ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-//ฑฑบPrograma  ณ ZWSR006.prw บ Autor ณ Allan Rabelo บ Data ณ 28/09/2024      บฑฑ
-//ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-//ฑฑบDescricao ณ Schedule para pegar os XML e gravar do INTERCOMMERCE       บฑฑ
-//ฑฑบ          ณ                                                            บฑฑ
-//ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-//ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-//฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-
+/*/{Protheus.doc} ZWSR006
+Busca o XML da nota fiscal na Infracommerce
+@type function
+@version 12.1.2310
+@author Dux | Allan Rabelo
+@since 21/10/2024
+@param cId, character, Id VTex
+@param cPedido, character, Pedido Protheus
+@param lJob, logical, Executa via Job
+/*/
 User Function ZWSR006(cId, cPedido, lJob)
 
 	Local _lExecWSR006 	:= SuperGetMv("DUX_API020",.F., .T.) //Executa a rotina ZWSR007 .T. = SIM / .F. = NAO

@@ -3,17 +3,16 @@
 #INCLUDE "tbiconn.ch"
 #INCLUDE "PRTOPDEF.ch"
 
-//ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-//ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-//ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-//ฑฑบPrograma  ณ WSR005.prw บ Autor ณ Allan Rabelo บ Data ณ 25/09/2024      บฑฑ
-//ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-//ฑฑบDescricao ณ Schedule para enviar ZFR jแ processadas                    บฑฑ
-//ฑฑบ          ณ                                                            บฑฑ
-//ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-//ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-//฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
-
+/*/{Protheus.doc} ZWSR005
+Envia a confirma็ใo de recebimento da nota fiscal para a infracommerce
+@type function
+@version 12.1.2310
+@author Dux | Allan Rabelo
+@since 21/10/2024
+@param cId, character, Id VTex
+@param cPedido, character, Pedido Protheus
+@param lJob, logical, Executa via Job
+/*/
 User Function ZWSR005(cId, cPedido, lJob)
 	
 	Local _lExecWSR005 	:= SuperGetMv("DUX_API019",.F., .T.) //Executa a rotina ZWSR007 .T. = SIM / .F. = NAO
