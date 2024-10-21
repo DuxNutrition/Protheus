@@ -14,6 +14,7 @@ Methodo POST para envio para VTEX de notas fiscais
 /*/
 User Function ZWSR007(cIdSeek, cPedSeek, lJob)
     
+    Local _lExecWSR007 	:= SuperGetMv("DUX_API017",.F., .T.) //Executa a rotina ZWSR007 .T. = SIM / .F. = NAO
     Local cAlias        := GetNextAlias()
 	Local cXml          := ""
     Local oXml          as object
@@ -35,139 +36,146 @@ User Function ZWSR007(cIdSeek, cPedSeek, lJob)
     Default cIdSeek     := ""
     Default cPedSeek    := ""
 
-    If lJob
+    If (_lExecWSR007) //Se .T. executa a rotina
 
-		ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR007] - Inicio Processamento")
-		PREPARE ENVIRONMENT EMPRESA cEmpAnt FILIAL cFilAnt MODULO "FAT"
+        If (lJob)
 
-    Else
+            ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR007] - Inicio Processamento")
 
-        //Quando não rodar por Job, faz o lock da rotina.
-        //Garantir que o processamento seja unico
-	    _cChave := AllTrim(FWCodEmp())+AllTrim(FWCodFil())+"ZFATS002"
-	    If !LockByName(_cChave,.T.,.T.)  
-		
-		    //tentar locar por 10 segundos caso não consiga não prosseguir
-		    _lLockByName := .F.
-		    For _nPos := 1 To 15
-			    Sleep( 1000 ) // Para o processamento por 1 segundo
-			    If LockByName(_cChave,.T.,.T.)
-				    _lLockByName := .T.
-			    EndIf
-		    Next	
-
-		    If !(_lLockByName)
-			    If !_lJob
-				    MsgInfo("Já existe um processamento em execução rotina ZWSR007, aguarde!")
-			    Else
-				    ConOut("----------- [ ZWSR007 ]  - Já existe um processamento em execução rotina ZWSR007 -------------------------" + CRLF)
-			    EndIf
-			    Break
-		    EndIf
-	    EndIf
-    Endif
-
-    If (_lLockByName)
-
-        If AllTrim(_cFil) == "04" //Executa somente na filial 04
-
-            If Select( (cAlias) ) > 0
-                (cAlias)->(DbCloseArea())
-            EndIf
-
-            cQuery := ""
-            cQuery += " SELECT  ZFR_ID              AS IDX "                        + CRLF
-            cQuery += "         ,ZFR_CHAVE          AS CHAVEX "                     + CRLF
-            cQuery += "         ,ZFR_XPEDLV         AS XPEDLV "                     + CRLF
-            cQuery += "         ,ZFR_STATUS         AS STATUS "                     + CRLF
-            cQuery += " FROM "+RetSqlName("ZFR")+" AS ZFR "                         + CRLF
-            cQuery += " WHERE ZFR.ZFR_FILIAL = '" + FWxFilial('ZFR') + "' "         + CRLF    
-            cQuery += " AND ZFR_STATUS = '40'  "                                    + CRLF
-            If !Empty(cIdSeek)
-                cQuery += " AND ZFR_ID = '"+cIdSeek+"' "                            + CRLF
-            Else
-                cQuery += " AND ZFR_ID <> ' ' "                                     + CRLF
-            EndIf
-            If !Empty(cPedSeek)
-                cQuery += " AND ZFR_PEDIDO = '"+cPedSeek+"' "                       + CRLF
-            EndIf
-            cQuery += " AND ZFR_XML <> ' ' "                                        + CRLF    
-            //cQuery += " AND ZFR_PEDIDO = '002002'  "                                + CRLF
-            cQuery += " AND ZFR.D_E_L_E_T_ <> '*'  "                                + CRLF
-            cQuery += " ORDER BY ZFR_ID, ZFR_STATUS , ZFR_PEDIDO "                  + CRLF    
-
-            // Executa a consulta.
-            DbUseArea( .T., "TOPCONN", TcGenQry(,,cQuery), cAlias, .T., .T. )
-
-            DbSelectArea((cAlias))
-            (cAlias)->(dbGoTop())
-            While (cAlias)->(!EOF())
-
-                If AllTrim((cAlias)->STATUS) == '40' //Executa somente se a nota foi escriturada
-
-                    cIdIc   := (cAlias)->IDX
-                    cChvNfe := (cAlias)->CHAVEX
-                    cPedLv  := (cAlias)->XPEDLV
-                
-                    DbSelectArea("ZFR")
-                    ZFR->(DBSetOrder(2))
-                    If ZFR->(DbSeek(xFilial("ZFR")+PADR(cIdIc,TamSX3("ZFR_ID")[1])))
-                
-                        cXml := ZFR->ZFR_XML
-
-                        If !Empty(cPedLv)
-                            
-                            If !( Empty(cIdIc) .And. Empty(cXml) )
-                            
-                                oXml        := QbrXml(cXml,cIdIc)
-                                oXmlItens   := oXml:_NFEPROC:_NFE:_INFNFE:_DET
-                                nValTot     := GetDToVal(oXml:_NFEPROC:_NFE:_INFNFE:_COBR:_FAT:_VORIG:TEXT)
-                            
-                                If (Valtype(oXml:_NFEPROC:_NFE:_INFNFE:_DET) <> "A")
-                                    aadd(aXmlItens, oXml:_NFEPROC:_NFE:_INFNFE:_DET )
-                                Else
-                                    For nCont = 1 To Len(oXmlItens)
-                                        Aadd(aXmlItens,oXml:_NFEPROC:_NFE:_INFNFE:_DET[nCont])
-                                    Next
-                                EndIf
-                                
-                                jBody := GetJson(cXml ,cAlias ,oXmlItens ,cChvNfe ,nValTot ,cPedLv )
-
-                                If !Empty(jBody)
-                                    If lJob
-                                        zEnvPost(jBody ,cPedLv ,cIdIc)
-                                    Else
-                                        Processa({|| zEnvPost(jBody ,cPedLv ,cIdIc) }, "[ZWSR007] - Buscando notas faturadas na InfraCommerce", "Aguarde ...." )
-                                    EndIf                               
-                                EndIf 
-                            EndIf
-                        EndIf 
-                    EndIf
-                EndIf
-                (cAlias)->(DBSkip())
-            Enddo
-            (cAlias)->(DbCloseArea())
         Else
-            If lJob
-                ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR007] - Permitido executar a rotina somente na Filial 04")
+
+            //Quando não rodar por Job, faz o lock da rotina.
+            //Garantir que o processamento seja unico
+            _cChave := AllTrim(FWCodEmp())+AllTrim(FWCodFil())+"ZFATS002"
+            If !LockByName(_cChave,.T.,.T.)  
+            
+                //tentar locar por 10 segundos caso não consiga não prosseguir
+                _lLockByName := .F.
+                For _nPos := 1 To 15
+                    Sleep( 1000 ) // Para o processamento por 1 segundo
+                    If LockByName(_cChave,.T.,.T.)
+                        _lLockByName := .T.
+                    EndIf
+                Next	
+
+                If !(_lLockByName)
+                    If !_lJob
+                        MsgInfo("Já existe um processamento em execução rotina ZWSR007, aguarde!")
+                    Else
+                        ConOut("----------- [ ZWSR007 ]  - Já existe um processamento em execução rotina ZWSR007 -------------------------" + CRLF)
+                    EndIf
+                    Break
+                EndIf
+            EndIf
+        Endif
+
+        If (_lLockByName) //Acesso Exclusivo a rotina.
+
+            If AllTrim(_cFil) == "04" //Executa somente na filial 04
+
+                If Select( (cAlias) ) > 0
+                    (cAlias)->(DbCloseArea())
+                EndIf
+
+                cQuery := ""
+                cQuery += " SELECT  ZFR_ID              AS IDX "                        + CRLF
+                cQuery += "         ,ZFR_CHAVE          AS CHAVEX "                     + CRLF
+                cQuery += "         ,ZFR_XPEDLV         AS XPEDLV "                     + CRLF
+                cQuery += "         ,ZFR_STATUS         AS STATUS "                     + CRLF
+                cQuery += " FROM "+RetSqlName("ZFR")+"  AS ZFR "                        + CRLF
+                cQuery += " WHERE ZFR.ZFR_FILIAL = '" + FWxFilial('ZFR') + "' "         + CRLF    
+                cQuery += " AND ZFR_STATUS = '40'  "                                    + CRLF
+                If !Empty(cIdSeek)
+                    cQuery += " AND ZFR_ID = '"+cIdSeek+"' "                            + CRLF
+                Else
+                    cQuery += " AND ZFR_ID <> ' ' "                                     + CRLF
+                EndIf
+                If !Empty(cPedSeek)
+                    cQuery += " AND ZFR_PEDIDO = '"+cPedSeek+"' "                       + CRLF
+                EndIf
+                cQuery += " AND ZFR_XML <> ' ' "                                        + CRLF    
+                cQuery += " AND ZFR_PEDIDO = '002002'  "                                + CRLF
+                cQuery += " AND ZFR.D_E_L_E_T_ <> '*'  "                                + CRLF
+                cQuery += " ORDER BY ZFR_ID, ZFR_STATUS , ZFR_PEDIDO "                  + CRLF    
+
+                // Executa a consulta.
+                DbUseArea( .T., "TOPCONN", TcGenQry(,,cQuery), cAlias, .T., .T. )
+
+                DbSelectArea((cAlias))
+                (cAlias)->(dbGoTop())
+                While (cAlias)->(!EOF())
+
+                    If AllTrim((cAlias)->STATUS) == '40' //Executa somente se a nota foi escriturada
+
+                        cIdIc   := (cAlias)->IDX
+                        cChvNfe := (cAlias)->CHAVEX
+                        cPedLv  := (cAlias)->XPEDLV
+                    
+                        DbSelectArea("ZFR")
+                        ZFR->(DBSetOrder(2))
+                        If ZFR->(DbSeek(xFilial("ZFR")+PADR(cIdIc,TamSX3("ZFR_ID")[1])))
+                    
+                            cXml := ZFR->ZFR_XML
+
+                            If !Empty(cPedLv)
+                                
+                                If !( Empty(cIdIc) .And. Empty(cXml) )
+                                
+                                    oXml        := QbrXml(cXml,cIdIc)
+                                    oXmlItens   := oXml:_NFEPROC:_NFE:_INFNFE:_DET
+                                    nValTot     := GetDToVal(oXml:_NFEPROC:_NFE:_INFNFE:_COBR:_FAT:_VORIG:TEXT)
+                                
+                                    If (Valtype(oXml:_NFEPROC:_NFE:_INFNFE:_DET) <> "A")
+                                        aadd(aXmlItens, oXml:_NFEPROC:_NFE:_INFNFE:_DET )
+                                    Else
+                                        For nCont = 1 To Len(oXmlItens)
+                                            Aadd(aXmlItens,oXml:_NFEPROC:_NFE:_INFNFE:_DET[nCont])
+                                        Next
+                                    EndIf
+                                    
+                                    jBody := GetJson(cXml ,cAlias ,oXmlItens ,cChvNfe ,nValTot ,cPedLv )
+
+                                    If !Empty(jBody)
+                                        If lJob
+                                            zEnvPost(jBody ,cPedLv ,cIdIc)
+                                        Else
+                                            Processa({|| zEnvPost(jBody ,cPedLv ,cIdIc) }, "[ZWSR007] - Buscando notas faturadas na InfraCommerce", "Aguarde ...." )
+                                        EndIf                               
+                                    EndIf 
+                                EndIf
+                            EndIf 
+                        EndIf
+                    EndIf
+                    (cAlias)->(DBSkip())
+                Enddo
+                (cAlias)->(DbCloseArea())
             Else
-                ApMsgInfo( 'Permitido executar a rotina somente na Filial 04', '[ZWSR007]' )
-            Endif
-        EndIf
-        
-        UnLockByName(_cChave,.T.,.T.)
-		ConOut("----------- [ ZWSR007 ] - Fim da funcionalidade "+DtoC(Date())+" as "+Time() + CRLF)
+                If lJob
+                    ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR007] - Permitido executar a rotina somente na Filial 04")
+                Else
+                    ApMsgInfo( 'Permitido executar a rotina somente na Filial 04', '[ZWSR007]' )
+                Endif
+            EndIf
+            
+            UnLockByName(_cChave,.T.,.T.)
+            ConOut("----------- [ ZWSR007 ] - Fim da funcionalidade "+DtoC(Date())+" as "+Time() + CRLF)
 
+        EndIf
+
+        If lJob
+            ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR007] - Fim Processamento")
+        Else
+            If (_lLockByName)
+                ApMsgInfo( 'Processamento Concluido com Sucesso.', '[ZWSR007]' )
+            EndIf
+        Endif
+    Else
+         If lJob
+            ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR007] - Bloqueado a execucao da rotina, verifique o parametro: DUX_API017")
+        Else
+            ApMsgInfo( 'Bloqueado a execucao da rotina ZWSR007, verifique o parametro: DUX_API017', '[ZWSR007]' )
+        Endif
     EndIf
-
-    If lJob
-	    ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR007] - Fim Processamento")
-		RESET ENVIRONMENT
-	Else
-        If (_lLockByName)
-	        ApMsgInfo( 'Processamento Concluido com Sucesso.', '[ZWSR007]' )
-        EndIf
-	Endif
 
 Return()
 
