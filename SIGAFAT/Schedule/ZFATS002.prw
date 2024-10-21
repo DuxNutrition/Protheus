@@ -14,7 +14,7 @@ Schedule de envio das confirmação para a VTex
 User Function ZFATS002(_aParam)
 
 Local _lJob 		:= IsBlind()
-Local _lRet			:= .T.
+Local _lLockByName	:= .T.
 Local _cEmpresa 	:= ""
 Local _cFilial		:= ""
 Local _cChave		:= ""
@@ -56,16 +56,17 @@ Local _nPos
 	//Garantir que o processamento seja unico
 	_cChave := AllTrim(FWCodEmp())+AllTrim(FWCodFil())+"ZFATS002"
 	If !LockByName(_cChave,.T.,.T.)  
+		
 		//tentar locar por 10 segundos caso não consiga não prosseguir
-		_lRet := .F.
-		For _nPos := 1 To 10
+		_lLockByName := .F.
+		For _nPos := 1 To 15
 			Sleep( 1000 ) // Para o processamento por 1 segundo
 			If LockByName(_cChave,.T.,.T.)
-				_lRet := .T.
+				_lLockByName := .T.
 			EndIf
 		Next	
 
-		If !_lRet
+		If !(_lLockByName)
 			If !_lJob
 				MsgInfo("Já existe um processamento em execução rotina ZFATS002, aguarde!")
 			Else
@@ -73,7 +74,9 @@ Local _nPos
 			EndIf
 			Break
 		EndIf
-	Else
+	EndIf
+
+	If (_lLockByName)
 		U_ZWSR007("", "", .T.)
 		UnLockByName(_cChave,.T.,.T.)
 		ConOut("----------- [ ZFATS002 ] - Fim da funcionalidade "+DtoC(Date())+" as "+Time() + CRLF)
