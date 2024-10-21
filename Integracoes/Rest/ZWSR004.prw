@@ -16,57 +16,65 @@
 
 User Function ZWSR004(lJob)
 	
-	Local cUrlRest		:= AllTrim( SuperGetMv("DUX_API007"		,.F.	,"https://api.stage.ifctech.com.br/ihub/"))
-	Local cEndPoint     := AllTrim( SuperGetMv("DUX_API008"  	,.F.	,"invoices/list"))
-	Local cApiKey   	:= "Api-Key: " + AllTrim( SuperGetMv("DUX_API009"	,.F.	,"67JvuGlf3PvuNueA14fsSD3B7GgH6E1u"))
-	Local cBearer  		:= AllTrim( SuperGetMv("DUX_API010" 	,.F.	,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaW50ZWdyYXRpb24iLCJzdWIiOiIwIiwibmFtZSI6IkR1eCBOdXRyaXRpb24iLCJpc3MiOiJNV2d2ZGp2VHVvbm12WlFZeDBjbUV2RlBmY2lDcDFaciIsIm5iZiI6MTcyNjc2NDQ3MCwiZXhwIjoyMjAwMDYzNjcwLCJpYXQiOjE3MjY3NjQ0NzB9.m3yRVKAPGHhiqCKZCb1LkRSJl8Ypu7namsb-KPaDJZw"))
+	Local _lExecWSR004 	:= SuperGetMv("DUX_API018",.F., .T.) //Executa a rotina ZWSR007 .T. = SIM / .F. = NAO
+	Local cUrlRest		:= AllTrim( SuperGetMv("DUX_API007"		,.F.	,""))
+	Local cEndPoint     := AllTrim( SuperGetMv("DUX_API008"  	,.F.	,""))
+	Local cApiKey   	:= "Api-Key: " + AllTrim( SuperGetMv("DUX_API009"	,.F.	,""))
+	Local cBearer  		:= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaW50ZWdyYXRpb24iLCJzdWIiOiIwIiwibmFtZSI6IkR1eCBOdXRyaXRpb24iLCJpc3MiOiJNV2d2ZGp2VHVvbm12WlFZeDBjbUV2RlBmY2lDcDFaciIsIm5iZiI6MTcyNjc2NDQ3MCwiZXhwIjoyMjAwMDYzNjcwLCJpYXQiOjE3MjY3NjQ0NzB9.m3yRVKAPGHhiqCKZCb1LkRSJl8Ypu7namsb-KPaDJZw"
 	Local oRest as object
 	Local oOBj
 	Local aHeader 		:= {}
 	Local aJson 		:= {}
-	Local _cFil  		:= FWCodFil()
+	Local _cFil         := FWCodFil()
 
 	Default lJob		:= .F.
 
-	If lJob
-		ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Inicio Processamento")
-		PREPARE ENVIRONMENT EMPRESA cEmpAnt FILIAL cFilAnt MODULO "FAT"
-	Endif
-
-	If AllTrim(_cFil) == "04" //Executa somente na filial 04
-
-		Aadd(aHeader	, 'Authorization: Bearer '+ cBearer)
-		Aadd(aHeader	, 'Content-Type: application/json;charset=UTF-8')
-		Aadd(aHeader	, cApiKey)
-
-		oRest := FWRest():New(cUrlRest)
-		oRest:SetPath(cEndPoint)
-		oRest:Get(aHeader)
-
-		FwJsonDeserialize(oRest:GetResult(),@oOBj)
-		
-		aJson := oObj
-		
-		If !Empty(aJson)
-			If lJob
-				ZF01R004(@aJson, lJob)
-			Else
-				Processa({|| ZF01R004(@aJson, lJob) }, "[ZWSR004] - Buscando notas faturadas na InfraCommerce", "Aguarde ...." )
-			EndIf
-		EndIf 
-
+	If (_lExecWSR004) //Se .T. executa a rotina
 		If lJob
-			ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Fim Processamento")
-			RESET ENVIRONMENT
-		Else
-			ApMsgInfo( 'Processamento Concluido com Sucesso.', '[ZWSR004]' )
+			ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Inicio Processamento")
 		Endif
+
+		If AllTrim(_cFil) == "04" //Executa somente na filial 04
+
+			Aadd(aHeader	, 'Authorization: Bearer '+ cBearer)
+			Aadd(aHeader	, 'Content-Type: application/json;charset=UTF-8')
+			Aadd(aHeader	, cApiKey)
+
+			oRest := FWRest():New(cUrlRest)
+			oRest:SetPath(cEndPoint)
+			oRest:Get(aHeader)
+
+			FwJsonDeserialize(oRest:GetResult(),@oOBj)
+			
+			aJson := oObj
+			
+			If !Empty(aJson)
+				If lJob
+					ZF01R004(@aJson, lJob)
+				Else
+					Processa({|| ZF01R004(@aJson, lJob) }, "[ZWSR004] - Buscando notas faturadas na InfraCommerce", "Aguarde ...." )
+				EndIf
+			EndIf 
+
+			If lJob
+				ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Fim Processamento")
+				RESET ENVIRONMENT
+			Else
+				ApMsgInfo( 'Processamento Concluido com Sucesso.', '[ZWSR004]' )
+			Endif
+		Else
+			If lJob
+				ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Permitido executar a rotina somente na Filial 04")
+			Else
+				ApMsgInfo( 'Permitido executar a rotina somente na Filial 04', '[ZWSR004]' )
+			Endif
+		EndIf
 	Else
 		If lJob
-			ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Permitido executar a rotina somente na Filial 04")
-		Else
-			ApMsgInfo( 'Permitido executar a rotina somente na Filial 04', '[ZWSR004]' )
-		Endif
+            ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Bloqueado a execucao da rotina, verifique o parametro: DUX_API018")
+        Else
+            ApMsgInfo( 'Bloqueado a execucao da rotina ZWSR004, verifique o parametro: DUX_API018', '[ZWSR004]' )
+        Endif
 	EndIf
 
 Return()
@@ -105,7 +113,7 @@ Static Function ZF01R004(aJson, lJob)
 	Local nTotReg	:= 0
 	Local aDados 	:= {}
 	Local aInvoices	:= {}
-	Local cOper   	:= AllTrim( SuperGetMv("DUX_API011"	,.F.	,"COMERCIALIZACAO DE MERCADORIAS"))
+	Local cOper   	:= AllTrim( SuperGetMv("DUX_API011"	,.F.	,""))
 	
 	Default lJob		:= .F.
 	
