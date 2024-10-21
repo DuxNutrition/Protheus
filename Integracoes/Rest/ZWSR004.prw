@@ -58,7 +58,6 @@ User Function ZWSR004(lJob)
 
 			If lJob
 				ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Fim Processamento")
-				RESET ENVIRONMENT
 			Else
 				ApMsgInfo( 'Processamento Concluido com Sucesso.', '[ZWSR004]' )
 			Endif
