@@ -100,14 +100,14 @@ Static Function ValCnpj(cCnpj)
 	Local cAlsSA1 	:= GetNextAlias()
 	Local lRet		:= .F.
 
+	If Select( (cAlsSA1) ) > 0
+		(cAlsSA1)->(DbCloseArea())
+	EndIf
+
 	cQrySA1 := " SELECT * FROM "+RetSqlName("SA1")+" AS SA1 " 	+ CRLF
 	cQrySA1 += " WHERE SA1.A1_FILIAL = '  '  "					+ CRLF
 	cQrySA1 += " AND SA1.A1_CGC = '"+cCnpj+"' "					+ CRLF
 	cQrySA1 += " AND SA1.D_E_L_E_T_ <> '*'  "					+ CRLF
-
-	If Select( (cAlsSA1) ) > 0
-		(cAlsSA1)->(DbCloseArea())
-	EndIf
 
 	// Executa a consulta.
 	DbUseArea( .T., "TOPCONN", TcGenQry(,,cQrySA1), cAlsSA1, .T., .T. )

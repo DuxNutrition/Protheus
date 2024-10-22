@@ -48,7 +48,8 @@ User Function ZFATF008(aXml,cId, cNumPed)
 
 	If SC5->( DBSeek( xFilial( "SC5" ) + cNumPed ) )
 
-		cXPedLv := SC5->C5_XPEDLV
+		cXPedLv 	:= SC5->C5_XPEDLV
+		_aPvlNfs	:= {}
 
 		For nCont := 1 To Len(aXmlItens)
 			
@@ -125,7 +126,7 @@ User Function ZFATF008(aXml,cId, cNumPed)
 			cQuery += " WHERE SC9.C9_FILIAL = '" + FWxFilial('SC9') + "' "									+ CRLF
 			cQuery += " AND SC9.C9_PEDIDO = '"+SC5->C5_NUM+"' "												+ CRLF
 			cQuery += " AND SC9.C9_PRODUTO = '"+Alltrim(aXmLItens[nCont]:_prod:_cprod:text)+"' "			+ CRLF
-			//cQuery += " AND SC9.C9_QTDLIB = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))+" "	+ CRLF
+			cQuery += " AND SC9.C9_QTDLIB = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))+" "	+ CRLF
 			//cQuery += " AND SC9.C9_PRCVEN = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))+""	+ CRLF
 			//cQuery += " AND SC9.C9_BLCRED = '' "															+ CRLF
 			//cQuery += " AND SC9.C9_BLEST = ''  "															+ CRLF
@@ -149,11 +150,11 @@ User Function ZFATF008(aXml,cId, cNumPed)
 					lRet := .F.
 				EndIf
 
-				If (cAliasHD)->QTDX <> GetDToVal(aXmLItens[nCont]:_prod:_qcom:text)
+				/*If (cAliasHD)->QTDX <> GetDToVal(aXmLItens[nCont]:_prod:_qcom:text)
 					cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Quantidade divergente entre Pedido Protheus ( " + AllTrim(cValToChar((cAliasHD)->QTDX)) + " ) e XML InfraCommerce ( " + AllTrim(cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))) + " )" + CRLF
 					lRet := .F.
-				EndIf
-
+				EndIf*/
+				
 				If (cAliasHD)->PRCX <> GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
 					cMsgErro += "Item: " + AllTrim((cAliasHD)->PRODX) + " | Preco divergente entre Pedido Protheus ( R$ " + AllTrim(cValToChar((cAliasHD)->PRCX)) + " ) e XML InfraCommerce ( R$ " + AllTrim(cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))) + " )" + CRLF
 					lRet := .F.
@@ -213,19 +214,20 @@ User Function ZFATF008(aXml,cId, cNumPed)
 				MV_PAR15 := 2           // Atualiza Cli.X Prod?  Sim/Nao
 				MV_PAR16 := 1           // Emitir             ?  Nota/Cupom Fiscal
 
-				_lMostraCtb  	:= ( MV_PAR01 == 2 )
-				_lAglutCtb   	:= ( MV_PAR02 == 2 )
-				_lCtbOnLine  	:= ( MV_PAR03 == 1 )
-				_lCtbCusto   	:= ( MV_PAR04 == 1 )
-				_lReajuste   	:= ( MV_PAR05 == 1 )
+				_lMostraCtb  	:= .F.
+				_lAglutCtb   	:= .T.
+				_lCtbOnLine  	:= .F.
+				_lCtbCusto   	:= .F.
+				_lReajuste   	:= .F.
 				_nCalAcrs    	:= 1
-				_nArredPrcLis	:= 1
+				_nArredPrcLis	:= 0
 				_lAtuSA7     	:= .F.
 				_lECF        	:= .F.
-				_cEmbExp		:= " "
 
 				//Gera nota Fiscal.
-				_cNota := MaPvlNfs( _aPvlNfs, cSerie, _lMostraCtb, _lAglutCtb, _lCtbOnLine, _lCtbCusto, _lReajuste, _nCalAcrs, _nArredPrcLis, _lAtuSA7, _lECF, _cEmbExp )
+				_cNota		:= ""
+				_cNota		:= MaPvlNfs( _aPvlNfs, cSerie, _lMostraCtb	,_lAglutCtb	, _lCtbOnLine	, _lCtbCusto, _lReajuste, _nCalAcrs	, _nArredPrcLis	, _lAtuSA7	, _lECF, )
+				_aPvlNfs	:= {}
 
 				//Valida os impostos.
 				If lVldImp
@@ -235,8 +237,10 @@ User Function ZFATF008(aXml,cId, cNumPed)
 
 				If !Empty(cMsgImp) //Erro no calculo de impostos
 					
+					//Disarma a transação e estorna a nota fiscal.
 					Disarmtransaction()
 
+					//Grava o erro na ZFR
 					DbSelectArea("ZFR")
 					ZFR->( DBSetOrder( 2 ) )
 					IF  (ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1]))))
@@ -301,6 +305,7 @@ Valida os impostos da nota fiscal após o faturamento
 Static Function ZValidaImp( aXml )
 
 Local cMsgn		:= ""
+Local nTotal	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_COBR:_FAT:_VORIG:TEXT)
 Local nCofins	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_TOTAL:_ICMSTOT:_VCOFINS:TEXT)
 Local nIcms 	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_TOTAL:_ICMSTOT:_VICMS:TEXT)
 Local nIpi  	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_TOTAL:_ICMSTOT:_VIPI:TEXT)
@@ -309,44 +314,51 @@ Local nFrete  	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_TOTAL:_ICMSTOT:_VFRETE:T
 Local nSeguro  	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_TOTAL:_ICMSTOT:_VSEG:TEXT)
 
 //Valida icms total
+If ( nTotal <> SF2->F2_VALBRUT )
+	
+	cMsgn += "Total da nota fiscal divergente entre escriturado ( R$ " + AllTrim(cValToChar(SF2->F2_VALBRUT)) + " )  e XML InfraCommerce ( R$ " + AllTrim(cValToChar(nTotal)) + " )." + CRLF
+	
+EndIf
+
+//Valida icms total
 If ( nIcms <> SF2->F2_VALICM )
 	
-	cMsgn += "Valor do icms escriturado ( " + AllTrim(cValToChar(SF2->F2_VALICM)) + " )  diferente do XML transmitido ( " + AllTrim(cValToChar(nIcms)) + " )." + CRLF
+	cMsgn += "Valor do icms divergente entre escriturado ( R$ " + AllTrim(cValToChar(SF2->F2_VALICM)) + " )  e XML InfraCommerce ( R$ " + AllTrim(cValToChar(nIcms)) + " )." + CRLF
 	
 EndIf
 
 //Valida ipi total
 If ( nIpi <> SF2->F2_VALIPI )
 
-	cMsgn += "Valor do ipi escriturado ( " + AllTrim(cValToChar(SF2->F2_VALIPI)) + " )  diferente do XML transmitido ( " + AllTrim(cValToChar(nIpi)) + ")." + CRLF
+	cMsgn += "Valor do ipi divergente entre escriturado ( R$ " + AllTrim(cValToChar(SF2->F2_VALIPI)) + " )  e XML InfraCommerce ( R$ " + AllTrim(cValToChar(nIpi)) + " )." + CRLF
 
 endif
 
 //Valida pis total
-If ( nPis <> SF2->F2_VALPIS )
+If ( nPis <> SF2->F2_VALIMP6 )
 
-	cMsgn += "Valor do pis escriturado ( " + AllTrim(cValToChar(SF2->F2_VALPIS)) + " )  diferente do XML transmitido ( " + AllTrim(cValToChar(nPis)) + ")." + CRLF
+	cMsgn += "Valor do pis divergente entre escriturado ( R$ " + AllTrim(cValToChar(SF2->F2_VALIMP6)) + " )  e XML InfraCommerce ( R$ " + AllTrim(cValToChar(nPis)) + " )." + CRLF
 
 EndIf
 
 //Valida cofins total
-If ( nCofins <> SF2->F2_VALCOFI )
+If ( nCofins <> SF2->F2_VALIMP5 )
 
-	cMsgn += "Valor do cofins escriturado ( " + AllTrim(cValToChar(SF2->F2_VALCOFI)) + " )  diferente do XML transmitido ( " + AllTrim(cValToChar(nCofins)) + " )." + CRLF
+	cMsgn += "Valor do cofins divergente entre escriturado ( R$ " + AllTrim(cValToChar(SF2->F2_VALIMP5)) + " )  e XML InfraCommerce ( R$ " + AllTrim(cValToChar(nCofins)) + " )." + CRLF
 
 Endif
 
 //Valida frete total
 If ( nFrete <> SF2->F2_FRETE )
 
-	cMsgn += "Valor do frete escriturado ( " + AllTrim(cValToChar(SF2->F2_FRETE)) + " ) diferente do XML transmitido ( " + AllTrim(cValToChar(nFrete)) + " )." + CRLF
+	cMsgn += "Valor do frete divergente entre escriturado ( R$ " + AllTrim(cValToChar(SF2->F2_FRETE)) + " ) e XML InfraCommerce ( R$ " + AllTrim(cValToChar(nFrete)) + " )." + CRLF
 
 EndIf
 
 //Valida seguro total
 If ( nSeguro <> SF2->F2_SEGURO )
 
-		cMsgn += "Valor do seguro escriturado ( " + AllTrim(cValToChar(SF2->F2_SEGURO)) + " ) diferente do XML transmitido ( " + AllTrim(cValToChar(nSeguro)) + " )." + CRLF
+		cMsgn += "Valor do seguro divergente entre escriturado ( R$ " + AllTrim(cValToChar(SF2->F2_SEGURO)) + " ) e XML InfraCommerceo ( R$ " + AllTrim(cValToChar(nSeguro)) + " )." + CRLF
 
 EndIf
 
