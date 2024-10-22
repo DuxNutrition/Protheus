@@ -37,8 +37,9 @@ User Function ZFATF009( cIdIC )
             cQryTMP += " WHERE ZFR.ZFR_FILIAL = '" + FWxFilial('ZFR') + "'  "                       + CRLF
             cQryTMP += " AND ZFR.ZFR_PEDIDO BETWEEN '"+aRet[01]+"' AND '"+aRet[02]+"' "			    + CRLF
             cQryTMP += " AND ZFR.ZFR_DATAPD BETWEEN '"+DToS(aRet[03])+"' AND '"+DToS(aRet[04])+"' "	+ CRLF
-            cQryTMP += " AND ZFR.D_E_L_E_T_ <> '*'  "					                            + CRLF
             cQryTMP += " AND ZFR.ZFR_XML <> ' '  "     					                            + CRLF
+            cQryTMP += " AND ZFR.ZFR_STATUS IN ('30','40','99' )  " 	                            + CRLF
+            cQryTMP += " AND ZFR.D_E_L_E_T_ <> '*'  "					                            + CRLF
             cQryTMP += " ORDER BY ZFR.ZFR_CHAVE "		                                            + CRLF
 
             // Executa a consulta.
