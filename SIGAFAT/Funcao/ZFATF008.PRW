@@ -230,7 +230,7 @@ User Function ZFATF008(aXml,cId, cNumPed)
 				//Valida os impostos.
 				If lVldImp
 					cMsgImp	:= ""
-					cMsgImp := ZValidaImp(_cNota, cSerie, aXml )
+					cMsgImp := ZValidaImp( aXml )
 				EndIf
 
 				If !Empty(cMsgImp) //Erro no calculo de impostos
@@ -289,10 +289,66 @@ User Function ZFATF008(aXml,cId, cNumPed)
 	
 Return()
 
-Static Function ZValidaImp(_cNota, cSerie, aXml )
+/*/{Protheus.doc} ZValidaImp
+Valida os impostos da nota fiscal após o faturamento
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 22/10/2024
+@param aXml, array, xml
+@return character, msgn de erro
+/*/
+Static Function ZValidaImp( aXml )
 
-Local cMsgn	:= ""
+Local cMsgn		:= ""
+Local nCofins	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_TOTAL:_ICMSTOT:_VCOFINS:TEXT)
+Local nIcms 	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_TOTAL:_ICMSTOT:_VICMS:TEXT)
+Local nIpi  	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_TOTAL:_ICMSTOT:_VIPI:TEXT)
+Local nPis  	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_TOTAL:_ICMSTOT:_VPIS:TEXT)
+Local nFrete  	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_TOTAL:_ICMSTOT:_VFRETE:TEXT)
+Local nSeguro  	:= GetDToVal(aXml:_NFEPROC:_NFE:_INFNFE:_TOTAL:_ICMSTOT:_VSEG:TEXT)
 
+//Valida icms total
+If ( nIcms <> SF2->F2_VALICM )
+	
+	cMsgn += "Valor do icms escriturado ( " + AllTrim(cValToChar(SF2->F2_VALICM)) + " )  diferente do XML transmitido ( " + AllTrim(cValToChar(nIcms)) + " )." + CRLF
+	
+EndIf
+
+//Valida ipi total
+If ( nIpi <> SF2->F2_VALIPI )
+
+	cMsgn += "Valor do ipi escriturado ( " + AllTrim(cValToChar(SF2->F2_VALIPI)) + " )  diferente do XML transmitido ( " + AllTrim(cValToChar(nIpi)) + ")." + CRLF
+
+endif
+
+//Valida pis total
+If ( nPis <> SF2->F2_VALPIS )
+
+	cMsgn += "Valor do pis escriturado ( " + AllTrim(cValToChar(SF2->F2_VALPIS)) + " )  diferente do XML transmitido ( " + AllTrim(cValToChar(nPis)) + ")." + CRLF
+
+EndIf
+
+//Valida cofins total
+If ( nCofins <> SF2->F2_VALCOFI )
+
+	cMsgn += "Valor do cofins escriturado ( " + AllTrim(cValToChar(SF2->F2_VALCOFI)) + " )  diferente do XML transmitido ( " + AllTrim(cValToChar(nCofins)) + " )." + CRLF
+
+Endif
+
+//Valida frete total
+If ( nFrete <> SF2->F2_FRETE )
+
+	cMsgn += "Valor do frete escriturado ( " + AllTrim(cValToChar(SF2->F2_FRETE)) + " ) diferente do XML transmitido ( " + AllTrim(cValToChar(nFrete)) + " )." + CRLF
+
+EndIf
+
+//Valida seguro total
+If ( nSeguro <> SF2->F2_SEGURO )
+
+		cMsgn += "Valor do seguro escriturado ( " + AllTrim(cValToChar(SF2->F2_SEGURO)) + " ) diferente do XML transmitido ( " + AllTrim(cValToChar(nSeguro)) + " )." + CRLF
+
+EndIf
 
 Return(cMsgn)
 
