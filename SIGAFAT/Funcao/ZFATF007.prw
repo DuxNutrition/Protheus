@@ -35,13 +35,14 @@ User Function ZFATF007(cId, cNumPed, lJob)
 		ZFR->(DBSetOrder(2))
 		If ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1])))
 
-			If AllTrim(ZFR->ZFR_STATUS) == "30" .And. AllTrim(ZFR->ZFR_STATIN) == "authorized"
+			If ( AllTrim(ZFR->ZFR_STATUS) == "30" .And. AllTrim(ZFR->ZFR_STATIN) == "authorized" ) .Or. ( AllTrim(ZFR->ZFR_STATUS) == "99" .And. AllTrim(ZFR->ZFR_STERRO) == "40" .And. AllTrim(ZFR->ZFR_STATIN) == "authorized" ) 
 
 				oXml := XmlParser( ZFR->ZFR_XML, "_", @cError, @cWarning )
 				If (oXml == NIL )
 					RecLock("ZFR",.F.)
 						ZFR->ZFR_ERROR := ("Falha ao gerar Objeto XML : "+cError+" / "+cWarning)
 						ZFR->ZFR_STERRO := "40"
+						ZFR->ZFR_STATUS := "99"
 					ZFR->(MsUnlock())
 				Else
 					If !Empty(oXml:_NFEPROC:_NFE:_INFNFE:_DEST:_CPF:Text)
@@ -60,6 +61,7 @@ User Function ZFATF007(cId, cNumPed, lJob)
 							RecLock("ZFR",.F.)
 								ZFR->ZFR_ERROR := ("Falha - CNPJ NÃO ENCONTRADO : "+cError+" / "+cWarning)
 								ZFR->ZFR_STERRO := "40"
+								ZFR->ZFR_STATUS := "99"
 							ZFR->(MsUnlock())	
 						EndIf
 					EndIf

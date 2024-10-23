@@ -9,7 +9,7 @@ Exporta o XML escriturado
 @since 22/10/2024
 @param cIdIC, character, Id da IC
 /*/    
-User Function ZFATF009( cIdIC )
+User Function ZFATF009( cIdIC, cTipo )
 
     Local aRet          := {}
     Local cQryTMP       := ""
@@ -17,16 +17,21 @@ User Function ZFATF009( cIdIC )
     Private aParamBox   := {}
 	 
     Default cIdIC       := ""
+    Default cTipo       := "1"
 
     If Empty(cIdIC)
 
-        AAdd(aParamBox,{ 1, "Pedido De:         ", Space(6)                 , "!@"                          , ""    , "SC5"  ,"" , 040      ,.F.})
-        AAdd(aParamBox,{ 1, "Pedido Ate:        ", "ZZZZZZ"                 , "!@"                          , ""    , "SC5"  ,"" , 040      ,.T.})
-        AAdd(aParambox,{ 1, "Data Inclusão De:  ", CriaVar('F1_DTDIGIT')    , PesqPict("SF1","F1_DTDIGIT")  , ""    , ""    , "" , 060      ,.T.}) 
-        AAdd(aParambox,{ 1, "Data Inclusão Ate: ", CriaVar('F1_DTDIGIT')    , PesqPict("SF1","F1_DTDIGIT")  , ""    , ""    , "" , 060      ,.T.}) 
+        AAdd(aParamBox,{ 1, "Pedido De:         ", Space(6)                     , "!@"                          , ""    , "SC5"     ,"" , 040      ,.F.})
+        AAdd(aParamBox,{ 1, "Pedido Ate:        ", "ZZZZZZ"                     , "!@"                          , ""    , "SC5"     ,"" , 040      ,.T.})
+        AAdd(aParamBox,{ 1, "ID IC De:          ", Space(24)                    , ""                            , ""    , ""        ,"" , 100      ,.F.})
+        AAdd(aParamBox,{ 1, "ID IC Ate:         ", "ZZZZZZZZZZZZZZZZZZZZZZZZ"   , ""                            , ""    , ""        ,"" , 100      ,.T.})
+        AAdd(aParambox,{ 1, "Data Inclusão De:  ", CriaVar('F1_DTDIGIT')        , PesqPict("SF1","F1_DTDIGIT")  , ""    , ""        ,"" , 060      ,.T.}) 
+        AAdd(aParambox,{ 1, "Data Inclusão Ate: ", CriaVar('F1_DTDIGIT')        , PesqPict("SF1","F1_DTDIGIT")  , ""    , ""        ,"" , 060      ,.T.}) 
+        aAdd(aParamBox,{ 2 ,"Exportar:          ", 1 ,{"1 - XML","2 - ERRO","3 - AMBOS"}    ,40,"",.F.})
 
         If ParamBox(aParamBox,"Preencha os Parametros para Exportar os XML(s)...",@aRet)
 
+            cTipo   := aRet[07]
             
           	If Select( (cAlsTMP) ) > 0
 		        (cAlsTMP)->(DbCloseArea())
@@ -36,7 +41,8 @@ User Function ZFATF009( cIdIC )
             cQryTMP := " SELECT ZFR.ZFR_ID FROM "+RetSqlName("ZFR")+" ZFR "                         + CRLF
             cQryTMP += " WHERE ZFR.ZFR_FILIAL = '" + FWxFilial('ZFR') + "'  "                       + CRLF
             cQryTMP += " AND ZFR.ZFR_PEDIDO BETWEEN '"+aRet[01]+"' AND '"+aRet[02]+"' "			    + CRLF
-            cQryTMP += " AND ZFR.ZFR_DATAPD BETWEEN '"+DToS(aRet[03])+"' AND '"+DToS(aRet[04])+"' "	+ CRLF
+            cQryTMP += " AND ZFR.ZFR_ID BETWEEN '"+aRet[03]+"' AND '"+aRet[04]+"' "			        + CRLF
+            cQryTMP += " AND ZFR.ZFR_DATAPD BETWEEN '"+DToS(aRet[05])+"' AND '"+DToS(aRet[06])+"' "	+ CRLF
             cQryTMP += " AND ZFR.ZFR_XML <> ' '  "     					                            + CRLF
             cQryTMP += " AND ZFR.ZFR_STATUS IN ('30','40','99' )  " 	                            + CRLF
             cQryTMP += " AND ZFR.D_E_L_E_T_ <> '*'  "					                            + CRLF
@@ -49,7 +55,7 @@ User Function ZFATF009( cIdIC )
             (cAlsTMP)->(dbGoTop())
             While (cAlsTMP)->(!Eof())
                 
-                Processa({|| ZF01F009((cAlsTMP)->ZFR_ID) }, "[ZFATF009] - Exportando XML(s)", "Aguarde ...." )
+                Processa({|| ZF01F009((cAlsTMP)->ZFR_ID, cTipo) }, "[ZFATF009] - Exportando XML(s)", "Aguarde ...." )
                 
                 (cAlsTMP)->(DbSkip())    
             EndDo
@@ -59,11 +65,13 @@ User Function ZFATF009( cIdIC )
 
     Else
 
-        Processa({|| ZF01F009(cIdIC) }, "[ZFATF009] - Exportando XML(s)", "Aguarde ...." )
+        Processa({|| ZF01F009(cIdIC ,cTipo) }, "[ZFATF009] - Exportando XML(s)", "Aguarde ...." )
 
     EndIf
 
     ApMsgInfo("Processo finalizado !!!","[ ZFATF009 ]")
+
+Return()
 
 /*/{Protheus.doc} ZF01F009
 Exporta o XML
@@ -72,15 +80,21 @@ Exporta o XML
 @author Dux | Evandro Mariano
 @since 22/10/2024
 @param cIdIC, character, Id IC
-/*/Return()
-Static Function ZF01F009( cIdIC )
+/*/
+Static Function ZF01F009( cIdIC, cTipo )
     
     Local cTextoXML     := ""
-    Local cArqXML       := "C:\Xml_Infracommerce\"
+    Local cTextoTXT     := ""
+    Local cPastaXML     := "C:\Xml_Infracommerce\"
+    Local cPastaTXT     := "C:\Xml_Infracommerce\"
 
-    If !ExistDir( cArqXML )
-		MakeDir( cArqXML )
-		ApMsgInfo("Pasta para salvar o(s) boleto(s) criada com sucesso."+CRLF+"Caminho: "+cArqXML,"[ ZFATF009 ]")
+    If !ExistDir( cPastaXML )
+		MakeDir( cPastaXML )
+		ApMsgInfo("Pasta para salvar o(s) Xml(s) criada com sucesso."+CRLF+"Caminho: "+cPastaXML,"[ ZFATF009 ]")
+	Endif
+    If !ExistDir( cPastaTXT )
+		MakeDir( cPastaTXT )
+		ApMsgInfo("Pasta para salvar o(s) Txt(s) criada com sucesso."+CRLF+"Caminho: "+cPastaTXT,"[ ZFATF009 ]")
 	Endif
     //Se tiver documento
     If !Empty(cIdIC)
@@ -92,21 +106,76 @@ Static Function ZF01F009( cIdIC )
 
             If AllTrim(ZFR->ZFR_STATUS) $ "30|40|99"
 
-                cArqXML   := cArqXML + ZFR->ZFR_CHAVE + ".xml"
+                If AllTrim(cTipo) == "1 - XML" //Exporta XML
 
-                cTextoXML := ZFR->ZFR_XML
+                    cPastaXML := cPastaXML + "XML_" + AllTrim(ZFR->ZFR_ID) +"_" + AllTrim(ZFR->ZFR_CHAVE) + ".xml"
+                    cTextoXML := ZFR->ZFR_XML
 
-                If !Empty(cTextoXML)
-                    
-                    //Gera o arquivo
-                    oFileXML := FWFileWriter():New(cArqXML, .T.)
-                    oFileXML:SetEncodeUTF8(.T.)
-                    oFileXML:Create()
-                    oFileXML:Write(cTextoXML)
-                    oFileXML:Close()
+                    If !Empty(cTextoXML) 
+                        
+                        //Gera o arquivo
+                        oFileXML := FWFileWriter():New(cPastaXML, .T.)
+                        oFileXML:SetEncodeUTF8(.T.)
+                        oFileXML:Create()
+                        oFileXML:Write(cTextoXML)
+                        oFileXML:Close()
 
-                Else
-                    ApMsgInfo("Xml não encontrado, verifique as parametrizações","[ ZFATF009 ]")
+                    Else
+                        ApMsgInfo("Xml não encontrado, verifique as parametrizações","[ ZFATF009 ]")
+                    EndIf
+
+                ElseIf AllTrim(cTipo) == "2 - ERRO" //Exporta Erro
+
+                    cPastaTXT := cPastaTXT + "ERRO_" + AllTrim(ZFR->ZFR_ID) + ".txt"
+                    cTextoTXT := ZFR->ZFR_ERROR
+
+                    If !Empty(cTextoTXT) 
+                        
+                        //Gera o arquivo
+                        oFileXML := FWFileWriter():New(cPastaTXT, .T.)
+                        oFileXML:SetEncodeUTF8(.T.)
+                        oFileXML:Create()
+                        oFileXML:Write(cTextoTXT)
+                        oFileXML:Close()
+
+                    Else
+                        ApMsgInfo("Erro não encontrado, verifique as parametrizações","[ ZFATF009 ]")
+                    EndIf
+
+                ElseIf AllTrim(cTipo) == "3 - AMBOS" //Exporta Erro
+
+                    cPastaXML := cPastaXML + "XML_" + AllTrim(ZFR->ZFR_ID) +"_" + AllTrim(ZFR->ZFR_CHAVE) + ".xml"
+                    cTextoXML := ZFR->ZFR_XML
+
+                    If !Empty(cTextoXML) 
+                        
+                        //Gera o arquivo
+                        oFileXML := FWFileWriter():New(cPastaXML, .T.)
+                        oFileXML:SetEncodeUTF8(.T.)
+                        oFileXML:Create()
+                        oFileXML:Write(cTextoXML)
+                        oFileXML:Close()
+
+                    Else
+                        ApMsgInfo("Xml não encontrado, verifique as parametrizações","[ ZFATF009 ]")
+                    EndIf
+
+                    cPastaTXT := cPastaTXT + "ERRO_" + AllTrim(ZFR->ZFR_ID) + ".txt"
+                    cTextoTXT := ZFR->ZFR_ERROR
+
+                    If !Empty(cTextoTXT) 
+                        
+                        //Gera o arquivo
+                        oFileXML := FWFileWriter():New(cPastaTXT, .T.)
+                        oFileXML:SetEncodeUTF8(.T.)
+                        oFileXML:Create()
+                        oFileXML:Write(cTextoTXT)
+                        oFileXML:Close()
+
+                    Else
+                        ApMsgInfo("Erro não encontrado, verifique as parametrizações","[ ZFATF009 ]")
+                    EndIf
+
                 EndIf
 
             EndIf

@@ -74,6 +74,7 @@ User Function ZWSR005(cId, cPedido, lJob)
 
 							RecLock("ZFR",.F.)
 								ZFR->ZFR_STATUS := "C2"
+								ZFR->ZFR_STERRO := " "
 							ZFR->(MsUnlock())
 
 						EndIf
@@ -90,12 +91,14 @@ User Function ZWSR005(cId, cPedido, lJob)
 							RecLock("ZFR",.F.)
 								ZFR->ZFR_ERROR := "Erro ao enviar a confirmacao para a InfraCommerce"
 								ZFR->ZFR_STERRO := "20"
+								ZFR->ZFR_STATUS := "99"
 							ZFR->(MsUnlock())
 						
 						ElseIf AllTrim(ZFR->ZFR_STATUS) == "C1"
 							
 							RecLock("ZFR",.F.)
 								ZFR->ZFR_STERRO := "C2"
+								ZFR->ZFR_STATUS := "99"
 							ZFR->(MsUnlock())
 
 						EndIf

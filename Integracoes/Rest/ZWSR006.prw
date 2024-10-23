@@ -42,7 +42,7 @@ User Function ZWSR006(cId, cPedido, lJob)
 		ZFR->(DBSetOrder(2))
 		If ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1])))
 
-			If AllTrim(ZFR->ZFR_STATUS) == "20"
+			If AllTrim(ZFR->ZFR_STATUS) == "20" .And. AllTrim(ZFR->ZFR_STATIN) == "authorized"
 
 				cResponse := HTTPQuote(cUrlRest+cEndPoint+AllTrim(ZFR->ZFR_ID)+"/xml", "GET",,,120,aHeader,@cHeaderRet)
 				
@@ -76,6 +76,7 @@ User Function ZWSR006(cId, cPedido, lJob)
 							RecLock("ZFR",.F.)
 								ZFR->ZFR_ERROR 	:= "Erro na leitura do xml da InfraCommerce "
 								ZFR->ZFR_STERRO := "20"
+								ZFR->ZFR_STATUS := "99"
 							ZFR->(MsUnlock())
 						Endif
 				Endif
