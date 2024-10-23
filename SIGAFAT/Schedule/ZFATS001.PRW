@@ -3,15 +3,14 @@
 #Include "TBICONN.CH"
 #Include "PROTHEUS.CH"
 
-/*{Protheus.doc} ZESTS001
-Schedule para bloquear lote do produto conforme o prazo de dias de vencimento.
-@author Jedielson Rodrigues
-@since 17/06/2024
-@history 
-@version 1.0
-@database MSSQL
-*/
-
+/*/{Protheus.doc} ZFATS001
+Schedule para escriturar as notas na infracommerce
+@type function
+@version 12.1.2310
+@author Dux | Evandro Mariano
+@since 23/10/2024
+@param _aParam, array, confg do job
+/*/
 User Function ZFATS001(_aParam)
 
 Local _lJob 		:= IsBlind()
