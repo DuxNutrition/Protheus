@@ -18,8 +18,10 @@ User Function ZFATF008(aXml,cId, cNumPed)
 	Local oXmlItens 	:=  aXml:_NFEPROC:_NFE:_INFNFE:_DET
 	Local aXmlItens 	:= {}
 	Local nCont 		:= 0
+	Local nSc9			:= 0
 	Local cQuery 		:= ""
 	Local aDados 		:= {}
+	Local aSc9			:= {}
 	Local cSerie  		:= AllTrim( SuperGetMv("DUX_FAT003"	,.F.	,"DUX"))
 	//Local cTipoNF 		:= AllTrim( SuperGetMv("DUX_FAT004"	,.F.	,"SPED"))
 	Local lVldImp		:= SuperGetMV("DUX_FAT005",.F.,.T.) 
@@ -141,6 +143,7 @@ User Function ZFATF008(aXml,cId, cNumPed)
 				EndIf
 		
 				//Altera o valor do preГo na SC9, caso dЙ divergencia com o XML.
+
 				nVlrItem := (cAliasHD)->C9_PRCVEN
 				If (cAliasHD)->C9_PRCVEN <> GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
 
@@ -151,20 +154,8 @@ User Function ZFATF008(aXml,cId, cNumPed)
                     EndIf
 
 					If nVlrDif < 1
-
-						If !Empty((cAliasHD)->RECSC9)
-												
-							SC9->(dbGoto((cAliasHD)->RECSC9))
-							If SC9->(Recno()) == (cAliasHD)->RECSC9
-								
-								RecLock("SC9", .F.)
-									SC9->C9_PRCVEN := GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
-								SC9->(MsUnLock())
-
-								nVlrItem := SC9->C9_PRCVEN
-
-							EndIf
-						EndIf
+						aadd(aSc9, { (cAliasHD)->RECSC9, GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) })    
+						nVlrItem := GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
 					Else
 						cMsgErro += "Item: " + AllTrim((cAliasHD)->C9_PRODUTO) + " | Preco divergente entre Pedido Protheus ( R$ " + AllTrim(cValToChar(Round((cAliasHD)->C9_PRCVEN,2))) + " ) e XML InfraCommerce ( R$ " + AllTrim(cValToChar(Round(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text),2))) + " )" + CRLF
 						lRet := .F.
@@ -209,6 +200,20 @@ User Function ZFATF008(aXml,cId, cNumPed)
 		If lRet .And. !Empty(_aPvlNfs)
 
 			Begin Transaction
+
+				For nSc9 := 1 To Len(aSc9)
+					If !Empty(aSc9[nSc9][01])
+													
+						SC9->(DbGoto(aSc9[nSc9][01]))
+						If SC9->(Recno()) == aSc9[nSc9][01]
+										
+							RecLock("SC9", .F.)
+								SC9->C9_PRCVEN := aSc9[nSc9][02]
+							SC9->(MsUnLock())
+
+						EndIf
+					EndIf
+				Next
 				//зддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд©
 				//Ё Prepara ambiente para geracao da Nota Fiscal                              Ё
 				//юддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддды

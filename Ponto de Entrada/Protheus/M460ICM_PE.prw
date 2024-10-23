@@ -19,7 +19,7 @@ User Function M460ICM()
 
     If FWIsInCallStack("U_ZFATF008")
   
-        For nCont = 1 To Len(_aImpICMS)
+        For nCont := 1 To Len(_aImpICMS)
 
             If AllTrim(SC9->C9_ITEM) == AllTrim(_aImpICMS[nCont][01]) .And. AllTrim(SC9->C9_PRODUTO) == AllTrim(_aImpICMS[nCont][02])
 
