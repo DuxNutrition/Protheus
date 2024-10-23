@@ -189,7 +189,7 @@ Static Function ZF02R004(aInvoices, lJob)
 					ZFR->ZFR_ITOUTS 	:= aInvoices[nCont][06]
 					ZFR->ZFR_CODSEL 	:= aInvoices[nCont][07]
 					ZFR->ZFR_IDSELL 	:= aInvoices[nCont][08]
-					ZFR->ZFR_UPDAT  	:= aInvoices[nCont][9]
+					ZFR->ZFR_UPDAT  	:= aInvoices[nCont][09]
 					ZFR->ZFR_CHAVE  	:= aInvoices[nCont][10]
 					ZFR->ZFR_DOC    	:= Upper(aInvoices[nCont][11])
 					ZFR->ZFR_DOCTIP 	:= Upper(aInvoices[nCont][12])

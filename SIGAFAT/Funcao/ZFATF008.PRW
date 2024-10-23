@@ -28,11 +28,14 @@ User Function ZFATF008(aXml,cId, cNumPed)
 	Local cMsgErro		:= ""
 	Local cXPedLv		:= ""
 	Local cMsgImp		:= ""
+	Local nVlrItem		:= 0
+	Local nVlrDif		:= 0
 	Local _cNota
 
+	Private	_aImpICMS	:= {}
 	Private _DxFtC
 	Private _DxNfc 
-	Private _DxChv := Substr(aXml:_NFEPROC:_NFE:_INFNFE:_ID:TEXT,4)
+	Private _DxChv 		:= Substr(aXml:_NFEPROC:_NFE:_INFNFE:_ID:TEXT,4)
 
 	If (Valtype(aXml:_NFEPROC:_NFE:_INFNFE:_DET) <> "A")
 		aadd(aXmlItens, aXml:_NFEPROC:_NFE:_INFNFE:_DET )
@@ -116,9 +119,7 @@ User Function ZFATF008(aXml,cId, cNumPed)
 			cQuery += " AND SC9.C9_PRODUTO = '"+Alltrim(aXmLItens[nCont]:_prod:_cprod:text)+"' "				+ CRLF
 			cQuery += " AND SC9.C9_ITEM = '"+PadL(Alltrim(aXmLItens[nCont]:_nitem:text), 2, '0')+"' "			+ CRLF
 			cQuery += " AND SC9.C9_QTDLIB = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))+" "		+ CRLF
-			//cQuery += " AND SC9.C9_PRCVEN = "+cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text))+""	+ CRLF
-			//cQuery += " AND SC9.C9_BLCRED = '' "															+ CRLF
-			//cQuery += " AND SC9.C9_BLEST = ''  "															+ CRLF
+			cQuery += " AND SC9.C9_NFISCAL = ' ' "																+ CRLF
 			cQuery += " AND SC9.D_E_L_E_T_ <> '*' "																+ CRLF
 			cQuery += " ORDER BY SC9.C9_PRODUTO, SC9.C9_ITEM "													+ CRLF
 			
@@ -138,15 +139,36 @@ User Function ZFATF008(aXml,cId, cNumPed)
 					cMsgErro += "Item: " + AllTrim((cAliasHD)->C9_PRODUTO) + " | Problema de credito na liberacao do Pedido de Venda" + CRLF
 					lRet := .F.
 				EndIf
+		
+				//Altera o valor do preço na SC9, caso dê divergencia com o XML.
+				nVlrItem := (cAliasHD)->C9_PRCVEN
+				If (cAliasHD)->C9_PRCVEN <> GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
 
-				/*If (cAliasHD)->C9_QTDLIB <> GetDToVal(aXmLItens[nCont]:_prod:_qcom:text)
-					cMsgErro += "Item: " + AllTrim((cAliasHD)->C9_PRODUTO) + " | Quantidade divergente entre Pedido Protheus ( " + AllTrim(cValToChar((cAliasHD)->C9_QTDLIB)) + " ) e XML InfraCommerce ( " + AllTrim(cValToChar(GetDToVal(aXmLItens[nCont]:_prod:_qcom:text))) + " )" + CRLF
-					lRet := .F.
-				EndIf*/
-				
-				If Round((cAliasHD)->C9_PRCVEN,2) <> Round(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text),2)
-					cMsgErro += "Item: " + AllTrim((cAliasHD)->C9_PRODUTO) + " | Preco divergente entre Pedido Protheus ( R$ " + AllTrim(cValToChar(Round((cAliasHD)->C9_PRCVEN,2))) + " ) e XML InfraCommerce ( R$ " + AllTrim(cValToChar(Round(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text),2))) + " )" + CRLF
-					lRet := .F.
+					If ( (cAliasHD)->C9_PRCVEN - GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) ) < 0
+                        nVlrDif := ( (cAliasHD)->C9_PRCVEN - GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) ) * -1
+                    Else
+                        nVlrDif := ( (cAliasHD)->C9_PRCVEN - GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) )
+                    EndIf
+
+					If nVlrDif < 1
+
+						If !Empty((cAliasHD)->RECSC9)
+												
+							SC9->(dbGoto((cAliasHD)->RECSC9))
+							If SC9->(Recno()) == (cAliasHD)->RECSC9
+								
+								RecLock("SC9", .F.)
+									SC9->C9_PRCVEN := GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
+								SC9->(MsUnLock())
+
+								nVlrItem := SC9->C9_PRCVEN
+
+							EndIf
+						EndIf
+					Else
+						cMsgErro += "Item: " + AllTrim((cAliasHD)->C9_PRODUTO) + " | Preco divergente entre Pedido Protheus ( R$ " + AllTrim(cValToChar(Round((cAliasHD)->C9_PRCVEN,2))) + " ) e XML InfraCommerce ( R$ " + AllTrim(cValToChar(Round(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text),2))) + " )" + CRLF
+						lRet := .F.
+					EndIf
 				EndIf
 
 				If lRet
@@ -158,7 +180,7 @@ User Function ZFATF008(aXml,cId, cNumPed)
 					aadd( aDados,	(cAliasHD)->C9_ITEM		)
 					aadd( aDados,	(cAliasHD)->C9_SEQUEN	)
 					aadd( aDados,	(cAliasHD)->C9_QTDLIB	)
-					aadd( aDados,	(cAliasHD)->C9_PRCVEN	)
+					aadd( aDados,	nVlrItem				)
 					aadd( aDados,	(cAliasHD)->C9_PRODUTO	)
 					aadd( aDados,	.F.						)
 					aadd( aDados,	(cAliasHD)->RECSC9		)
@@ -173,6 +195,10 @@ User Function ZFATF008(aXml,cId, cNumPed)
 					_DxNfc := PadL(aXml:_NFEPROC:_NFE:_INFNFE:_IDE:_NNF:TEXT,9, '0')
 					
 					aadd(_aPvlNfs,aDados)
+					
+					//Alimenta o array para tratar os impostos no Ponto de Entrada: M460ICM
+					aadd(_aImpICMS, { (cAliasHD)->C9_ITEM, (cAliasHD)->C9_PRODUTO , aXmLItens[nCont]:_imposto:_icms:_icms00:_vbc:text, aXmLItens[nCont]:_imposto:_icms:_icms00:_pICMS:text, aXmLItens[nCont]:_imposto:_icms:_icms00:_vICMS:text })    
+					nVlrItem := 0				
 				EndIf
 			Else
 				cMsgErro += "Item: " + Alltrim(aXmLItens[nCont]:_prod:_cprod:text) + " | Nao encontrado o item para liberado nos Pedidos de Venda do Protheus" + CRLF
@@ -314,28 +340,28 @@ If ( nTotal <> SF2->F2_VALBRUT )
 EndIf
 
 //Valida icms total
-If ( NoRound(nIcms,1) <> NoRound(SF2->F2_VALICM,1) )
+If ( nIcms <> SF2->F2_VALICM )
 	
 	cMsgn += "Valor do icms divergente entre escriturado ( R$ " + AllTrim(cValToChar(SF2->F2_VALICM)) + " )  e XML InfraCommerce ( R$ " + AllTrim(cValToChar(nIcms)) + " )." + CRLF
 	
 EndIf
 
 //Valida ipi total
-If ( NoRound(nIpi,1) <> NoRound(SF2->F2_VALIPI,1) )
+If ( nIpi <> SF2->F2_VALIPI )
 
 	cMsgn += "Valor do ipi divergente entre escriturado ( R$ " + AllTrim(cValToChar(SF2->F2_VALIPI)) + " )  e XML InfraCommerce ( R$ " + AllTrim(cValToChar(nIpi)) + " )." + CRLF
 
 endif
 
 //Valida pis total
-If ( NoRound(nPis,1) <> NoRound(SF2->F2_VALIMP6,1) )
+If ( nPis <> SF2->F2_VALIMP6 )
 
 	cMsgn += "Valor do pis divergente entre escriturado ( R$ " + AllTrim(cValToChar(SF2->F2_VALIMP6)) + " )  e XML InfraCommerce ( R$ " + AllTrim(cValToChar(nPis)) + " )." + CRLF
 
 EndIf
 
 //Valida cofins total
-If ( NoRound(nCofins,1) <> NoRound(SF2->F2_VALIMP5,1) )
+If ( nCofins <> SF2->F2_VALIMP5 )
 
 	cMsgn += "Valor do cofins divergente entre escriturado ( R$ " + AllTrim(cValToChar(SF2->F2_VALIMP5)) + " )  e XML InfraCommerce ( R$ " + AllTrim(cValToChar(nCofins)) + " )." + CRLF
 
@@ -356,4 +382,3 @@ If ( nSeguro <> SF2->F2_SEGURO )
 EndIf
 
 Return(cMsgn)
-
