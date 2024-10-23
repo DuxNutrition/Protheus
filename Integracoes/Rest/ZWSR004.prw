@@ -27,7 +27,7 @@ User Function ZWSR004(lJob)
 	Default lJob		:= .F.
 
 	If (_lExecWSR004) //Se .T. executa a rotina
-	
+
 		If lJob
 			ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Inicio Processamento")
 		Endif
@@ -126,10 +126,17 @@ Static Function ZF01R004(aJson, lJob)
 			aadd(aDados,aJson["invoices"][nCont]["receiver"]["document"])
 			aadd(aDados,aJson["invoices"][nCont]["receiver"]["documentType"])
 			aadd(aDados,aJson["invoices"][nCont]["receiver"]["name"])
-			//order
-			aadd(aDados,aJson["invoices"][nCont]["order"]["internalNumber"])
-			aadd(aDados,aJson["invoices"][nCont]["order"]["originNumber"])
-			aadd(aDados,SubStr(aJson["invoices"][nCont]["order"]["platformNumber"],3))
+			If AllTrim(aJson["invoices"][nCont]["status"]) == "authorized"
+				//order
+				aadd(aDados,aJson["invoices"][nCont]["order"]["internalNumber"])
+				aadd(aDados,aJson["invoices"][nCont]["order"]["originNumber"])
+				aadd(aDados,SubStr(aJson["invoices"][nCont]["order"]["platformNumber"],3))
+			Else
+				//order
+				aadd(aDados,"")
+				aadd(aDados,"")
+				aadd(aDados,"")
+			EndIf
 			aadd(aDados,aJson["invoices"][nCont]["storeId"])
 
 			aadd(aInvoices,aDados)
@@ -154,7 +161,8 @@ Grava os dados na Tabela ZFR
 /*/
 Static Function ZF02R004(aInvoices, lJob)
 
-	Local nCont := 0
+	Local nCont 	:= 0
+	Local lEnviaIc	:= .F.
 
 	Default lJob		:= .F.
 
@@ -163,44 +171,71 @@ Static Function ZF02R004(aInvoices, lJob)
     //ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 	For nCont := 1 to Len(aInvoices)
+
+		lEnviaIc := .F.
+		If AllTrim(aInvoices[nCont][02]) == "authorized" //Json status da nota é autorizado.
 		
-		DbSelectArea("ZFR")
-		ZFR->(DBSetOrder(1))
-		If !(ZFR->(DbSeek(xFilial("ZFR") + PADR(aInvoices[nCont][16], TamSX3("ZFR_PEDIDO")[1]))))
+			DbSelectArea("ZFR")
+			ZFR->(DBSetOrder(2))
+			If !(ZFR->(DbSeek(xFilial("ZFR") + PADR(AllTrim(aInvoices[nCont][01]), TamSX3("ZFR_ID")[1]))))
 
-			RecLock("ZFR",.T.)
-				ZFR->ZFR_FILIAL 	:= cFilAnt
-				ZFR->ZFR_ID     	:= aInvoices[nCont][01]
-				ZFR->ZFR_STATIN 	:= aInvoices[nCont][02]
-				ZFR->ZFR_INVOIC 	:= aInvoices[nCont][03]
-				ZFR->ZFR_OPER   	:= aInvoices[nCont][04]
-				ZFR->ZFR_EMISSA 	:= aInvoices[nCont][05]
-				ZFR->ZFR_ITOUTS 	:= aInvoices[nCont][06]
-				ZFR->ZFR_CODSEL 	:= aInvoices[nCont][07]
-				ZFR->ZFR_IDSELL 	:= aInvoices[nCont][08]
-				ZFR->ZFR_UPDAT  	:= aInvoices[nCont][9]
-				ZFR->ZFR_CHAVE  	:= aInvoices[nCont][10]
-				ZFR->ZFR_DOC    	:= Upper(aInvoices[nCont][11])
-				ZFR->ZFR_DOCTIP 	:= Upper(aInvoices[nCont][12])
-				ZFR->ZFR_NOME   	:= aInvoices[nCont][13]
-				//ZFR->ZFR_PDINT	  := aContd[nCont][14]
-				ZFR->ZFR_PEDIDO 	:= aInvoices[nCont][16]
-				ZFR->ZFR_PLATNU 	:= aInvoices[nCont][16]
-				ZFR->ZFR_STOREI 	:= aInvoices[nCont][17]
-				ZFR->ZFR_STATUS 	:= "01"
-				ZFR->ZFR_DATAPD 	:= Date()
-				ZFR->ZFR_HORAPD 	:= Time()
-			ZFR->(MsUnlock())
+				RecLock("ZFR",.T.)
+					ZFR->ZFR_FILIAL 	:= cFilAnt
+					ZFR->ZFR_ID     	:= aInvoices[nCont][01]
+					ZFR->ZFR_STATIN 	:= aInvoices[nCont][02]
+					ZFR->ZFR_INVOIC 	:= aInvoices[nCont][03]
+					ZFR->ZFR_OPER   	:= aInvoices[nCont][04]
+					ZFR->ZFR_EMISSA 	:= aInvoices[nCont][05]
+					ZFR->ZFR_ITOUTS 	:= aInvoices[nCont][06]
+					ZFR->ZFR_CODSEL 	:= aInvoices[nCont][07]
+					ZFR->ZFR_IDSELL 	:= aInvoices[nCont][08]
+					ZFR->ZFR_UPDAT  	:= aInvoices[nCont][9]
+					ZFR->ZFR_CHAVE  	:= aInvoices[nCont][10]
+					ZFR->ZFR_DOC    	:= Upper(aInvoices[nCont][11])
+					ZFR->ZFR_DOCTIP 	:= Upper(aInvoices[nCont][12])
+					ZFR->ZFR_NOME   	:= aInvoices[nCont][13]
+					//ZFR->ZFR_PDINT	  := aContd[nCont][14]
+					ZFR->ZFR_PEDIDO 	:= aInvoices[nCont][16]
+					ZFR->ZFR_PLATNU 	:= aInvoices[nCont][16]
+					ZFR->ZFR_STOREI 	:= aInvoices[nCont][17]
+					ZFR->ZFR_STATUS 	:= "01"
+					ZFR->ZFR_DATAPD 	:= Date()
+					ZFR->ZFR_HORAPD 	:= Time()
+				ZFR->(MsUnlock())
 
-			//Apos gravar, envia a confirmação da nota fiscal para a infracommerce
-			If !Empty(ZFR->ZFR_ID)
-				If lJob
-					ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Enviando a confirmacao de Recebimento da Invoice: " + Alltrim(ZFR->ZFR_INVOIC))
-					U_ZWSR005(ZFR->ZFR_ID, ZFR->ZFR_PEDIDO, lJob)
-				Else
-					FWMsgRun(,{|| U_ZWSR005(ZFR->ZFR_ID, ZFR->ZFR_PEDIDO, lJob) },,"Enviando a confirmação de Recebimento da Invoice: " + AllTrim(ZFR->ZFR_INVOIC) + ", aguarde...")
-				EndIf				
-			Endif
+				lEnviaIc := .T.
+
+			EndIf
+
+		ElseIf AllTrim(aInvoices[nCont][02]) == "canceled" //Json status da nota é cancelado.
+
+			DbSelectArea("ZFR")
+			ZFR->(DBSetOrder(2))
+			If ZFR->(DbSeek(xFilial("ZFR") + PADR(AllTrim(aInvoices[nCont][01]), TamSX3("ZFR_ID")[1])))
+
+				If AllTrim(ZFR->ZFR_STATUS) <> "C1"
+
+					RecLock("ZFR",.F.)
+						ZFR->ZFR_STATIN 	:= aInvoices[nCont][02]
+						ZFR->ZFR_STATUS 	:= "C1"
+						ZFR->ZFR_DATCAN 	:= Date()
+						ZFR->ZFR_HORCAN 	:= Time()
+					ZFR->(MsUnlock())
+					
+					lEnviaIc := .T.
+
+				EndIf
+			EndIf
+		EndIf
+			
+		//Apos gravar, envia a confirmação da nota fiscal para a infracommerce
+		If !Empty(ZFR->ZFR_ID) .And. lEnviaIc
+			If lJob
+				ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR004] - Enviando a confirmacao de Recebimento da Invoice: " + Alltrim(ZFR->ZFR_INVOIC))
+				U_ZWSR005(ZFR->ZFR_ID, ZFR->ZFR_PEDIDO, lJob)
+			Else
+				FWMsgRun(,{|| U_ZWSR005(ZFR->ZFR_ID, ZFR->ZFR_PEDIDO, lJob) },,"Enviando a confirmação de Recebimento da Invoice: " + AllTrim(ZFR->ZFR_INVOIC) + ", aguarde...")
+			EndIf				
 		Endif
 	Next
 

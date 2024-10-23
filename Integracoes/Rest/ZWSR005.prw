@@ -44,7 +44,7 @@ User Function ZWSR005(cId, cPedido, lJob)
 		ZFR->(DBSetOrder(2))
 		If ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1])))
 
-			If AllTrim(ZFR->ZFR_STATUS) == "01"
+			If AllTrim(ZFR->ZFR_STATUS) == "01" .Or. AllTrim(ZFR->ZFR_STATUS) == "C1"
 			
 				cResponse := HTTPQuote(cUrlRest+cEndPoint+cId+"/ack", "PATCH",,,120,aHeader,@cHeaderRet)
 				If !Empty(cResponse)
@@ -62,11 +62,21 @@ User Function ZWSR005(cId, cPedido, lJob)
 					cRet  := cResponse
 
 					If ( "200" $ cRet )
-						RecLock("ZFR",.F.)
-							ZFR->ZFR_STATUS := "20"
-							ZFR->ZFR_DATACR := Date()
-							ZFR->ZFR_HORACR := Time()
-						ZFR->(MsUnlock())
+						If AllTrim(ZFR->ZFR_STATUS) == "01" 
+			
+							RecLock("ZFR",.F.)
+								ZFR->ZFR_STATUS := "20"
+								ZFR->ZFR_DATACR := Date()
+								ZFR->ZFR_HORACR := Time()
+							ZFR->(MsUnlock())
+						
+						ElseIf AllTrim(ZFR->ZFR_STATUS) == "C1"
+
+							RecLock("ZFR",.F.)
+								ZFR->ZFR_STATUS := "C2"
+							ZFR->(MsUnlock())
+
+						EndIf
 
 						If lJob
 							ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR005] - Processando a leitura do XML da Invoice: " + Alltrim(ZFR->ZFR_INVOIC))
@@ -75,10 +85,20 @@ User Function ZWSR005(cId, cPedido, lJob)
 							FWMsgRun(,{|| U_ZWSR006(ZFR->ZFR_ID, ZFR->ZFR_PEDIDO, lJob) },,"Processando a leitura do XML da Invoice: " + AllTrim(ZFR->ZFR_INVOIC) + ", aguarde...")
 						EndIf
 					Else
-						RecLock("ZFR",.F.)
-							ZFR->ZFR_ERROR := "Erro ao enviar a confirmacao para a InfraCommerce"
-							ZFR->ZFR_STERRO := "20"
-						ZFR->(MsUnlock())
+						If AllTrim(ZFR->ZFR_STATUS) == "01" 
+
+							RecLock("ZFR",.F.)
+								ZFR->ZFR_ERROR := "Erro ao enviar a confirmacao para a InfraCommerce"
+								ZFR->ZFR_STERRO := "20"
+							ZFR->(MsUnlock())
+						
+						ElseIf AllTrim(ZFR->ZFR_STATUS) == "C1"
+							
+							RecLock("ZFR",.F.)
+								ZFR->ZFR_STERRO := "C2"
+							ZFR->(MsUnlock())
+
+						EndIf
 
 						If lJob
 							ConOut("["+Left(DtoC(Date()),5)+"]["+Left(Time(),5)+"] [ZWSR005] - Erro ao enviar a confirmacao de Recebimento da Invoice: " + Alltrim(ZFR->ZFR_INVOIC))

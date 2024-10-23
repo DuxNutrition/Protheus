@@ -35,7 +35,7 @@ User Function ZFATF007(cId, cNumPed, lJob)
 		ZFR->(DBSetOrder(2))
 		If ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1])))
 
-			If AllTrim(ZFR->ZFR_STATUS) == "30"
+			If AllTrim(ZFR->ZFR_STATUS) == "30" .And. AllTrim(ZFR->ZFR_STATIN) == "authorized"
 
 				oXml := XmlParser( ZFR->ZFR_XML, "_", @cError, @cWarning )
 				If (oXml == NIL )

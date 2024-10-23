@@ -43,6 +43,7 @@ User Function ZWSR006(cId, cPedido, lJob)
 		If ZFR->(DbSeek(xFilial("ZFR")+PADR(cId,TamSX3("ZFR_ID")[1])))
 
 			If AllTrim(ZFR->ZFR_STATUS) == "20"
+
 				cResponse := HTTPQuote(cUrlRest+cEndPoint+AllTrim(ZFR->ZFR_ID)+"/xml", "GET",,,120,aHeader,@cHeaderRet)
 				
 				If !Empty(cResponse) 
