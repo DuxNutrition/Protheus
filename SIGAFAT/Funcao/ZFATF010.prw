@@ -40,7 +40,7 @@ User Function ZFATF010( cIdIC )
             cQryTMP += " AND ZFR.ZFR_PEDIDO BETWEEN '"+aRet[01]+"' AND '"+aRet[02]+"' "			    + CRLF
             cQryTMP += " AND ZFR.ZFR_ID BETWEEN '"+aRet[03]+"' AND '"+aRet[04]+"' "			        + CRLF
             cQryTMP += " AND ZFR.ZFR_DATAPD BETWEEN '"+DToS(aRet[05])+"' AND '"+DToS(aRet[06])+"' "	+ CRLF
-            cQryTMP += " AND RTRIM(ZFR.ZFR_STATUS) <> '40'  "			                            + CRLF
+            cQryTMP += " AND RTRIM(ZFR.ZFR_STATUS) NOT IN ('40','50')  "			                + CRLF
             cQryTMP += " AND ZFR.ZFR_XML <> ' '  "     					                            + CRLF
             cQryTMP += " AND ZFR.D_E_L_E_T_ <> '*'  "					                            + CRLF
             cQryTMP += " ORDER BY ZFR.ZFR_CHAVE "		                                            + CRLF

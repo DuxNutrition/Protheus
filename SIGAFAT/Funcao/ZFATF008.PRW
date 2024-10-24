@@ -14,6 +14,7 @@ Faz a geração da nota fiscal no Protheus
 /*/
 User Function ZFATF008(aXml,cId, cNumPed)
 	
+	Local _aAreaSC9		:= SC9->(GetArea())
 	Local lRet			:= .T.
 	Local oXmlItens 	:=  aXml:_NFEPROC:_NFE:_INFNFE:_DET
 	Local aXmlItens 	:= {}
@@ -25,7 +26,7 @@ User Function ZFATF008(aXml,cId, cNumPed)
 	Local cSerie  		:= AllTrim( SuperGetMv("DUX_FAT003"	,.F.	,"DUX"))
 	//Local cTipoNF 		:= AllTrim( SuperGetMv("DUX_FAT004"	,.F.	,"SPED"))
 	Local lVldImp		:= SuperGetMV("DUX_FAT005",.F.,.T.) 
-	Local cAliasHD 		:= GetNextAlias()
+	Local cAliasTMP 		:= GetNextAlias()
 	Local _aPvlNfs 		:= {}
 	Local cMsgErro		:= ""
 	Local cXPedLv		:= ""
@@ -47,19 +48,17 @@ User Function ZFATF008(aXml,cId, cNumPed)
 		Next
 	EndIf
 
+	DbSelectArea('SC5')
 	SC5->( DBSetOrder( 1 ) )
-	nCont 	:= 0
-	cXPedLv := ""
-
-	If SC5->( DBSeek( xFilial( "SC5" ) + cNumPed ) )
+	If SC5->(DBSeek(xFilial("SC5")+cNumPed ) )
 
 		cXPedLv 	:= SC5->C5_XPEDLV
 		_aPvlNfs	:= {}
 
 		For nCont := 1 To Len(aXmlItens)
 			
-			If Select( (cAliasHD) ) > 0
-				(cAliasHD)->(DbCloseArea())
+			If Select( (cAliasTMP) ) > 0
+				(cAliasTMP)->(DbCloseArea())
 			EndIf
 
 			cQuery := " "
@@ -126,38 +125,38 @@ User Function ZFATF008(aXml,cId, cNumPed)
 			cQuery += " ORDER BY SC9.C9_PRODUTO, SC9.C9_ITEM "													+ CRLF
 			
 			// Executa a consulta.
-			DbUseArea( .T., "TOPCONN", TcGenQry(,,cQuery), cAliasHD, .T., .T. )
+			DbUseArea( .T., "TOPCONN", TcGenQry(,,cQuery), cAliasTMP, .T., .T. )
 			
-			DbSelectArea((cAliasHD))
-			(cAliasHD)->(dbGoTop())
-			If (cAliasHD)->(!Eof())
+			DbSelectArea((cAliasTMP))
+			(cAliasTMP)->(dbGoTop())
+			If (cAliasTMP)->(!Eof())
 
-				If !Empty((cAliasHD)->C9_BLEST)
-					cMsgErro += "Item: " + AllTrim((cAliasHD)->C9_PRODUTO) + " | Problema de estoque na liberacao do Pedido de Venda" + CRLF
+				If !Empty((cAliasTMP)->C9_BLEST)
+					cMsgErro += "Item: " + AllTrim((cAliasTMP)->C9_PRODUTO) + " | Problema de estoque na liberacao do Pedido de Venda" + CRLF
 					lRet 	:= .F.
 				EndIf
 
-				If !Empty((cAliasHD)->C9_BLCRED)
-					cMsgErro += "Item: " + AllTrim((cAliasHD)->C9_PRODUTO) + " | Problema de credito na liberacao do Pedido de Venda" + CRLF
+				If !Empty((cAliasTMP)->C9_BLCRED)
+					cMsgErro += "Item: " + AllTrim((cAliasTMP)->C9_PRODUTO) + " | Problema de credito na liberacao do Pedido de Venda" + CRLF
 					lRet := .F.
 				EndIf
 		
 				//Altera o valor do preço na SC9, caso dê divergencia com o XML.
 
-				nVlrItem := (cAliasHD)->C9_PRCVEN
-				If (cAliasHD)->C9_PRCVEN <> GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
+				nVlrItem := (cAliasTMP)->C9_PRCVEN
+				If (cAliasTMP)->C9_PRCVEN <> GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
 
-					If ( (cAliasHD)->C9_PRCVEN - GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) ) < 0
-                        nVlrDif := ( (cAliasHD)->C9_PRCVEN - GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) ) * -1
+					If ( (cAliasTMP)->C9_PRCVEN - GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) ) < 0
+                        nVlrDif := ( (cAliasTMP)->C9_PRCVEN - GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) ) * -1
                     Else
-                        nVlrDif := ( (cAliasHD)->C9_PRCVEN - GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) )
+                        nVlrDif := ( (cAliasTMP)->C9_PRCVEN - GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) )
                     EndIf
 
 					If nVlrDif < 1
-						aadd(aSc9, { (cAliasHD)->RECSC9, GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) })    
+						aadd(aSc9, { (cAliasTMP)->RECSC9, GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text) })    
 						nVlrItem := GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text)
 					Else
-						cMsgErro += "Item: " + AllTrim((cAliasHD)->C9_PRODUTO) + " | Preco divergente entre Pedido Protheus ( R$ " + AllTrim(cValToChar(Round((cAliasHD)->C9_PRCVEN,2))) + " ) e XML InfraCommerce ( R$ " + AllTrim(cValToChar(Round(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text),2))) + " )" + CRLF
+						cMsgErro += "Item: " + AllTrim((cAliasTMP)->C9_PRODUTO) + " | Preco divergente entre Pedido Protheus ( R$ " + AllTrim(cValToChar(Round((cAliasTMP)->C9_PRCVEN,2))) + " ) e XML InfraCommerce ( R$ " + AllTrim(cValToChar(Round(GetDToVal(aXmLItens[nCont]:_prod:_vuncom:text),2))) + " )" + CRLF
 						lRet := .F.
 					EndIf
 				EndIf
@@ -167,28 +166,28 @@ User Function ZFATF008(aXml,cId, cNumPed)
 					//³ Monta Array de itens com base na query acima                              ³
 					//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 					aDados := {}
-					aadd( aDados,	(cAliasHD)->C9_PEDIDO	)
-					aadd( aDados,	(cAliasHD)->C9_ITEM		)
-					aadd( aDados,	(cAliasHD)->C9_SEQUEN	)
-					aadd( aDados,	(cAliasHD)->C9_QTDLIB	)
+					aadd( aDados,	(cAliasTMP)->C9_PEDIDO	)
+					aadd( aDados,	(cAliasTMP)->C9_ITEM		)
+					aadd( aDados,	(cAliasTMP)->C9_SEQUEN	)
+					aadd( aDados,	(cAliasTMP)->C9_QTDLIB	)
 					aadd( aDados,	nVlrItem				)
-					aadd( aDados,	(cAliasHD)->C9_PRODUTO	)
+					aadd( aDados,	(cAliasTMP)->C9_PRODUTO	)
 					aadd( aDados,	.F.						)
-					aadd( aDados,	(cAliasHD)->RECSC9		)
-					aadd( aDados,	(cAliasHD)->RECSC5		)
-					aadd( aDados,	(cAliasHD)->RECSC6		)
-					aadd( aDados,	(cAliasHD)->RECSE4		)
-					aadd( aDados,	(cAliasHD)->RECSB1		)
-					aadd( aDados,	(cAliasHD)->RECSB2		)
-					aadd( aDados,	(cAliasHD)->RECSF4		)
+					aadd( aDados,	(cAliasTMP)->RECSC9		)
+					aadd( aDados,	(cAliasTMP)->RECSC5		)
+					aadd( aDados,	(cAliasTMP)->RECSC6		)
+					aadd( aDados,	(cAliasTMP)->RECSE4		)
+					aadd( aDados,	(cAliasTMP)->RECSB1		)
+					aadd( aDados,	(cAliasTMP)->RECSB2		)
+					aadd( aDados,	(cAliasTMP)->RECSF4		)
 
-					_DxFtC := (cAliasHD)->DT_EMISSAO_IC
+					_DxFtC := (cAliasTMP)->DT_EMISSAO_IC
 					_DxNfc := PadL(aXml:_NFEPROC:_NFE:_INFNFE:_IDE:_NNF:TEXT,9, '0')
 					
 					aadd(_aPvlNfs,aDados)
 					
 					//Alimenta o array para tratar os impostos no Ponto de Entrada: M460ICM
-					aadd(_aImpICMS, { (cAliasHD)->C9_ITEM, (cAliasHD)->C9_PRODUTO , aXmLItens[nCont]:_imposto:_icms:_icms00:_vbc:text, aXmLItens[nCont]:_imposto:_icms:_icms00:_pICMS:text, aXmLItens[nCont]:_imposto:_icms:_icms00:_vICMS:text })    
+					aadd(_aImpICMS, { (cAliasTMP)->C9_ITEM, (cAliasTMP)->C9_PRODUTO , aXmLItens[nCont]:_imposto:_icms:_icms00:_vbc:text, aXmLItens[nCont]:_imposto:_icms:_icms00:_pICMS:text, aXmLItens[nCont]:_imposto:_icms:_icms00:_vICMS:text })    
 					nVlrItem := 0				
 				EndIf
 			Else
@@ -200,6 +199,8 @@ User Function ZFATF008(aXml,cId, cNumPed)
 		If lRet .And. !Empty(_aPvlNfs)
 
 			Begin Transaction
+
+				_aAreaSC9 := SC9->(GetArea())
 
 				For nSc9 := 1 To Len(aSc9)
 					If !Empty(aSc9[nSc9][01])
@@ -214,6 +215,7 @@ User Function ZFATF008(aXml,cId, cNumPed)
 						EndIf
 					EndIf
 				Next
+				RestArea(_aAreaSC9)
 				//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
 				//³ Prepara ambiente para geracao da Nota Fiscal                              ³
 				//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
