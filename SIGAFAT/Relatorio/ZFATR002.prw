@@ -78,7 +78,6 @@ Static Function fReportDef() //Definições do relatório
 		{cTabela})
 	oReport:SetTotalInLine(.F.) 			//--Desabilita o total de linhas
 		
-	//TRCell():New(oSection2,"CR_DATALIB"	,"SCR"	,'Data Aprov SC'	,/*Picture*/,TamSx3("CR_DATALIB")[1] 	,/*lPixel*/,/* {|| }*/)
 	//--Colunas do relatório
 	TRCell():New( oSection  ,"D2_FILIAL"  	,cTabela ,"Filial"			,PesqPict("SD2","D2_FILIAL")	,TamSx3("D2_FILIAL")[1] 	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)	
 	TRCell():New( oSection  ,"D2_EMISSAO"  	,cTabela ,"Emissao"			,PesqPict("SD2","D2_EMISSAO")	,TamSx3("D2_EMISSAO")[1] 	, /*lPixel*/, /*{|| code-block de impressao }*/, "CENTER"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)	
@@ -88,6 +87,7 @@ Static Function fReportDef() //Definições do relatório
 	TRCell():New( oSection  ,"D2_QUANT"     ,cTabela ,"Quantidade"		,PesqPict("SD2","D2_QUANT")    	,TamSx3("D2_QUANT")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_TOTAL"     ,cTabela ,"Vlr.Total"		,PesqPict("SD2","D2_TOTAL")    	,TamSx3("D2_TOTAL")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"F2_VALBRUT"   ,cTabela ,"Vlr.Bruto"		,PesqPict("SF2","F2_VALBRUT")   ,TamSx3("F2_VALBRUT")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT"	, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New( oSection  ,"D2_CF"        ,cTabela ,"Cod. Fiscal"	    ,PesqPict("SD2","D2_CF")		,TamSx3("D2_CF")[1]	        , /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_DOC"       ,cTabela ,"Num. Docto."		,PesqPict("SD2","D2_DOC")		,TamSx3("D2_DOC")[1]		, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_SERIE"     ,cTabela ,"Serie"	        ,PesqPict("SD2","D2_SERIE")		,TamSx3("D2_SERIE")[1]	    , /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
 	TRCell():New( oSection  ,"D2_CLIENTE"   ,cTabela ,"Cliente"			,PesqPict("SD2","D2_CLIENTE")	,TamSx3("D2_CLIENTE")[1]	, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT"		, /*lLineBreak*/, "CENTER"	, /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
@@ -116,7 +116,7 @@ Static Function ReportPrint(oReport)
 	EndIf
 
     cQry := " SELECT "                                                  	+ CRLF
-    cQry += "   D2_FILIAL "                                             	+ CRLF
+    cQry += "    D2_FILIAL "                                             	+ CRLF
     cQry += "   ,D2_EMISSAO "                                				+ CRLF
 	cQry += "   ,D2_PEDIDO "                                            	+ CRLF
     cQry += "   ,B1_COD "                                               	+ CRLF
@@ -124,6 +124,7 @@ Static Function ReportPrint(oReport)
     cQry += "   ,D2_QUANT "                                             	+ CRLF
 	cQry += "   ,D2_TOTAL "                                             	+ CRLF
 	cQry += "   ,F2_VALBRUT "                                             	+ CRLF
+	cQry += "   ,D2_CF "                                                	+ CRLF
 	cQry += "   ,D2_DOC "                                               	+ CRLF
     cQry += "   ,D2_SERIE "                                             	+ CRLF
 	cQry += "	,D2_CLIENTE "                                           	+ CRLF
@@ -201,6 +202,7 @@ Static Function ReportPrint(oReport)
 			oSectDad:Cell("D2_QUANT"):SetValue((cTabela)->D2_QUANT)
 			oSectDad:Cell("D2_TOTAL"):SetValue((cTabela)->D2_TOTAL)
 			oSectDad:Cell("F2_VALBRUT"):SetValue((cTabela)->F2_VALBRUT)
+			oSectDad:Cell("D2_CF"):SetValue((cTabela)->D2_CF)
 			oSectDad:Cell("D2_DOC"):SetValue((cTabela)->D2_DOC)
 			oSectDad:Cell("D2_SERIE"):SetValue((cTabela)->D2_SERIE)
 			oSectDad:Cell("D2_CLIENTE"):SetValue((cTabela)->D2_CLIENTE)
